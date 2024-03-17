@@ -12,17 +12,6 @@ const Main = ():JSX.Element=>{
 	return(
 		<div className={styles.Main}>
             Main
-			<TestComponent opt1={1} opt2={"Hello!"}>
-				<div>
-					{id}
-				</div>
-				<div>
-                    This thing2!
-				</div>
-				<div>
-                    This thing3!
-				</div>
-			</TestComponent>
 		</div>
 	);
 };
