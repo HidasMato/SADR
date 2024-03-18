@@ -10,7 +10,7 @@ type ProfileObject={
 const Profile = ():JSX.Element=>{
 	const {id} = useParams();
 	return(
-		<div className={styles.Profile}>
+		<div className={styles.Main}>
             Profile
 			<TestComponent opt1={1} opt2={"Hello!"}>
 				<div>

@@ -4,7 +4,7 @@ import SQLinit from "./queries/SQLinit";
 import postGameCreate from "./queries/postGameCreate";
 import getAllGame from "./queries/getAllGame";
 
-const PORT = 4000;
+const PORT = 2052;
 const app = express();
 const taskRouter = Router();
 

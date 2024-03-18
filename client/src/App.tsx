@@ -1,4 +1,4 @@
-import style from "./App.module.scss";
+import styles from "./App.module.scss";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Main from "./pages/Main/Main.tsx";
@@ -9,32 +9,35 @@ import { ReactComponent as Game_roomsIcon } from './images/tactic.svg';
 import Profile from "./pages/Profile/Profile.tsx";
 import { ReactComponent as ProfileIcon } from './images/account_circle.svg';
 
-export const App = () => (
-	
-	<Router>
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD@400,1,0" />
-		<header className={style.AppHeader}>
-			<nav className={style.Nav}>
-				<Link className={style.Logo} to="/"><img src={"https://placehold.co/50"} alt="Главная" /></Link>
-				<Link className={style.Link} to="/games/1"><GamesIcon/>Игры</Link>
-				<Link className={style.Link} to="/game_rooms/1"><Game_roomsIcon/>Игротеки</Link>
-				<Link className={style.Link} to="/profile"><ProfileIcon/>Профиль</Link>
-			</nav>
-		</header>
+const App = (): JSX.Element => {
+    return (
+        <div className={styles.Main}>
+            <Router>
+                <header className={styles.Header}>
+                    <nav className={styles.Nav}>
+                        <Link className={styles.Logo} to="/"><img className={styles.Icon} src={"https://placehold.co/50"} alt="Главная" /></Link>
+                        <Link className={styles.Link} to="/games/1"><GamesIcon className={styles.Icon} />Игры</Link>
+                        <Link className={styles.Link} to="/game_rooms/1"><Game_roomsIcon className={styles.Icon} />Игротеки</Link>
+                        <Link className={styles.Link} to="/profile"><ProfileIcon className={styles.Icon} />Профиль</Link>
+                    </nav>
+                </header>
 
-		<main className={style.App}>
-			<Routes>
-				<Route path="/" element={<Main />}/>
-				<Route path="/games/:id" element={<Games />}/>
-				<Route path="/game_rooms/:id" element={<Game_rooms />}/>
-				<Route path="/profile" element={<Profile />}/>
-			</Routes>
-		</main>
+                <div className={styles.Page}>
+                    <Routes>
+                        <Route path="/" element={<Main />} />
+                        <Route path="/games/:id" element={<Games />} />
+                        <Route path="/game_rooms/:id" element={<Game_rooms />} />
+                        <Route path="/profile" element={<Profile />} />
+                    </Routes>
+                </div>
 
-		<footer className={style.AppFooter}>
-			<h2>HELP US</h2>
-		</footer>
-	</Router>
-);
+                <footer className={styles.Footer}>
+                    <h2>HELP US</h2>
+                </footer>
+            </Router>
+        </div>
+    );
+};
+
 
 export default App;

@@ -1,45 +1,73 @@
-.App {
-  text-align: center;
-  background-color: #dadada;
-  --color1: #2B94CA;
-  --color2: #0C293D;
-  --color3: #DADADA;
-  --color4: #242424;
-  --color5: #F19A71;
-  --color6: #AA796C;
+.Main {
+    font-family: 'RobotoFlex-Regular';
+    text-align: center;
+    flex: 1 1 100%;
+    height: 100vh;
+
+
+    .Footer {
+        color: var(--color3);
+        background-color: var(--color2);
+        height: 150px;
+        padding: 50px 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: calc(32px);
+    }
+
+    .Header {
+        height: 150px;
+        color: var(--color3);
+        background-color: var(--color2);
+        padding: 20px 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: calc(32px);
+
+        .Nav {
+            display: flex;
+            flex-direction: row;
+
+            .Link {
+                margin-left: 10vw;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                height: 80px;
+                font-size: 18px;
+
+                .Icon {
+                    height: 50%;
+                }
+            }
+        }
+    }
+
+    .Page {
+        min-height: calc(100% - 300px);
+        color: var(--color2);
+        background-color: var(--color3);
+    }
+
+    --color1: #2B94CA;
+    --color2: #0C293D;
+    --color3: #DADADA;
+    --color4: #242424;
+    --color5: #F19A71;
+    --color6: #AA796C;
 }
 
-Nav {
-  display: flex;
-  flex-direction: row;
-  .Link {
-    margin-left: 10vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+@font-face {
+    font-family: 'MyFont';
+    src: url('./fonts/Radiotechnika.otf');
 }
 
-.AppHeader {
-  background-color: #0C293D;
-  min-height: 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(32px);
-  color: #DADADA;
-}
-
-.AppFooter {
-  background-color: #0C293D;
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(32px);
-  color: #DADADA;
-
+@font-face {
+    font-family: 'RobotoFlex-Regular';
+    src: url('./fonts/RobotoFlex-Regular.ttf');
 }

@@ -10,7 +10,7 @@ type GamesObject={
 const Games = ():JSX.Element=>{
 	const {id} = useParams();
 	return(
-		<div className={styles.Games}>
+		<div className={styles.Main}>
             Games
 			<TestComponent opt1={1} opt2={"Hello!"}>
 				<div>
