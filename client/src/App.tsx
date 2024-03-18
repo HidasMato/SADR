@@ -15,10 +15,22 @@ const App = (): JSX.Element => {
             <Router>
                 <header className={styles.Header}>
                     <nav className={styles.Nav}>
-                        <Link className={styles.Logo} to="/"><img className={styles.Icon} src={"https://placehold.co/50"} alt="Главная" /></Link>
-                        <Link className={styles.Link} to="/games/1"><GamesIcon className={styles.Icon} />Игры</Link>
-                        <Link className={styles.Link} to="/game_rooms/1"><Game_roomsIcon className={styles.Icon} />Игротеки</Link>
-                        <Link className={styles.Link} to="/profile"><ProfileIcon className={styles.Icon} />Профиль</Link>
+                        {/* <Link className={styles.Logo} to="/"><img className={styles.Icon} src={"https://placehold.co/150" } alt="Главная" /></Link> */}
+                        <Link to="/">
+                            <div className={styles.Logo}></div>
+                        </Link>
+                        <Link className={styles.Link} to="/games/1">
+                            <GamesIcon className={styles.Icon}/>
+                            <div className={styles.Text}>Игры</div>
+                        </Link>
+                        <Link className={styles.Link} to="/game_rooms/1">
+                            <Game_roomsIcon className={styles.Icon} />
+                            <div className={styles.Text}>Игротеки</div>
+                        </Link>
+                        <Link className={styles.Link} to="/profile">
+                            <ProfileIcon className={styles.Icon} />
+                            <div className={styles.Text}>Профиль</div>
+                        </Link>
                     </nav>
                 </header>
 
