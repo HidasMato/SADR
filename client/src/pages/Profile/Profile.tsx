@@ -11,18 +11,27 @@ const Profile = ():JSX.Element=>{
 	const {id} = useParams();
 	return(
 		<div className={styles.Main}>
-            Profile
-			<TestComponent opt1={1} opt2={"Hello!"}>
-				<div>
-					{id}
+			<div className={styles.Flesh}>
+				<div className={styles.ProfileFlesh}>
+					<div className={styles.ProfileGrid}>
+						<div className={styles.Profile_Image}>
+							<div className={styles.Image}>profile_image</div>
+						</div>
+						<div className={styles.Profile_Name}>
+							BDanil
+						</div>
+						<div className={styles.Profile_Role}>
+							Роль пользователя: Smesharik
+						</div>
+						<div className={styles.Profile_List}>
+							Список игротек
+						</div>
+						<div className={styles.Profile_Admin}>
+							<button className={styles.Button}>Редактировать</button>
+						</div>
+					</div>
 				</div>
-				<div>
-                    This thing2!
-				</div>
-				<div>
-                    This thing3!
-				</div>
-			</TestComponent>
+			</div>
 		</div>
 	);
 };
