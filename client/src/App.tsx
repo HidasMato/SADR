@@ -2,6 +2,7 @@ import styles from "./App.module.scss";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Main from "./pages/Main/Main.tsx";
+import { ReactComponent as LogoIcon } from './images/logo.svg';
 import Games from "./pages/Games/Games.tsx";
 import { ReactComponent as GamesIcon } from './images/casino.svg';
 import Game_rooms from "./pages/Game_rooms/Game_rooms.tsx";
@@ -17,7 +18,7 @@ const App = (): JSX.Element => {
                     <nav className={styles.Nav}>
                         {/* <Link className={styles.Logo} to="/"><img className={styles.Icon} src={"https://placehold.co/150" } alt="Главная" /></Link> */}
                         <Link to="/">
-                            <div className={styles.Logo}></div>
+                            <LogoIcon className={styles.Logo}></LogoIcon>
                         </Link>
                         <Link className={styles.Link} to="/games/1">
                             <GamesIcon className={styles.Icon}/>
