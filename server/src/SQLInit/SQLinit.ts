@@ -1,7 +1,6 @@
 
-import { Request, Response } from 'express';
-import { Query, QueryResult } from 'pg';
-import { pool } from './database';
+import { QueryResult } from 'pg';
+import { pool } from '../Services/_getPool';
 import { NoticeMessage } from 'pg-protocol/dist/messages';
 
 // Get all tasks
@@ -19,31 +18,33 @@ const SQLinit = async () => {
         await askSQL(`CREATE TABLE IF NOT EXISTS Games 
         (
             id SERIAL,
-            name varchar(40) unique NOT NULL,
+            name varchar(100) unique NOT NULL,
             minPlayers int default (60) NOT NULL,
             maxPlayers int default (60) NOT NULL,
             minTimePlay int default (60) NOT NULL,
             maxTimePlay int default (60) NOT NULL,
             hardless int NOT NULL CHECK (hardless >0) CHECK (hardless < 4),
-            description varchar(200) default ('Прилетела корова и слизала описа...'),
-            img varchar(100) default('empty.png'),
+            description varchar(1500) default ('Прилетела корова и слизала описа...'),
+            img varchar(120) default('empty.png'),
             PRIMARY KEY(id)
         );`);
         await askSQL(`CREATE TABLE IF NOT EXISTS Users 
         (
             id SERIAL,
-            nuckName varchar(40) unique NOT NULL,
-            mail varchar(40) NOT NULL,
+            nickName varchar(100) unique NOT NULL,
+            mail varchar(100) unique NOT NULL,
+            mailVeryfity boolean NOT NULL default(False),
             passCache int NOT NULL ,
-            img varchar(100) default('empty.png'),
+            img varchar(120) default('empty.png'),
             PRIMARY KEY(id)
         );`);
         await askSQL(`CREATE TABLE IF NOT EXISTS Masters 
         (
             id int,
-            description varchar(200) default('Прилетела корова и слизала описа...'),
+            userId int unique,
+            description varchar(1500) default('Прилетела корова и слизала описа...'),
             PRIMARY KEY(id),
-            FOREIGN KEY (id) REFERENCES Users(id)
+            FOREIGN KEY (userId) REFERENCES Users(id)
         );`);
         await askSQL(`CREATE TABLE IF NOT EXISTS Admins 
         (
@@ -53,13 +54,13 @@ const SQLinit = async () => {
         await askSQL(`CREATE TABLE IF NOT EXISTS Plays 
         (
             id SERIAL,
-            name varchar(40) unique NOT NULL,
+            name varchar(100) unique NOT NULL,
             masterId int NOT NULL,
             minPlayers int default (3) NOT NULL,
             maxPlayers int default (5) NOT NULL,
-            description varchar(200) default ('Прилетела корова и слизала описа...'),
+            description varchar(1500) default ('Прилетела корова и слизала описа...'),
             status boolean NOT NULL,
-            img varchar(100) default('empty.png'),
+            img varchar(120) default('empty.png'),
             dateStart timestamp with time zone NOT NULL,
             dateEnd timestamp with time zone NOT NULL,
             PRIMARY KEY(id),
@@ -90,7 +91,7 @@ const SQLinit = async () => {
             id SERIAL,
             playId int NOT NULL,
             userId int NOT NULL,
-            text varchar(200) default ('Прилетела корова и слизала описа...'),
+            text varchar(1500) default ('Прилетела корова и слизала описа...'),
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
@@ -103,7 +104,7 @@ const SQLinit = async () => {
             id SERIAL,
             gameId int NOT NULL,
             userId int NOT NULL,
-            text varchar(200) default ('Прилетела корова и слизала описа...'),
+            text varchar(1500) default ('Прилетела корова и слизала описа...'),
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
@@ -116,7 +117,7 @@ const SQLinit = async () => {
             id SERIAL,
             masterId int NOT NULL,
             userId int NOT NULL,
-            text varchar(200) default ('Прилетела корова и слизала описа...'),
+            text varchar(1500) default ('Прилетела корова и слизала описа...'),
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
