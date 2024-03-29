@@ -43,7 +43,6 @@ class UserService {
         }
     }
     async getUserInfoById({ id, MODE }: { id: number, MODE: TypesMode }): Promise<Object> {
-        if (isNaN(id)) throw new Error("Некорректное значение id")
         let mas = ['id'];
         switch (MODE) {
             case TypesMode.SEQURITY: {
@@ -91,6 +90,13 @@ class UserService {
         this.getTrueNickName(nickName)
         //TODO: Отправка на почту сообщения
         const res: QueryResult = await pool.query(`UPDATE users SET nickName = $1 WHERE mail = $2 AND id = $3;`, [nickName, mail, id]);
+        if (res.rowCount == 0)
+            throw new Error("Пользователь не существует")
+    }
+    async changeImage({ id, mail, fileName }: { id: number, mail: string, fileName: string }): Promise<void> {
+        this.getTrueMail(mail)
+        //TODO: Отправка на почту сообщения
+        const res: QueryResult = await pool.query(`UPDATE users SET img = $1 WHERE mail = $2 AND id = $3;`, [fileName, mail, id]);
         if (res.rowCount == 0)
             throw new Error("Пользователь не существует")
     }

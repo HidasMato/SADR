@@ -1,6 +1,8 @@
 
 import { Request, Response, response } from 'express';
 import UserService, { TypesMode } from '../Services/UserService';
+import FileService from '../Services/FileService';
+import { UploadedFile } from 'express-fileupload';
 
 class UserController {
     returnError(Error: Error, req: Request, res: Response) {
@@ -10,6 +12,8 @@ class UserController {
     async getUserInfoById(req: Request, res: Response): Promise<Response> {
         try {
             const id = parseInt(req.params.id);
+            if (isNaN(id))
+                throw new Error("Неправильное значение id")
             //TODO: здесь проверка кто запрашивает инфу пока будет секьюрити
             const user = await UserService.getUserInfoById({ id: id, MODE: TypesMode.SEQURITY });
             return res.status(200).json(user);
@@ -37,12 +41,19 @@ class UserController {
     }
     async change(req: Request, res: Response): Promise<Response> {
         try {
+            const image = req.files?.image;
             const id = parseInt(req.params.id);
+            if (isNaN(id))
+                throw new Error("Неправильное значение id")
             const changeDate: { mail: string, pass: string, nickName: string, role: string } = req.body;
             if (changeDate.pass)
                 await UserService.changePass({ mail: changeDate.mail, pass: changeDate.pass, id: id });
             else if (changeDate.nickName)
                 await UserService.changeNickName({ mail: changeDate.mail, nickName: changeDate.nickName, id: id });
+            else if (image) {
+                const fileName = await FileService.saveFile({file: image as UploadedFile, fileName: 'user_' + id +'.png' })
+                await UserService.changeImage({ mail: changeDate.mail, id: id, fileName: fileName });
+            }
             // else if (changeDate.role)
             //     await UserService.changeRole({ mail: changeDate.mail, nickName: changeDate.role, id: id });
             else
@@ -54,4 +65,4 @@ class UserController {
     }
 }
 
-export default new UserController;
+export default new UserController();

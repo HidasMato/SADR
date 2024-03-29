@@ -31,27 +31,21 @@ class GameService {
         return res.rows;
     }
     async getGameInfoById({ id }: { id: number }): Promise<Object | undefined> {
-        if (isNaN(id))
-            throw new Error("Неправильное значение id");
         const res: QueryResult = await pool.query(`SELECT * FROM games WHERE id = $1`, [id]);
         return res.rows?.[0];
     }
     async delete({ id }: { id: number }): Promise<number> {
-        if (isNaN(id))
-            throw new Error("Неправильное значение id")
         const res: QueryResult = await pool.query(`DELETE FROM games WHERE id = $1;`, [id]);
         return res.rowCount || 0;
     }
     async update({ id, update }: { id: number, update: update }): Promise<void> {
-        if (isNaN(id))
-            throw new Error("Неправильное значение id")
         let maybeOne = false;
         for (let per in update) { if (update[per as keyof update]) { maybeOne = true; break; } }
         if (!maybeOne)
             throw new Error("Нет параметров для редактирования")
-        const res: QueryResult = await pool.query(`UPDATE games SET ${[update.name && `name='${update.name}'`, update.minPlayers && `minPlayers=${update.minPlayers}`, update.maxPlayers && `maxPlayers=${update.maxPlayers}`, update.minTimePlay && `minTimePlay=${update.minTimePlay}`, update.maxTimePlay && `maxTimePlay=${update.maxTimePlay}`, update.hardless && `hardless=${update.hardless}`, update.description && `description='${update.description}'`, update.img && `name=${update.img}`,].filter((val) => val).join(', ')} WHERE id = $1;`, [id]);
-        if (res.rowCount == 0) 
-            throw new Error ("Игры не существует")
+        const res: QueryResult = await pool.query(`UPDATE games SET ${[update.name && `name='${update.name}'`, update.minPlayers && `minPlayers=${update.minPlayers}`, update.maxPlayers && `maxPlayers=${update.maxPlayers}`, update.minTimePlay && `minTimePlay=${update.minTimePlay}`, update.maxTimePlay && `maxTimePlay=${update.maxTimePlay}`, update.hardless && `hardless=${update.hardless}`, update.description && `description='${update.description}'`, update.img && `img='${update.img}'`,].filter((val) => val).join(', ')} WHERE id = $1;`, [id]);
+        if (res.rowCount == 0)
+            throw new Error("Игры не существует")
     }
     async create({ createInf }: { createInf: update }): Promise<number | undefined> {
         if (!createInf.name)

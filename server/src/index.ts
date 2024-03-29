@@ -5,6 +5,7 @@ import SQLaddGame from "./SQLInit/SQLaddGame";
 import SQLdeleteTables from "./SQLInit/SQLdeleteTables";
 import SQLaddUsers from "./SQLInit/SQLaddUsers";
 import UserRouter from "./Routers/UserRouter";
+import fileUpload from 'express-fileupload';
 
 // Дальше находятся чекеры инициализации базы данных
 // Для этого должна существовать база, а данные для подключения
@@ -28,6 +29,9 @@ const PORT = 2052;
 
 
 app.use(express.json());
+app.use(fileUpload({}));
+app.use(express.static('images'));
+
 // app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/game', GameRouter);

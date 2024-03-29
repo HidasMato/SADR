@@ -1,7 +1,8 @@
 
 import { Request, Response, response } from 'express';
-import { NoticeMessage } from 'pg-protocol/dist/messages';
 import GameService from '../Services/GameService';
+import { UploadedFile } from 'express-fileupload';
+import FileService from '../Services/FileService';
 type update = {
     name: string | undefined,
     minPlayers: number | undefined,
@@ -35,6 +36,8 @@ class GameController {
     async getOneInfo(req: Request, res: Response): Promise<Response> {
         try {
             const id = parseInt(req.params.id);
+            if (isNaN(id))
+                throw new Error("Неправильное значение id")
             const response = await GameService.getGameInfoById({ id });
             if (!response)
                 return res.status(402).json({ message: "Нет такого id в базе" });
@@ -55,8 +58,13 @@ class GameController {
     };
     async update(req: Request, res: Response): Promise<Response> {
         try {
+            const image = req.files?.image;
             const id = parseInt(req.params.id);
+            if (isNaN(id))
+                throw new Error("Неправильное значение id")
             const update: update = req.body;
+            if (image)
+                update.img = await FileService.saveFile({file: image as UploadedFile, fileName: 'game_' + id +'.png' })
             await GameService.update({ id: id, update: update })
             return res.status(200).json({ message: "Изменение успешно" });
         } catch (error: any) {
@@ -80,4 +88,4 @@ class GameController {
 
 }
 
-export default new GameController;
+export default new GameController();
