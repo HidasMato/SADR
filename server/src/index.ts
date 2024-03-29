@@ -1,34 +1,52 @@
 import express, { Router, Request, Response } from "express";
-import getGameInfo from "./queries/getGameInfo";
-import SQLinit from "./queries/SQLinit";
-import postGameCreate from "./queries/postGameCreate";
-import getAllGame from "./queries/getAllGame";
+import SQLinit from "./SQLInit/SQLinit";
+import GameRouter from "./Routers/GameRouter";
+import SQLaddGame from "./SQLInit/SQLaddGame";
+import SQLdeleteTables from "./SQLInit/SQLdeleteTables";
+import SQLaddUsers from "./SQLInit/SQLaddUsers";
+import UserRouter from "./Routers/UserRouter";
 
-const PORT = 2052;
+// Дальше находятся чекеры инициализации базы данных
+// Для этого должна существовать база, а данные для подключения
+// должны быть записаны в файле tokens.json в формате:
+// {
+//     "name": "Имя пользователя бд",
+//     "pass": "Пароль пользователя бд",
+//     "bd": "Имя бд",
+//     "port": порт на котором работает PostgresSQL по умолчанию 5432,
+//     "host": "название хоста" свой порт на пк работает по localhost
+// }
+
+const deleteTables = false; //Перед инициализацией бд удалить таблицы
+const initBd = false; // Инициализировать создание таблиц в базе данных.
+const addGame = false; //Добавить в бд предустановленные игры
+const addUser = false; //Добавить в бд зарегестрированных пользователе
+
+
 const app = express();
-const taskRouter = Router();
+const PORT = 2052;
+
 
 app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 
-//Добавить сюда свои функции
-taskRouter.get('/game/getInfo/:id', getGameInfo);
-taskRouter.post('/game/create', postGameCreate);
-taskRouter.get('/game/getAll', getAllGame);
-// taskRouter.get('/tasks/:id', getTaskById);
-// taskRouter.post('/tasks', createTask);
-// taskRouter.put('/tasks/:id', deleteTask);
-// taskRouter.delete('/tasks/:id', updateTask);
+app.use('/api/game', GameRouter);
+app.use('/api/user', UserRouter);
 
 
-app.use(taskRouter);
+const startApp = async () => {
+    try {
+        if (deleteTables) await SQLdeleteTables();
+        if (initBd) await SQLinit();
+        if (addGame) await SQLaddGame();
+        if (addUser) await SQLaddUsers();
+        app.listen(PORT, () => { console.log(`Server start! url: http://localhost:${PORT}/`); })
+    } catch (error) {
+        console.log(error)
+    }
+}
 
-//Включить если надо проиницализировать
-//SQLinit();
-
-app.listen(PORT, () => {
-    console.log("Server start!");
-})
+startApp();
 
 
 

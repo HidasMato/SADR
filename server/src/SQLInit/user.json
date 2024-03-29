@@ -1,0 +1,30 @@
+[
+    {
+        "nickName": "Солнышко",
+        "mail": "mySun@mail.ru",
+        "mailVeryfity": true,
+        "passCache": 525,
+        "img": "image.png"
+    },
+    {
+        "nickName": "Синий KUT",
+        "mail": "blue_kitty@mail.ru",
+        "mailVeryfity": true,
+        "passCache": 1129,
+        "img": "image.png"
+    },
+    {
+        "nickName": "Противная сирена",
+        "mail": "alex10821@mail.ru",
+        "mailVeryfity": false,
+        "passCache": 785,
+        "img": "image.png"
+    },
+    {
+        "nickName": "Капелька",
+        "mail": "loloporow@mail.ru",
+        "mailVeryfity": false,
+        "passCache": 1056,
+        "img": "image.png"
+    }
+]
