@@ -1,39 +1,24 @@
-
-import { QueryResult } from 'pg';
 import { pool } from '../Services/_getPool';
 import { NoticeMessage } from 'pg-protocol/dist/messages';
 import user from './user.json';
-
-// 525 - "1234567890"
-// 1129 - "qwertyuiop"
-// 785 - "SupForMe"
-// 1056 - "AbraKedabra"
-
+import {hash} from 'bcrypt';
 const SQLaddUsers = async () => {
-    const askSQL = async (text: string) => {
-        try {
-            const response: QueryResult = await pool.query(text);
-        } catch (error) {
-            throw error;
-        }
-        return 0;
-    }
     try {
         const values = [];
         for (let i of user) {
             values.push([
-                "'" + [i.nickName] + "'",
+                "'" + [i.nickname] + "'",
                 "'" + [i.mail] + "'",
                 [i.mailVeryfity],
-                [i.passCache],
+                "'" + [await hash(i.pass, 3)] + "'",
                 "'" + [i.img] + "'"
             ])
         }
-        await askSQL(`INSERT INTO users(
-            nickName, mail, mailVeryfity, passCache, img)
-            VALUES 
-            (${values.map((val) => { return val.join(', ') }).join('),\n(')})
-            ;`);
+        const res = await pool.query(`INSERT INTO users(nickname, mail, mailVeryfity, passCache, img) VALUES (${values.map((val) => { return val.join(', '); }).join('),\n(')}) RETURNING id`);
+        for (let i = 0; i < 2 && i < res.rows.length; i++)
+            await pool.query(`INSERT INTO masters (id, description, active) VALUES ($1, $2, $3);`, [res.rows[i].id, `Мастер инициализации`, true])
+        if (res.rows.length >= 3)
+            await pool.query(`INSERT INTO masters (id, description, active) VALUES ($1, $2, $3);`, [res.rows[2].id, `Мастер инициализации`, false])
         console.log("Пользователи добавлены")
     } catch (error) {
         const er = error as NoticeMessage;
@@ -43,7 +28,6 @@ const SQLaddUsers = async () => {
         console.log(er)
         if (er.routine == 'auth_failed')
             console.log("Ошибка авторизации")
-
     }
 }
 

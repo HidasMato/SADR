@@ -1,6 +1,7 @@
 
 import { QueryResult } from 'pg';
 import { pool } from './_getPool';
+import ApiError from '../Exeptions/ApiError';
 
 type getList = {
     settingList: {
@@ -11,50 +12,58 @@ type getList = {
 }
 type update = {
     name: string | undefined,
-    minPlayers: number | undefined,
-    maxPlayers: number | undefined,
-    minTimePlay: number | undefined,
-    maxTimePlay: number | undefined,
+    minplayers: number | undefined,
+    maxplayers: number | undefined,
+    mintimeplay: number | undefined,
+    maxtimeplay: number | undefined,
     hardless: number | undefined,
     description: string | undefined,
     img: string | undefined
 }
 
 class GameService {
-    async getGameList({ settingList, filter }: getList): Promise<Object[]> {
+    async getGameList({ settingList, filter }: getList){
         if (isNaN(settingList.start) || isNaN(settingList.count))
             if (isNaN(settingList.start))
-                throw new Error("Неправильное значение параметра start")
+                throw ApiError.BadRequest({ message: "Неправильное значение параметра start" })
             else
-                throw new Error("Неправильное значение параметра count")
+                throw ApiError.BadRequest({ message: "Неправильное значение параметра count" })
+        //TODO: реализовать фильт поиска
         const res: QueryResult = await pool.query(`SELECT * FROM games LIMIT $1 OFFSET $2;`, [settingList.count, settingList.start]);
         return res.rows;
     }
-    async getGameInfoById({ id }: { id: number }): Promise<Object | undefined> {
+    async getGameInfoById({ id }: { id: number }) {
         const res: QueryResult = await pool.query(`SELECT * FROM games WHERE id = $1`, [id]);
         return res.rows?.[0];
     }
-    async delete({ id }: { id: number }): Promise<number> {
+    async delete({ id }: { id: number }){
         const res: QueryResult = await pool.query(`DELETE FROM games WHERE id = $1;`, [id]);
         return res.rowCount || 0;
     }
-    async update({ id, update }: { id: number, update: update }): Promise<void> {
+    async update({ id, update }: { id: number, update: update }) {
         let maybeOne = false;
         for (let per in update) { if (update[per as keyof update]) { maybeOne = true; break; } }
         if (!maybeOne)
-            throw new Error("Нет параметров для редактирования")
-        const res: QueryResult = await pool.query(`UPDATE games SET ${[update.name && `name='${update.name}'`, update.minPlayers && `minPlayers=${update.minPlayers}`, update.maxPlayers && `maxPlayers=${update.maxPlayers}`, update.minTimePlay && `minTimePlay=${update.minTimePlay}`, update.maxTimePlay && `maxTimePlay=${update.maxTimePlay}`, update.hardless && `hardless=${update.hardless}`, update.description && `description='${update.description}'`, update.img && `img='${update.img}'`,].filter((val) => val).join(', ')} WHERE id = $1;`, [id]);
+            throw ApiError.BadRequest({ message: "Нет параметров для редактирования" })
+        let str1 = "", mas: any[] = [id];
+        for (let add of ['name', 'minplayers', 'maxplayers', 'mintimeplay', 'maxtimeplay', 'hardless', 'description', 'img']) {
+            if (update[add as keyof update] != undefined) {
+                mas.push(update[add as keyof update])
+                str1 += (str1 == '' ? '' : ', ') + `${add} = $${mas.length}`;
+            }
+        }
+        const res: QueryResult = await pool.query(`UPDATE games SET ${str1} WHERE id = $1;`, mas);
         if (res.rowCount == 0)
-            throw new Error("Игры не существует")
+            throw ApiError.BadRequest({ message: "Игры не существует"})
     }
-    async create({ createInf }: { createInf: update }): Promise<number | undefined> {
+    async create({ createInf }: { createInf: update }) {
         if (!createInf.name)
-            throw new Error("Отсутствует обязательный параметр name")
-        let str1 = "name", str2 = "$1", mas = [createInf.name];
-        for (let add of ['minPlayers', 'maxPlayers', 'minTimePlay', 'maxTimePlay', 'hardless', 'description', 'img']) {
+            throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name"})
+        let str1 = "name", str2 = "$1", mas: any[] = [createInf.name];
+        for (let add of ['minplayers', 'maxplayers', 'mintimeplay', 'maxtimeplay', 'hardless', 'description', 'img']) {
             if (createInf[add as keyof update]) {
                 str1 += ', ' + add;
-                mas.push(String(createInf[add as keyof update]))
+                mas.push(createInf[add as keyof update])
                 str2 += ', $' + mas.length;
             }
         }
@@ -63,4 +72,4 @@ class GameService {
     }
 }
 
-export default new GameService;
+export default new GameService();

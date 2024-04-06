@@ -1,129 +1,134 @@
-
-import { QueryResult } from 'pg';
 import { pool } from '../Services/_getPool';
 import { NoticeMessage } from 'pg-protocol/dist/messages';
 
 // Get all tasks
 const SQLinit = async () => {
-    const askSQL = async (text: string) => {
-        try {
-            const response: QueryResult = await pool.query(text);
-            console.log(`${text.split(" ")[5]}`)
-        } catch (error) {
-            throw error;
-        }
-        return 0;
-    }
     try {
-        await askSQL(`CREATE TABLE IF NOT EXISTS Games 
+        await pool.query(`CREATE TABLE IF NOT EXISTS games 
         (
             id SERIAL,
             name varchar(100) unique NOT NULL,
-            minPlayers int default (60) NOT NULL,
-            maxPlayers int default (60) NOT NULL,
-            minTimePlay int default (60) NOT NULL,
-            maxTimePlay int default (60) NOT NULL,
+            minplayers int default (60) NOT NULL,
+            maxplayers int default (60) NOT NULL,
+            mintimeplay int default (60) NOT NULL,
+            maxtimeplay int default (60) NOT NULL,
             hardless int NOT NULL CHECK (hardless >0) CHECK (hardless < 4),
             description varchar(1500) default ('Прилетела корова и слизала описа...'),
             img varchar(120) default('empty.png'),
             PRIMARY KEY(id)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS Users 
+        await pool.query(`CREATE TABLE IF NOT EXISTS users 
         (
             id SERIAL,
-            nickName varchar(100) unique NOT NULL,
+            nickname varchar(100) unique NOT NULL,
             mail varchar(100) unique NOT NULL,
             mailVeryfity boolean NOT NULL default(False),
-            passCache int NOT NULL ,
+            passCache varchar(1000) NOT NULL ,
             img varchar(120) default('empty.png'),
             PRIMARY KEY(id)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS Masters 
+        await pool.query(`CREATE TABLE IF NOT EXISTS maillink 
         (
-            id int,
-            userId int unique,
-            description varchar(1500) default('Прилетела корова и слизала описа...'),
-            PRIMARY KEY(id),
-            FOREIGN KEY (userId) REFERENCES Users(id)
+            userid int unique,
+            mail varchar(100) unique NOT NULL,
+            link varchar(100) unique NOT NULL,
+            dateend timestamp with time zone NOT NULL,
+            PRIMARY KEY(userid),
+            FOREIGN KEY (userid) REFERENCES users(id)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS Admins 
+        await pool.query(`CREATE TABLE IF NOT EXISTS refreshtokens 
+        (
+            userid int unique,
+            refreshtoken varchar(1000) unique NOT NULL,
+            PRIMARY KEY(userid),
+            FOREIGN KEY (userid) REFERENCES users(id)
+        );`);
+        await pool.query(`CREATE TABLE IF NOT EXISTS masters 
+        (
+            id int unique,
+            description varchar(1500) default('Прилетела корова и слизала описа...'),
+            active boolean NOT NULL default(True),
+            PRIMARY KEY(id),
+            FOREIGN KEY (id) REFERENCES users(id)
+        );`);
+        await pool.query(`CREATE TABLE IF NOT EXISTS admins 
         (
             id int PRIMARY KEY,
-            FOREIGN KEY (id) REFERENCES Users(id)
+            FOREIGN KEY (id) REFERENCES users(id)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS Plays 
+        await pool.query(`CREATE TABLE IF NOT EXISTS plays 
         (
             id SERIAL,
             name varchar(100) unique NOT NULL,
-            masterId int NOT NULL,
-            minPlayers int default (3) NOT NULL,
-            maxPlayers int default (5) NOT NULL,
+            masterid int NOT NULL,
+            minplayers int default (3) NOT NULL,
+            maxplayers int default (5) NOT NULL,
             description varchar(1500) default ('Прилетела корова и слизала описа...'),
             status boolean NOT NULL,
             img varchar(120) default('empty.png'),
-            dateStart timestamp with time zone NOT NULL,
-            dateEnd timestamp with time zone NOT NULL,
+            datestart timestamp with time zone NOT NULL,
+            dateend timestamp with time zone NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY (masterId) REFERENCES Masters(id)
+            FOREIGN KEY (masterid) REFERENCES masters(id)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS UsersOfPlay 
+        await pool.query(`CREATE TABLE IF NOT EXISTS usersofplay 
         (
             id SERIAL,
-            userId int NOT NULL,
-            playId int NOT NULL,
+            userid int NOT NULL,
+            playid int NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY (userId) REFERENCES Users(id),
-            FOREIGN KEY (playId) REFERENCES Plays(id),
-            UNIQUE(userId, playId)
+            FOREIGN KEY (userid) REFERENCES users(id),
+            FOREIGN KEY (playid) REFERENCES plays(id),
+            UNIQUE(userid, playid)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS GamesOfPlay 
+        await pool.query(`CREATE TABLE IF NOT EXISTS gamesofplay 
         (
             id SERIAL,
-            gameId int NOT NULL,
-            playId int NOT NULL,
+            gameid int NOT NULL,
+            playid int NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY (gameId) REFERENCES Games(id),
-            FOREIGN KEY (playId) REFERENCES Plays(id),
-            UNIQUE(gameId, playId)
+            FOREIGN KEY (gameid) REFERENCES games(id),
+            FOREIGN KEY (playid) REFERENCES plays(id),
+            UNIQUE(gameid, playid)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS ReviewsToPlay 
+        await pool.query(`CREATE TABLE IF NOT EXISTS reviewstoplay 
         (
             id SERIAL,
-            playId int NOT NULL,
-            userId int NOT NULL,
+            playid int NOT NULL,
+            userid int NOT NULL,
             text varchar(1500) default ('Прилетела корова и слизала описа...'),
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
-            FOREIGN KEY (playId) REFERENCES Plays(id),
-            FOREIGN KEY (userId) REFERENCES Users(id),
-            UNIQUE(userId, playId)
+            FOREIGN KEY (playid) REFERENCES plays(id),
+            FOREIGN KEY (userid) REFERENCES users(id),
+            UNIQUE(userid, playid)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS ReviewsToGame 
+        await pool.query(`CREATE TABLE IF NOT EXISTS reviewstoGame 
         (
             id SERIAL,
-            gameId int NOT NULL,
-            userId int NOT NULL,
+            gameid int NOT NULL,
+            userid int NOT NULL,
             text varchar(1500) default ('Прилетела корова и слизала описа...'),
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
-            FOREIGN KEY (gameId) REFERENCES Games(id),
-            FOREIGN KEY (userId) REFERENCES Users(id),
-            UNIQUE(userId, gameId)
+            FOREIGN KEY (gameid) REFERENCES games(id),
+            FOREIGN KEY (userid) REFERENCES users(id),
+            UNIQUE(userid, gameid)
         );`);
-        await askSQL(`CREATE TABLE IF NOT EXISTS ReviewsToMaster 
+        await pool.query(`CREATE TABLE IF NOT EXISTS reviewstomaster 
         (
             id SERIAL,
-            masterId int NOT NULL,
-            userId int NOT NULL,
+            masterid int NOT NULL,
+            userid int NOT NULL,
             text varchar(1500) default ('Прилетела корова и слизала описа...'),
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
-            FOREIGN KEY (masterId) REFERENCES Masters(id),
-            FOREIGN KEY (userId) REFERENCES Users(id),
-            UNIQUE(userId, masterId)
+            FOREIGN KEY (masterid) REFERENCES masters(id),
+            FOREIGN KEY (userid) REFERENCES users(id),
+            UNIQUE(userid, masterid)
         );`);
         console.log("База данных проинициализирована!")
     } catch (error) {

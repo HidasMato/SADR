@@ -1,10 +1,10 @@
 import { Pool } from 'pg';
-import { name, pass, bd, host, port } from "../../tokens.json";
+import { DATABASE } from "../../tokens.json";
 
 export const pool = new Pool({
-    user: name,
-    host: host,
-    password: pass,
-    database: bd,
-    port: port
+    user: DATABASE.USER_NAME,
+    host: DATABASE.HOST,
+    password: DATABASE.USER_PASSWORD,
+    database: DATABASE.BASE_NAME,
+    port: DATABASE.PORT
 });

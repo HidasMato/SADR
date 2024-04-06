@@ -1,0 +1,35 @@
+[
+    {
+        "name": "Игротека 1",
+        "masterId": 1,
+        "minplayers": 1,
+        "maxplayers": 2,
+        "description": "Описание игротеки 1",
+        "status": true,
+        "img": "image.png",
+        "datestart": "2024-02-01 18:00",
+        "dateend": "2024-02-01 22:00"
+    },
+    {
+        "name": "Игротека 2",
+        "masterId": 2,
+        "minplayers": 1,
+        "maxplayers": 2,
+        "description": "Описание игротеки 2",
+        "status": true,
+        "img": "image.png",
+        "datestart": "2024-02-01 18:00",
+        "dateend": "2024-02-01 22:00"
+    },
+    {
+        "name": "Игротека 3",
+        "masterId": 1,
+        "minplayers": 1,
+        "maxplayers": 2,
+        "description": "Описание игротеки 3",
+        "status": true,
+        "img": "image.png",
+        "datestart": "2024-02-01 18:00",
+        "dateend": "2024-02-01 22:00"
+    }
+]

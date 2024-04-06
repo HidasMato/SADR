@@ -3,10 +3,10 @@ import GameController from '../Controllers/GameController';
 
 const GameRouter = Router();
 
-GameRouter.get('/', GameController.getList);
+GameRouter.get('/all', GameController.getList);
 GameRouter.get('/:id', GameController.getOneInfo);
-GameRouter.post('/', GameController.create);
-GameRouter.put('/:id', GameController.update);
-GameRouter.delete('/:id', GameController.delete);
+GameRouter.post('/new', GameController.create);
+GameRouter.put('/:id/update', GameController.update);
+GameRouter.delete('/:id/delete', GameController.delete);
 
 export default GameRouter; 
