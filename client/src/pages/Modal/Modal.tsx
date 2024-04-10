@@ -40,10 +40,8 @@ export default ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
         CheckMail(mailLogin);
         CheckPass(passLogin);
         const a = await store.login(mailLogin, passLogin)
-        console.log(localStorage.getItem('token'))
-        console.log(a)
         if (a.status == 200) {
-            alert("sucsess")
+            setShowLogin(false)
         } else {
             alert(a.message)
         }
@@ -53,9 +51,8 @@ export default ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
         CheckPass(pass1Registration);
         CheckPass(nameRegistration);
         const a = await store.registration(mailRegistration, pass1Registration,nameRegistration)
-        console.log(localStorage.getItem('token'))
         if (a.status == 200) {
-            alert("sucsess")
+            setShowLogin(false)
         } else {
             alert(a.message)
         }
