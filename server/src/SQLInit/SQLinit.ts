@@ -12,9 +12,8 @@ const SQLinit = async () => {
             maxplayers int default (60) NOT NULL,
             mintimeplay int default (60) NOT NULL,
             maxtimeplay int default (60) NOT NULL,
-            hardless int NOT NULL CHECK (hardless >0) CHECK (hardless < 4),
+            hardless int default (1) NOT NULL CHECK (hardless >0) CHECK (hardless < 4),
             description varchar(1500) default ('Прилетела корова и слизала описа...'),
-            img varchar(120) default('empty.png'),
             PRIMARY KEY(id)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS users 
@@ -24,7 +23,6 @@ const SQLinit = async () => {
             mail varchar(100) unique NOT NULL,
             mailVeryfity boolean NOT NULL default(False),
             passCache varchar(1000) NOT NULL ,
-            img varchar(120) default('empty.png'),
             PRIMARY KEY(id)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS maillink 
@@ -59,13 +57,12 @@ const SQLinit = async () => {
         await pool.query(`CREATE TABLE IF NOT EXISTS plays 
         (
             id SERIAL,
-            name varchar(100) unique NOT NULL,
+            name varchar(100) NOT NULL,
             masterid int NOT NULL,
             minplayers int default (3) NOT NULL,
             maxplayers int default (5) NOT NULL,
             description varchar(1500) default ('Прилетела корова и слизала описа...'),
             status boolean NOT NULL,
-            img varchar(120) default('empty.png'),
             datestart timestamp with time zone NOT NULL,
             dateend timestamp with time zone NOT NULL,
             PRIMARY KEY(id),

@@ -12,7 +12,11 @@ import ErrorMiddleWare from "./MiddleWares/ErrorMiddleWare";
 import cookieParser from "cookie-parser";
 import AuthMiddleWare from "./MiddleWares/AuthMiddleWare";
 import LogMiddleWare from "./MiddleWares/LogMiddleWare";
-
+const bodyParser = require('body-parser')
+import swaggerUI from 'swagger-ui-express';
+import swaggerFile from './Swagger/swagger-output.json';
+import cors from "cors";
+import { CLIENT_URL } from '../tokens.json'
 
 
 
@@ -38,29 +42,36 @@ import LogMiddleWare from "./MiddleWares/LogMiddleWare";
             "USER_MAIL": "lubiteli.nastolok@yandex.ru",
             "USER_PASSWORD": "sxdfxpwbdmkqqypt"
         },
-        "SERVER_URL": "http://5.144.98.35:2052",
-        "CLIENT_URL": "http://5.144.98.35:2051"
+        "SERVER_URL": "http://localhost:2052",
+        "CLIENT_URL": "http://localhost:2051"
     }
     Тут USER_PASSWORD это не пароль от почты, а спец токен от почты для приложения. В яндексе подключается как все настроки включить smdp или чота так
 */
-const deleteTables = false; //Перед инициализацией бд удалить таблицы
-const initBd = false; // Инициализировать создание таблиц в базе данных.
-const addGame = false; //Добавить в бд предустановленные игры
-const addUser = false; //Добавить в бд зарегестрированных пользователе
-const addPlay = false; //Добавить в бд предустановленные игротеки
+const deleteTables = true; //Перед инициализацией бд удалить таблицы
+const initBd = true; // Инициализировать создание таблиц в базе данных.
+const addGame = true; //Добавить в бд предустановленные игры
+const addUser = true; //Добавить в бд зарегестрированных пользователе
+const addPlay = true; //Добавить в бд предустановленные игротеки
 
 
 const app = express();
 const PORT = 2052;
 
-// let haveSwagger = false;
-// try {
-//     app.use('/api/doc', swaggerUi.serve, swaggerUi.setup(JSON.parse(fs.readFileSync('./src/Swagger/output.json').toString())))
-//     haveSwagger = true;
-// } catch (error) { console.log("Не удалось подключить swagger", error) }
+app.use(bodyParser.json())
+app.use('/api/doc', swaggerUI.serve, swaggerUI.setup(swaggerFile))
 
 app.use(express.json());
 app.use(cookieParser());
+//FIXME: Это поменять, когда закончу
+app.use(cors(
+    {
+        credentials: true,
+        origin: CLIENT_URL,
+    }
+));
+
+
+
 app.use(LogMiddleWare)
 app.use(AuthMiddleWare)
 app.use(fileUpload({}));
@@ -68,9 +79,15 @@ app.use(express.static('images'));
 
 // app.use(express.urlencoded({ extended: false }));
 
-app.use('/api/game', GameRouter);
-app.use('/api/user', UserRouter);
-app.use('/api/play', PlayRouter);
+app.use('/api/game', GameRouter
+    //#swagger.tags = ['game']
+);
+app.use('/api/user', UserRouter
+    //#swagger.tags = ['user']
+);
+app.use('/api/play', PlayRouter
+    //#swagger.tags = ['play']
+);
 
 //Обработчик ошибок
 app.use(ErrorMiddleWare)
@@ -85,7 +102,7 @@ const startApp = async () => {
         if (addPlay) await SQLaddPlay();
         app.listen(PORT)
         console.log(`Server start! url: http://localhost:${PORT}/`);
-        // if (haveSwagger) console.log(`Swagger url: http://localhost:${PORT}/api/doc`);
+        console.log(`Swagger url: http://localhost:${PORT}/api/doc`);
     } catch (error) {
         console.log(error)
     }

@@ -3,28 +3,24 @@
         "nickname": "Солнышко",
         "mail": "mySun@mail.ru",
         "mailVeryfity": true,
-        "pass": "1234567890",
-        "img": "image.png"
+        "pass": "1234567890"
     },
     {
         "nickname": "Синий KUT",
         "mail": "blue_kitty@mail.ru",
         "mailVeryfity": true,
-        "pass": "qwertyuiop",
-        "img": "image.png"
+        "pass": "qwertyuiop"
     },
     {
         "nickname": "Противная сирена",
         "mail": "alex10821@mail.ru",
         "mailVeryfity": false,
-        "pass": "SupForMe",
-        "img": "image.png"
+        "pass": "SupForMe"
     },
     {
         "nickname": "Капелька",
         "mail": "loloporow@mail.ru",
         "mailVeryfity": false,
-        "pass": "AbraKedabra",
-        "img": "image.png"
+        "pass": "AbraKedabra"
     }
 ]

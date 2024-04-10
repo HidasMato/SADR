@@ -48,13 +48,14 @@ class UserService {
     }
     static getMasMode(MODE: "sequrity" | "forAll") {
         let mas = ['id'];
+        //TODO: Добавить получение роли
         switch (MODE) {
             case "sequrity": {
-                mas = mas.concat(['nickname', 'mail', 'img', 'mailVeryfity'])
+                mas = mas.concat(['nickname', 'mail', 'mailVeryfity'])
                 break;
             }
             case "forAll": {
-                mas = mas.concat(['nickname', 'img'])
+                mas = mas.concat(['nickname'])
                 break;
             }
         }
@@ -83,11 +84,6 @@ class UserService {
         return role
     }
     async getUserList({ settingList, filter, MODE }: getList) {
-        if (isNaN(settingList.start) || isNaN(settingList.count))
-            if (isNaN(settingList.start))
-                throw ApiError.BadRequest({ message: "Неправильное значение параметра start" })
-            else
-                throw ApiError.BadRequest({ message: "Неправильное значение параметра count" })
         //TODO: реализовать фильт поиска
         const res: QueryResult = await pool.query(`SELECT ${UserService.getMasMode(MODE).join(', ')} FROM users LIMIT $1 OFFSET $2;`, [settingList.count, settingList.start]);
         return res.rows;
@@ -109,6 +105,7 @@ class UserService {
             throw ApiError.BadRequest({ message: "Пользователь не существует" })
     }
     async changeImage({ id, mail, fileName }: { id: number, mail: string, fileName: string }) {
+        //TODO: сюда только подгрузить новую картинку на сервак
         UserService.getTrueMail(mail)
         SendMessage.notification({ text: "Изображение было изменено", mail: mail })
         const res: QueryResult = await pool.query(`UPDATE users SET img = $1 WHERE mail = $2 AND id = $3;`, [fileName, mail, id]);
@@ -153,7 +150,7 @@ class UserService {
     }
     async changeDescription({ id, description, mail }: { mail: string, id: number, description: string }) {
         UserService.getTrueMail(mail);
-        let res: QueryResult = await pool.query(`UPDATE masters SET description = $3 WHERE id = $1 AND mail = $2`, [id, mail, description]);
+        let res: QueryResult = await pool.query(`UPDATE masters SET description = $2 WHERE id = $1`, [id, description]);
         if (res.rowCount == 0)
             throw ApiError.BadRequest({ message: "Мастера не существует" })
     }
@@ -200,7 +197,6 @@ class UserService {
             throw ApiError.BadRequest({ message: "Почты не существует" })
         if (!(await bcrypt.compare(pass, res.rows[0].passcache)))
             throw ApiError.BadRequest({ message: "Неверный пароль" })
-        console.log(res.rows[0])
         const tokens = await TokenService.generateToken({ payload: { id: res.rows[0].id, mail: mail, nickname: res.rows[0].nickname } })
         await TokenService.saveToken({ userId: res.rows[0].id, refreshToken: tokens.refreshToken })
         return {
@@ -214,7 +210,7 @@ class UserService {
     async refresh({ oldRefreshToken }: { oldRefreshToken: string }) {
         if (!oldRefreshToken) {
             await TokenService.removeToken({ refreshToken: oldRefreshToken })
-            throw ApiError.UnavtorisationError()
+            throw ApiError.UnavtorisationError() 
         }
         const user = await TokenService.validateRefreshToken({ token: oldRefreshToken })
         if (!user || ((await pool.query(`SELECT count(*) as sum FROM refreshtokens WHERE userid = $1`, [user.id])).rows[0].sum == 0)) {

@@ -5,7 +5,6 @@ import UserService from "../Services/UserService";
 
 async function AuthMiddleWare(req: Request, res: Response, next: NextFunction) {
     try {
-
         req.body.roles = {
             user: false,
             master: false,

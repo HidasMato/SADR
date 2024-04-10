@@ -1,18 +1,14 @@
 .Main {
     min-height: 100%;
-    background-color: var(--BackgroundColor2);
-    align-items: center;
-    display: flex;
-    justify-content: center;
+    width: 100%;
     .Flesh {
-        background-color: var(--BackgroundColor1);
-        width: calc(30vw + 600px);
-        min-height: calc(100vh - 240px);
+        width: 100%;
+        min-height: 100%;
         display: flex;
         align-items: center;
         .ProfileFlesh {
             min-width: 90%;
-            min-height: 510px;
+            min-height: 100%;
             border: 2px solid var(--BackgroundColor2);
             margin: calc(30px + 1vh) 30px;
             display: block;
