@@ -5,22 +5,19 @@ import Header from "./pages/Header/Header.tsx";
 import Footer from "./pages/Footer/Footer.tsx";
 import Page from "./pages/Page/Page.tsx";
 import { Context } from "./index.tsx";
+import { observer } from 'mobx-react-lite';
 
 const App = (): JSX.Element => {
     const [showLogin, setShowLogin] = useState(false);
     const { store } = useContext(Context);
 
     useEffect(() => {
-        console.log('start')
         if (localStorage.getItem('token')) {
-            console.log('in token')
             store.checkAuth().then((a) => {
-                console.log('a', a)
                 if (a.status == 200)
                     store.setAuth(true)
                 else
                     store.setAuth(false)
-                console.log(store.isAuth)
             })
         } else
             store.setAuth(false)
@@ -38,4 +35,5 @@ const App = (): JSX.Element => {
 };
 
 
-export default App;
+export default observer(App);
+

@@ -1,11 +1,12 @@
 import React from "react";
 import styles from "./Footer.module.scss";
+import { observer } from "mobx-react-lite";
 
 type GamesObject = {
 
 }
 
-export default (): JSX.Element => {
+const Footer =  (): JSX.Element => {
     return (
         <footer className={styles.Main}>
             <div className={styles.Content}>
@@ -14,3 +15,5 @@ export default (): JSX.Element => {
         </footer>
     );
 };
+
+export default observer(Footer)

@@ -1,14 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import styles from "./Profile.module.scss";
-import TestComponent from "../../components/TestComponent/TestComponent.tsx";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Context } from "../../index.tsx";
+import { API_URL } from "../../api/http/index.ts";
+import { observer } from "mobx-react-lite";
 
 type ProfileObject = {
 
 }
 
 const Profile = (): JSX.Element => {
-    const { id } = useParams();
+    const { store } = useContext(Context);
+    const navigate = useNavigate();
+
     const request = {
         image: 'хз пока как мы это будем делвть',
         userName: 'BDanil',
@@ -39,7 +43,10 @@ const Profile = (): JSX.Element => {
     const getPlays = () => {
         if (request.plays.length != 0)
             return (
-                <div className={styles.Profile_List}>
+                <div className={styles.Part}>
+                    <button className={styles.Button} onClick={Out}>
+                        Выйти из аккаунта
+                    </button>
                     Список игротек
                     {
                         Array.from(Array(Math.ceil(request.plays.length / 2)).keys()).map((blockNum) => {
@@ -64,52 +71,61 @@ const Profile = (): JSX.Element => {
             );
         else
             return (
-                // А ссылки с гридами чота не сочетаются :(
-                // Хз можно ли так реализовать
-                // Но было бы прикольно
                 <div className={styles.Profile_List}>
                     <Link to={'/games'}>Запишитесь на наши игры! У нас очень весело! *ссылка на игротеки*</Link>
                 </div >
 
             );
     }
-    const getProfile = () => {
-        if (request)
-            return (
-                <div className={styles.ProfileGrid}>
-                    <div className={styles.Profile_Image}>
-                        <div className={styles.Image}><img src={request.image} alt="Изображение пользователя" /></div>
-                    </div>
-                    <div className={styles.Profile_Name}>
-                        {request.userName}
-                    </div>
-                    <div className={styles.Profile_Role}>
-                        Роль пользователя:
-                        {request.role}
-                    </div>
-                    {getPlays()}
-                    <div className={styles.Profile_Admin}>
-                        <button className={styles.Button}>Редактировать</button>
-                    </div>
-                </div>
-            );
-        else
-            return (
-                <div>Загрузка....</div>
-            );
+    const Out = async () => {
+        const a = await store.logout()
+        if (a.status == 200) {
+            navigate("/")
+        } else {
+            alert(a.message)
+        }
     }
-    const Content = () => {
-        return (
-            <div className={styles.Main}>
-                <div className={styles.Flesh}>
-                    <div className={styles.ProfileFlesh}>
-                        {getProfile()}
-                    </div>
+    const getProfile = () => {
+        const getRoles = () => {
+            return (
+                <div className={styles.Roles}>
+                    {`Роли:`}
                 </div>
+            );
+        }
+        return (
+            <div className={styles.Part}>
+                <div className={styles.Image}>
+                    <img src={`${API_URL}/user_${store.user.id}.png`} alt={`${API_URL}/image.png`} />
+                </div>
+                <div className={styles.Name}>
+                    {store.user.nickname}
+                </div>
+                {getRoles()}
+                {/* <button className={styles.Button}>Редактировать</button> */}
             </div>
         );
     }
+    const Content = () => {
+        if (store.isLoading) {
+            return <div>Загрузка...</div>
+        } else {
+            return (
+                <div className={styles.Main}>
+                    <div className={styles.Flesh}>
+                        <div className={styles.ProfileFlesh}>
+                            {getProfile()}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    }
+    // if (store.user.id == undefined) {
+    //     console.log(1)
+    //     navigate("/")
+    // }
     return Content();
 };
 
-export default Profile;
+export default observer(Profile);

@@ -1,7 +1,8 @@
+import { UserInfo } from "./UserInfo";
 import { tokens } from "./tokens";
 
 
 export interface AuthResponse {
-    redirectionId: number,
+    user: UserInfo,
     tokens: tokens
 }

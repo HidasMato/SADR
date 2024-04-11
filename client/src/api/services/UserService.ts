@@ -3,7 +3,7 @@ import api from "../http";
 import { UserInfo } from "../models/UserInfo";
 
 export default class UserService {
-    static async login(): Promise<AxiosResponse<UserInfo[]>> {
+    static async getAll(): Promise<AxiosResponse<UserInfo[]>> {
         return api.get<UserInfo[]>('/user/all')
     }
 }

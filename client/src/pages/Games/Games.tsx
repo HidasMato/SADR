@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./Games.module.scss";
 import TestComponent from "../../components/TestComponent/TestComponent.tsx";
 import { useParams } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 
 type GamesObject={
 
@@ -27,4 +28,4 @@ const Games = ():JSX.Element=>{
 	);
 };
 
-export default Games;
+export default observer(Games);

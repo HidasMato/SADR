@@ -3,5 +3,9 @@ export interface UserInfo {
     nickname: string,
     mail: string,
     mailVeryfity: boolean,
-    role: string
-  }
+    role: {
+        user: boolean,
+        master: boolean,
+        admin: boolean
+    }
+}

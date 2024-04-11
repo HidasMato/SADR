@@ -6,13 +6,14 @@ import { ReactComponent as ProfileIcon } from '../../images/account_circle.svg';
 import { ReactComponent as Game_roomsIcon } from '../../images/tactic.svg';
 import { ReactComponent as GamesIcon } from '../../images/casino.svg';
 import { Context } from "../../index.tsx";
+import { observer } from 'mobx-react-lite';
 
 type HeaderObject = {
     showLogin: boolean;
     setShowLogin: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
+const Header = ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
     const Main = () => {
         const { store } = useContext(Context);
         return (
@@ -30,7 +31,7 @@ export default ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
                         <div className={styles.Text}>Игротеки</div>
                     </Link>
                     {store.isAuth ?
-                        <Link className={styles.Link} to="/profile">
+                        <Link className={styles.Link} to={`/profile`}>
                             <ProfileIcon className={styles.Icon} />
                             <div className={styles.Text}>Профиль</div>
                         </Link>
@@ -46,3 +47,5 @@ export default ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
     }
     return Main();
 };
+
+export default observer(Header)

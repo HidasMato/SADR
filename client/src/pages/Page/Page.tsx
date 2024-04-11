@@ -6,13 +6,14 @@ import Games from "../../pages/Games/Games.tsx";
 import Game_rooms from "../../pages/Game_rooms/Game_rooms.tsx";
 import Profile from "../../pages/Profile/Profile.tsx";
 import Modal from "../Modal/Modal.tsx";
+import { observer } from "mobx-react-lite";
 
 type PageObject = {
     showLogin: boolean;
     setShowLogin: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
+const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     const Page = () => {
         return (
             <Routes>
@@ -42,3 +43,5 @@ export default ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     }
     return Main();
 };
+
+export default observer(Page)
