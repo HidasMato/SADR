@@ -5,7 +5,7 @@
     "title": "SADR API",
     "description": "API нашего любимого сервера ♡"
   },
-  "host": "5.144.98.35:2052",
+  "host": "localhost:2052",
   "basePath": "/",
   "schemes": [
     "http"

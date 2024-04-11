@@ -43,8 +43,8 @@ import SQLaddNext from "./SQLInit/SQLaddNext";
             "USER_MAIL": "lubiteli.nastolok@yandex.ru",
             "USER_PASSWORD": "sxdfxpwbdmkqqypt"
         },
-        "SERVER_URL": "http://5.144.98.35:2052",
-        "CLIENT_URL": "http://5.144.98.35:2051"
+        "SERVER_URL": "http://localhost:2052",
+        "CLIENT_URL": "http://localhost:2051"
     }
     Тут USER_PASSWORD это не пароль от почты, а спец токен от почты для приложения. В яндексе подключается как все настроки включить smdp или чота так
 */
@@ -105,8 +105,8 @@ const startApp = async () => {
         if (addPlay) await SQLaddPlay();
         if (addNext) await SQLaddNext();
         app.listen(PORT)
-        console.log(`Server start! url: http://5.144.98.35:${PORT}/`);
-        console.log(`Swagger url: http://5.144.98.35:${PORT}/api/doc`);
+        console.log(`Server start! url: http://localhost:${PORT}/`);
+        console.log(`Swagger url: http://localhost:${PORT}/api/doc`);
     } catch (error) {
         console.log(error)
     }
