@@ -118,7 +118,6 @@ class UserController {
                 await UserService.changeNickName({ mail: changeDate.mail, nickname: changeDate.nickname, id: id });
             else if (image) {
                 const fileName = await FileService.saveFile({ file: image as UploadedFile, fileName: 'user_' + id + '.png' })
-                await UserService.changeImage({ mail: changeDate.mail, id: id, fileName: fileName });
             }
             else if (changeDate.role)
                 await UserService.changeRole({ mail: changeDate.mail, role: changeDate.role, id: id });
@@ -140,7 +139,13 @@ class UserController {
             #swagger.responses[200] = {
                 description: "Упех",
                 schema:{
-                    redirectionId: 1,
+                    user: {
+                        id: 'number',
+                        nickname: 'string',
+                        mail: 'string',
+                        mailVeryfity: 'boolean',
+                        role: 'string'
+                    },
                     tokens: {
                         accessToken: '123123',
                         refreshToken: '123123123',
@@ -193,7 +198,13 @@ class UserController {
             #swagger.responses[200] = {
                 description: "Упех",
                 schema:{
-                    redirectionId: 1,
+                    user: {
+                        id: 'number',
+                        nickname: 'string',
+                        mail: 'string',
+                        mailVeryfity: 'boolean',
+                        role: 'string'
+                    },
                     tokens: {
                         accessToken: '123123',
                         refreshToken: '123123123',
@@ -239,7 +250,13 @@ class UserController {
             #swagger.responses[200] = {
                 description: "Упех",
                 schema:{
-                    redirectionId: 1,
+                    user: {
+                        id: 'number',
+                        nickname: 'string',
+                        mail: 'string',
+                        mailVeryfity: 'boolean',
+                        role: 'string'
+                    },
                     tokens: {
                         accessToken: 'string', 
                         refreshToken: 'string'
@@ -249,6 +266,7 @@ class UserController {
          */
         try {
             const { refreshToken } = req.cookies;
+            console.log(req.cookies)
             const user = await UserService.refresh({ oldRefreshToken: refreshToken });
             res.cookie('refreshToken', user.tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
             return res.json(user);
@@ -256,6 +274,7 @@ class UserController {
             next(error)
         }
     }
+
 }
 
 export default new UserController();

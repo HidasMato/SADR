@@ -5,7 +5,7 @@
     "title": "SADR API",
     "description": "API нашего любимого сервера ♡"
   },
-  "host": "localhost:2052",
+  "host": "5.144.98.35:2052",
   "basePath": "/",
   "schemes": [
     "http"
@@ -281,9 +281,30 @@
             "schema": {
               "type": "object",
               "properties": {
-                "redirectionId": {
-                  "type": "number",
-                  "example": 1
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "number"
+                    },
+                    "nickname": {
+                      "type": "string",
+                      "example": "string"
+                    },
+                    "mail": {
+                      "type": "string",
+                      "example": "string"
+                    },
+                    "mailVeryfity": {
+                      "type": "string",
+                      "example": "boolean"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "string"
+                    }
+                  }
                 },
                 "tokens": {
                   "type": "object",
@@ -346,6 +367,119 @@
                 "message": {
                   "type": "string",
                   "example": "В базе данных больше нет игроков"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/{id}/playsgamer": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "description": "Айди игрока"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Упех",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Пользователь удален"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "460": {
+            "description": "Неправильно значение id пользователя",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Неправильно значение id пользователя"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "461": {
+            "description": "Пользователя не существует",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Пользователя не существует"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/{id}/playsmaster": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "description": "Айди игрока"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Упех",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Пользователь удален"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "460": {
+            "description": "Неправильно значение id пользователя",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Неправильно значение id"
                 }
               },
               "xml": {
@@ -444,9 +578,30 @@
             "schema": {
               "type": "object",
               "properties": {
-                "redirectionId": {
-                  "type": "number",
-                  "example": 1
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "number"
+                    },
+                    "nickname": {
+                      "type": "string",
+                      "example": "string"
+                    },
+                    "mail": {
+                      "type": "string",
+                      "example": "string"
+                    },
+                    "mailVeryfity": {
+                      "type": "string",
+                      "example": "boolean"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "string"
+                    }
+                  }
                 },
                 "tokens": {
                   "type": "object",
@@ -501,9 +656,30 @@
             "schema": {
               "type": "object",
               "properties": {
-                "redirectionId": {
-                  "type": "number",
-                  "example": 1
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "number"
+                    },
+                    "nickname": {
+                      "type": "string",
+                      "example": "string"
+                    },
+                    "mail": {
+                      "type": "string",
+                      "example": "string"
+                    },
+                    "mailVeryfity": {
+                      "type": "string",
+                      "example": "boolean"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "string"
+                    }
+                  }
                 },
                 "tokens": {
                   "type": "object",

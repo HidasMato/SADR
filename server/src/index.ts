@@ -17,6 +17,7 @@ import swaggerUI from 'swagger-ui-express';
 import swaggerFile from './Swagger/swagger-output.json';
 import cors from "cors";
 import { CLIENT_URL } from '../tokens.json'
+import SQLaddNext from "./SQLInit/SQLaddNext";
 
 
 
@@ -47,11 +48,12 @@ import { CLIENT_URL } from '../tokens.json'
     }
     Тут USER_PASSWORD это не пароль от почты, а спец токен от почты для приложения. В яндексе подключается как все настроки включить smdp или чота так
 */
-const deleteTables = true; //Перед инициализацией бд удалить таблицы
-const initBd = true; // Инициализировать создание таблиц в базе данных.
-const addGame = true; //Добавить в бд предустановленные игры
-const addUser = true; //Добавить в бд зарегестрированных пользователе
-const addPlay = true; //Добавить в бд предустановленные игротеки
+const deleteTables = false; //Перед инициализацией бд удалить таблицы
+const initBd = false; // Инициализировать создание таблиц в базе данных.
+const addGame = false; //Добавить в бд предустановленные игры
+const addUser = false; //Добавить в бд зарегестрированных пользователе
+const addPlay = false; //Добавить в бд предустановленные игротеки
+const addNext = false; //Добавить в бд предустановленные игротеки
 
 
 const app = express();
@@ -62,11 +64,12 @@ app.use('/api/doc', swaggerUI.serve, swaggerUI.setup(swaggerFile))
 
 app.use(express.json());
 app.use(cookieParser());
-//FIXME: Это поменять, когда закончу
+
+
 app.use(cors(
     {
         credentials: true,
-        origin: CLIENT_URL,
+        origin: ['http://localhost:2051', CLIENT_URL]
     }
 ));
 
@@ -100,9 +103,10 @@ const startApp = async () => {
         if (addGame) await SQLaddGame();
         if (addUser) await SQLaddUsers();
         if (addPlay) await SQLaddPlay();
+        if (addNext) await SQLaddNext();
         app.listen(PORT)
-        console.log(`Server start! url: http://localhost:${PORT}/`);
-        console.log(`Swagger url: http://localhost:${PORT}/api/doc`);
+        console.log(`Server start! url: http://5.144.98.35:${PORT}/`);
+        console.log(`Swagger url: http://5.144.98.35:${PORT}/api/doc`);
     } catch (error) {
         console.log(error)
     }

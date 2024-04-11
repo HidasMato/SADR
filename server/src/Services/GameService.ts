@@ -51,7 +51,7 @@ class GameService {
         }
         const res: QueryResult = await pool.query(`UPDATE games SET ${str1} WHERE id = $1;`, mas);
         if (res.rowCount == 0)
-            throw ApiError.BadRequest({ message: "Игры не существует" })
+            throw ApiError.BadRequest({ status: 472, message: "Пользователя не существует" })
         if (image)
             await FileService.saveFile({ file: image as UploadedFile, fileName: 'game_' + id + '.png' })
     }

@@ -4,6 +4,7 @@ import { pool } from './_getPool';
 import ApiError from '../Exeptions/ApiError';
 import { UploadedFile } from 'express-fileupload';
 import FileService from './FileService';
+import ForAllService from './ForAllService';
 
 type getList = {
     settingList: {
@@ -26,9 +27,6 @@ type update = {
 }
 
 class PlayService {
-    async isExists({ id, tableName }: { id: number, tableName: string }) {
-        return ((await pool.query(`SELECT count(id) FROM ${tableName} WHERE id = $1`, [id])).rows[0].count != 0)
-    }
     async getPlayInfoById({ id }: { id: number }) {
         const res: QueryResult = await pool.query(`SELECT * FROM plays WHERE id = $1`, [id]);
         return res.rows[0];
@@ -43,8 +41,8 @@ class PlayService {
         return res.rowCount || 0;
     }
     async update({ id, update, image }: { id: number, update: update, image?: UploadedFile | undefined }) {
-        if (!(await this.isExists({ id: id, tableName: "plays" })))
-            throw ApiError.BadRequest({ message: 'Игротеки не существует' })
+        if (!(await ForAllService.isExists({ id: id, tableName: "plays" })))
+            throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
         let maybeOne = false;
         let strDelete = '';
         let strCreate = '';
@@ -97,7 +95,7 @@ class PlayService {
             res2.rows.map(val => {
                 console.log(createInf.games, val.id)
                 if (!createInf.games?.includes(val.id))
-                    throw ApiError.BadRequest({ message: `Игра с id=${val} не существует` });
+                    throw ApiError.BadRequest({ status: 472, message: `Игра с id=${val} не существует` });
             })
         }
         let str1 = "name", str2 = "$1", mas: any[] = [createInf.name];
@@ -116,10 +114,10 @@ class PlayService {
         return res.rows?.[0]?.id;
     }
     async registrUserToPlay({ playId, userId }: { playId: number, userId: number }) {
-        if (!(await this.isExists({ id: playId, tableName: "plays" })))
-            throw ApiError.BadRequest({ message: 'Игротеки не существует' })
-        if (!(await this.isExists({ id: userId, tableName: "users" })))
-            throw ApiError.BadRequest({ message: 'Пользователя не существует' })
+        if (!(await ForAllService.isExists({ id: playId, tableName: "plays" })))
+            throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
+        if (!(await ForAllService.isExists({ id: userId, tableName: "users" })))
+            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
         if ((await pool.query(`SELECT count(id) FROM usersofplay WHERE userid = $1 AND playid = $2`, [userId, playId])).rows[0].count != 0)
             throw ApiError.BadRequest({ message: 'Пользователь уже записан на игротеку' });
         if ((await pool.query(`SELECT((SELECT count(id) FROM usersofplay WHERE playid = $1) >= (SELECT maxplayers FROM plays WHERE id = $1 LIMIT 1)) as bol`, [playId])).rows[0].bol)
@@ -127,13 +125,72 @@ class PlayService {
         await pool.query(`INSERT INTO public.usersofplay( userid, playid ) VALUES ($1,$2)`, [userId, playId])
     }
     async unRegistrUserToPlay({ playId, userId }: { playId: number, userId: number }) {
-        if (!(await this.isExists({ id: playId, tableName: "plays" })))
-            throw ApiError.BadRequest({ message: 'Игротеки не существует' })
-        if (!(await this.isExists({ id: userId, tableName: "users" })))
-            throw ApiError.BadRequest({ message: 'Пользователя не существует' });
+        if (!(await ForAllService.isExists({ id: playId, tableName: "plays" })))
+            throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
+        if (!(await ForAllService.isExists({ id: userId, tableName: "users" })))
+            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
         if ((await pool.query(`SELECT count(id) FROM usersofplay WHERE userid = $1 AND playid = $2`, [userId, playId])).rows[0].count == 0)
             throw ApiError.BadRequest({ message: 'Пользователь не записан на игротеку' });
         await pool.query(`DELETE FROM usersofplay WHERE userid = $1 AND playid = $2`, [userId, playId])
+    }
+    async getPlaysGamer({ id }: { id: number }) {
+        if (!(await ForAllService.isExists({ id: id, tableName: "users" })))
+            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        const playsId = (await pool.query(`SELECT playid FROM usersofplay WHERE userid = $1`, [id])).rows.map(val => {
+            return val.playid
+        });
+        const plays = await Promise.all(playsId.map(async id => {
+            const inf = (await pool.query(`SELECT id, name, masterid, minplayers, maxplayers, description, status, dateend, datestart, (SELECT nickname from users where id = plays.masterid) as mastername, (SELECT count(*) from usersofplay where playid = plays.id ) as gamercount FROM plays WHERE id = $1;`, [id])).rows[0];
+            return {
+                id: inf.id,
+                name:inf.name,
+                description:inf.description,
+                master: {
+                    id: inf.masterid,
+                    name: inf.mastername
+                },
+                players: {
+                    count:inf.gamercount,
+                    min:inf.minplayers,
+                    max:inf.maxplayers
+                },
+                status: {
+                    status: inf.status,
+                    dateStart: inf.datestart,
+                    dateEnd: inf.dateend
+                }
+            }
+        }))
+        return plays;
+    }
+    async getPlaysMaster({ id }: { id: number }) {
+        if (!(await ForAllService.isExists({ id: id, tableName: "users" })))
+            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        if (!(await ForAllService.isExists({ id: id, tableName: "masters" })))
+            throw ApiError.BadRequest({ status: 473, message: "Мастера не существует" })
+        const playsId = (await pool.query(`SELECT DISTINCT playid FROM usersofplay WHERE playid IN (SELECT id FROM plays WHERE masterid = $1)`, [id])).rows.map(val => {
+            return val.playid
+        });
+        const plays = await Promise.all(playsId.map(async id => {
+            const inf = (await pool.query(`SELECT id, name, minplayers, maxplayers, description, status, dateend, datestart FROM plays WHERE id = $1;`, [id])).rows[0];
+            const gamers = (await pool.query(`SELECT id, nickname FROM users WHERE id IN (SELECT userid FROM usersofplay WHERE playid = $1);`, [inf.id])).rows;
+            return {
+                id: inf.id,
+                name:inf.name,
+                description:inf.description,
+                players: {
+                    list: gamers,
+                    min:inf.minplayers,
+                    max:inf.maxplayers
+                },
+                status: {
+                    status: inf.status,
+                    dateStart: inf.datestart,
+                    dateEnd: inf.dateend
+                }
+            }
+        }))
+        return plays;
     }
 }
 
