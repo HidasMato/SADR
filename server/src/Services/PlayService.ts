@@ -91,9 +91,7 @@ class PlayService {
             for (let gameId of createInf.games)
                 str3 = str3 + (str3.length == 1 ? '' : ', ') + gameId;
             const res2: QueryResult = await pool.query(`SELECT id FROM games where id in ${str3})`);
-            console.log(res2.rows)
             res2.rows.map(val => {
-                console.log(createInf.games, val.id)
                 if (!createInf.games?.includes(val.id))
                     throw ApiError.BadRequest({ status: 472, message: `Игра с id=${val} не существует` });
             })

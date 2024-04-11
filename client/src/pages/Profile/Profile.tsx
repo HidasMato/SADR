@@ -109,7 +109,7 @@ const Profile = (): JSX.Element => {
     const Content = () => {
         if (store.isLoading) {
             return <div>Загрузка...</div>
-        } else {
+        } else if(store.user.id){
             return (
                 <div className={styles.Main}>
                     <div className={styles.Flesh}>
@@ -119,6 +119,10 @@ const Profile = (): JSX.Element => {
                     </div>
                 </div>
             );
+        } else {
+            return (
+                <div>123456789</div>
+            )
         }
     }
     // if (store.user.id == undefined) {

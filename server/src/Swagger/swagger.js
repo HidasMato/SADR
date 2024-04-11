@@ -39,7 +39,7 @@ const doc = {
             status: true,
             datestart: "2024-02-01T15:00:00.000Z",
             dateend: "2024-02-01T15:00:00.000Z",
-            games: [1,2]
+            games: [1, 2]
         },
         onePlay: {
             id: 1,
@@ -51,7 +51,7 @@ const doc = {
             status: true,
             datestart: "2024-02-01T15:00:00.000Z",
             dateend: "2024-02-01T15:00:00.000Z",
-            games: [1,2]
+            games: [1, 2]
         },
         listOfPlays: [{ $ref: '#/definitions/onPlay' }],
         createUser: {

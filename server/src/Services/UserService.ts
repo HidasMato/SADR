@@ -201,7 +201,8 @@ class UserService {
             throw ApiError.UnavtorisationError()
         }
         const user = await TokenService.validateRefreshToken({ token: oldRefreshToken })
-        if (!user || ((await pool.query(`SELECT count(*) as sum FROM refreshtokens WHERE userid = $1`, [user.id])).rows[0].sum == 0)) {
+        const rows = (await pool.query(`SELECT refreshtoken FROM refreshtokens WHERE userid = $1`, [user?.id])).rows;
+        if (!user || rows.length == 0 || rows[0].refreshtoken != oldRefreshToken) {
             await TokenService.removeToken({ refreshToken: oldRefreshToken })
             throw ApiError.UnavtorisationError()
         }

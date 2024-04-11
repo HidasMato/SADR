@@ -26,7 +26,7 @@ api.interceptors.response.use((config) => {
         } catch (error) {
             console.log('Не авторизован')
         }
-    } 
+    }
     throw error;
 })
 
