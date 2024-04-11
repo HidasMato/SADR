@@ -1,11 +1,14 @@
 import Router from 'express';
 import UserController from '../Controllers/UserController';
+import PlayController from '../Controllers/PlayController';
 
 const UserRouter = Router();
 
 UserRouter.get('/activate/:link',UserController.activateLink)
 UserRouter.get('/refresh', UserController.refresh)
 UserRouter.get('/all', UserController.getList)
+UserRouter.get('/:id/playsgamer', PlayController.getPlaysGamer);
+UserRouter.get('/:id/playsmaster', PlayController.getPlaysMaster);
 UserRouter.get('/:id', UserController.getUserInfoById);
 
 UserRouter.put('/:id/update', UserController.change);

@@ -5,7 +5,6 @@ import ApiError from '../Exeptions/ApiError';
 class TokenService {
     async generateToken({ payload }: { payload: { id: number, mail: string, nickname: string } }) {
         try {
-            console.log(payload)
             const accessToken = jwt.sign(payload, TOKENS_KEYS.SECRET_ACCESS_KEY, { expiresIn: '30m' })
             const refreshToken = jwt.sign(payload, TOKENS_KEYS.SECRET_REFRESH_KEY, { expiresIn: '30d' })
             return { accessToken, refreshToken };
@@ -23,7 +22,8 @@ class TokenService {
             await pool.query(`UPDATE refreshtokens SET refreshtoken = $1 WHERE userid = $2;`, [refreshToken, userId])
             return;
         } catch (error) {
-            throw ApiError.BadRequest({ message: "Не удалось сохранить токен" })
+            if (!(error instanceof ApiError))
+                throw ApiError.BadRequest({ message: "Не удалось сохранить токен" })
         }
     }
     async removeToken({ refreshToken }: { refreshToken: string }) {
@@ -33,7 +33,8 @@ class TokenService {
             }
             await pool.query(`DELETE FROM refreshtokens WHERE refreshtoken = $1;`, [refreshToken]);
         } catch (error) {
-            throw ApiError.BadRequest({ message: "Не удалось удалить токен" })
+            if (!(error instanceof ApiError))
+                throw ApiError.BadRequest({ message: "Не удалось удалить токен" })
         }
     }
     async validateAccessToken({ token }: { token: string }) {

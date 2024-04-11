@@ -6,7 +6,6 @@
         "maxplayers": 2,
         "description": "Описание игротеки 1",
         "status": true,
-        "img": "image.png",
         "datestart": "2024-02-01 18:00",
         "dateend": "2024-02-01 22:00"
     },
@@ -17,7 +16,6 @@
         "maxplayers": 2,
         "description": "Описание игротеки 2",
         "status": true,
-        "img": "image.png",
         "datestart": "2024-02-01 18:00",
         "dateend": "2024-02-01 22:00"
     },
@@ -28,7 +26,6 @@
         "maxplayers": 2,
         "description": "Описание игротеки 3",
         "status": true,
-        "img": "image.png",
         "datestart": "2024-02-01 18:00",
         "dateend": "2024-02-01 22:00"
     }

@@ -2,7 +2,6 @@
 import { NextFunction, Request, Response, response } from 'express';
 import PlayService from '../Services/PlayService';
 import { UploadedFile } from 'express-fileupload';
-import FileService from '../Services/FileService';
 import ApiError from '../Exeptions/ApiError';
 
 type update = {
@@ -12,7 +11,6 @@ type update = {
     maxplayers: number | undefined,
     description: string | undefined,
     status: boolean | undefined,
-    img: string | undefined,
     datestart: Date | undefined,
     dateend: Date | undefined,
     games: number[] | undefined
@@ -21,57 +19,173 @@ type update = {
 
 class PlayController {
     async getOneInfo(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игры',                          
+                type: 'number',                          
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    $ref: "#/definitions/onePlay"
+                }
+            }   
+            #swagger.responses[460] = {
+                description: "Параметр айди неверный",
+            }   
+            #swagger.responses[461] = {
+                description: "Игра не найдена",
+            }   
+         */
         try {
             const id = parseInt(req.params.id);
             if (isNaN(id))
-                throw ApiError.BadRequest({ message: "Неправильное значение id" })
+                return res.status(461).json({ message: "Неправильное значение id" });
             const response = await PlayService.getPlayInfoById({ id });
             if (!response)
-                return res.status(402).json({ message: "Нет такого id в базе" });
+                return res.status(461).json({ message: "Нет такого id в базе" });
             return res.json(response);
         } catch (error: any) {
             next(error)
         }
     }
     async getList(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['start'] = {
+                in: 'query',                            
+                description: 'Начиная с какого номера, def = 0',                          
+                type: 'number',                          
+            }
+            #swagger.parameters['count'] = {
+                in: 'query',                            
+                description: 'Сколько позиций будет возвращено, def = 20',                          
+                type: 'number',                          
+            }
+            #swagger.parameters['minplayer'] = {
+                in: 'query',                            
+                description: 'Метод фильтра (Не реализовано)',                          
+                type: 'number',                          
+            }
+            #swagger.parameters['maxplayer'] = {
+                in: 'query',                            
+                description: 'Метод фильтра (Не реализовано)',                          
+                type: 'number',                          
+            }
+            #swagger.responses[200] = {
+                description: "Уcпех",
+                schema:{ $ref: '#/definitions/listOfPlays' }
+            }   
+            #swagger.responses[460] = {
+                description: "Нет игротек",
+                schema:{
+                    "message":"В базе данных больше нет игротек"
+                }
+            }   
+         */
         try {
-            const setting: { start: number, count: number } = req.body;
-            const filter = req.query;
+            const query = req.query as object as {
+                start: number,
+                count: number,
+                minplayer: number,
+                maxplayer: number
+            }
+            const setting = { start: Number(query.start), count: Number(query.count) };
+            const filter = { minplayer: Number(query.minplayer), maxplayer: Number(query.maxplayer) };
+            if (isNaN(setting.start) || setting.start < 0)
+                setting.start = 0
+            if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
+                setting.count = 20
             const arrPlay = await PlayService.getPlayList({ settingList: setting, filter: filter });
             if (arrPlay.length == 0)
-                return res.status(403).json({ message: "В базе данных больше нет игротек" });
+                return res.status(460).json({ message: "В базе данных больше нет игротек" });
             return res.json(arrPlay);
         } catch (error: any) {
             next(error)
         }
     }
     async create(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.summary = 'По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел'
+            #swagger.parameters['body'] = {
+                in: 'body',         
+                schema: { $ref: '#/definitions/createPlay' }                     
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    redirectionId: 1
+                }
+            }  
+         */
         try {
             const create: update = req.body;
             if (!create.name)
                 throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name" })
-            const result = await PlayService.create({ createInf: create });
+            let image = req.files?.image;
+            if (image?.constructor === Array)
+                image = image[0];
+            const result = await PlayService.create({ createInf: create, image: image as UploadedFile });
             return res.json({ redirectionId: result });
         } catch (error: any) {
             next(error)
         }
     };
     async update(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.summary = 'По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел'
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игротеки',                          
+                type: 'number',                          
+            }
+            #swagger.parameters['body'] = {
+                in: 'body',         
+                schema: { $ref: '#/definitions/createPlay' }                     
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    message: "Изменение успешно"
+                }
+            }  
+         */
         try {
-            const image = req.files?.image;
             const id = parseInt(req.params.id);
             if (isNaN(id))
                 throw ApiError.BadRequest({ message: "Неправильное значение id" })
+            let image = req.files?.image;
+            if (image?.constructor === Array)
+                image = image[0];
             const update: update = req.body;
-            if (image)
-                update.img = await FileService.saveFile({ file: image as UploadedFile, fileName: 'Play_' + id + '.png' })
-            await PlayService.update({ id: id, update: update })
-            return res.json({ message: "Изменение успешно" });
+            if (!await PlayService.update({ id: id, update: update, image: image as UploadedFile | undefined }))
+                return res.status(460).json({ message: "Пустой массив изменений" });
+            else
+                return res.json({ message: "Изменения совершены" })
         } catch (error: any) {
             next(error)
         }
     };
     async delete(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игротеки',                          
+                type: 'number',                          
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    message: "Удаление произошло"
+                }
+            }  
+            #swagger.responses[460] = {
+                description: "Упех",
+                schema:{
+                    message: "Удаление не произошло"
+                }
+            }  
+         */
         try {
             const id = parseInt(req.params.id);
             if (isNaN(id))
@@ -86,13 +200,44 @@ class PlayController {
         }
     };
     async plusUser(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игротеки',                          
+                type: 'number',                          
+            }
+            #swagger.parameters['body'] = {
+                in: 'body',         
+                schema: { 
+                    userId: 1
+                }                     
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    message: "Пользователь добавлен"
+                }
+            }  
+            #swagger.responses[460] = {
+                description: "Неправильно значение id игротеки",
+                schema:{
+                    message: "Неправильно значение id"
+                }
+            }  
+            #swagger.responses[461] = {
+                description: "Неправильно значение id пользователя",
+                schema:{
+                    message: "Неправильно значение id рользователя"
+                }
+            }  
+         */
         try {
             const playId = parseInt(req.params.id);
             const { userId }: { userId: number } = req.body;
             if (isNaN(playId))
-                return res.status(401).json({ message: "Неправильное значение id" });
+                return res.status(460).json({ message: "Неправильное значение id" });
             if (isNaN(userId))
-                return res.status(401).json({ message: "Неправильное значение id пользователя" });
+                return res.status(461).json({ message: "Неправильное значение id пользователя" });
             await PlayService.registrUserToPlay({ playId: playId, userId: userId })
             return res.json({ message: "Пользователь добавлен" });
         } catch (error: any) {
@@ -100,6 +245,37 @@ class PlayController {
         }
     };
     async minusUser(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игротеки',                          
+                type: 'number',                          
+            }
+            #swagger.parameters['body'] = {
+                in: 'body',         
+                schema: { 
+                    userId: 1
+                }                     
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    message: "Пользователь удален"
+                }
+            }  
+            #swagger.responses[460] = {
+                description: "Неправильно значение id игротеки",
+                schema:{
+                    message: "Неправильно значение id"
+                }
+            }  
+            #swagger.responses[461] = {
+                description: "Неправильно значение id пользователя",
+                schema:{
+                    message: "Неправильно значение id рользователя"
+                }
+            }  
+         */
         try {
             const playId = parseInt(req.params.id);
             const { userId }: { userId: number } = req.body;
@@ -113,7 +289,68 @@ class PlayController {
             next(error)
         }
     };
-
+    async getPlaysGamer(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игрока',                          
+                type: 'number',                          
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    message: "Пользователь удален"
+                }
+            }  
+            #swagger.responses[460] = {
+                description: "Неправильно значение id пользователя",
+                schema:{message: "Неправильно значение id пользователя"}
+            }
+            #swagger.responses[461] = {
+                description: "Пользователя не существует",
+                schema:{message: "Пользователя не существует"}
+            }
+         */
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id))
+                throw ApiError.BadRequest({ status: 460, message: 'Неправильное значение id пользователя' });
+            const plays = await PlayService.getPlaysGamer({ id: id })
+            return res.json({ plays: plays });
+        } catch (error: any) {
+            next(error)
+        }
+    };
+    async getPlaysMaster(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди игрока',                          
+                type: 'number',                          
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    message: "Пользователь удален"
+                }
+            }  
+            #swagger.responses[460] = {
+                description: "Неправильно значение id пользователя",
+                schema:{
+                    message: "Неправильно значение id"
+                }
+            }
+         */
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id))
+                throw ApiError.BadRequest({ status: 460, message: 'Неправильное значение id пользователя' });
+            const plays = await PlayService.getPlaysMaster({ id: id })
+            return res.json({ plays: plays });
+        } catch (error: any) {
+            next(error)
+        }
+    };
 }
 
 export default new PlayController();

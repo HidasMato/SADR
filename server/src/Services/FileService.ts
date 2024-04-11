@@ -5,7 +5,7 @@ import ApiError from "../Exeptions/ApiError";
 class FileService {
     async saveFile({ file, fileName}:{file: UploadedFile, fileName: string}) {
         try {
-            const filePath = path.resolve('images', fileName)
+            const filePath = path.resolve('images', fileName);
             file.mv(filePath);
             return fileName;
         } catch (error) {

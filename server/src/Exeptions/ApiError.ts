@@ -9,8 +9,8 @@ class ApiError extends Error {
     static UnavtorisationError() {
         return new ApiError({ status: 401, message: 'Пользователь не аторизован' })
     }
-    static BadRequest({ message, errors = [] }: { message: string, errors?: any[] }) {
-        return new ApiError({ status: 400, message, errors })
+    static BadRequest({ status = 402, message, errors = [] }: { status?:number, message: string, errors?: any[] }) {
+        return new ApiError({ status: status, message, errors })
     }
 }
 

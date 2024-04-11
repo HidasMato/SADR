@@ -15,13 +15,12 @@ const SQLaddPlay = async () => {
                 [i.maxplayers],
                 "'" + [i.description] + "'",
                 [i.status],
-                "'" + [i.img] + "'",
                 [`to_timestamp( '${i.datestart}', '${format_mask}' )`],
                 [`to_timestamp( '${i.dateend}', '${format_mask}' )`]
             ])
         }
         await pool.query(`INSERT INTO plays(
-            name, masterId, minplayers, maxplayers, description, status, img, datestart, dateend)
+            name, masterId, minplayers, maxplayers, description, status, datestart, dateend)
             VALUES 
             (${values.map((val) => { return val.join(', ') }).join('),\n(')})
             ;`);

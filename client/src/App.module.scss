@@ -4,65 +4,10 @@
     text-align: center;
     flex: 1 1 100%;
     height: 100vh;
-
-
-    .Footer {
-        color: var(--BackgroundColor2);
-        background-color: var(--SupportColor2);
-        height: 120px;
-        padding: 50px 0px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: calc(32px);
-    }
-
-    .Header {
-        max-height: 120px;  
-        color: var(--BackgroundColor2);
-        background-color: var(--SupportColor2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: start;
-        font-size: 32px;
-
-        .Nav {
-            display: flex;
-            flex-direction: row;
-            position: relative;
-            .Logo {
-                height: 150px;
-                width: 150px;
-            }
-            .Link {
-                margin-left: 10vw;
-                width: 150px;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                // justify-content: space-between;
-                // height: 80px;
-                overflow: hidden;
-                .Icon {
-                    height: 80px;
-                    width: 80px;
-                }
-                .Text {
-                    height: 40px;
-                }
-            }
-        }
-    }
-
-    .Page {
-        min-height: calc(100% - 240px);
-        // height: 50px;
-        color: var(--SupportColor2);
-        background-color: var(--BackgroundColor2);
-    }
+    display: flex; 
+    flex-direction: column;
+    overflow-y: scroll; 
+    position: relative;
 
     --BackgroundColor1: #FFFFFF;
     --BackgroundColor2: #DADADA;
@@ -76,6 +21,9 @@
     --SupportColor3: #1A5984;
     --SecondaryColor: #2B94CA;
     --SupportColor4: #2BC4C8;
+    --maxWidth: 1200px;
+    --HeaderHeigth: 80px;
+    --FooterHeigth: 80px;
 }
 
 @font-face {

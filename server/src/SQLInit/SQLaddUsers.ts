@@ -10,11 +10,10 @@ const SQLaddUsers = async () => {
                 "'" + [i.nickname] + "'",
                 "'" + [i.mail] + "'",
                 [i.mailVeryfity],
-                "'" + [await hash(i.pass, 3)] + "'",
-                "'" + [i.img] + "'"
+                "'" + [await hash(i.pass, 3)] + "'"
             ])
         }
-        const res = await pool.query(`INSERT INTO users(nickname, mail, mailVeryfity, passCache, img) VALUES (${values.map((val) => { return val.join(', '); }).join('),\n(')}) RETURNING id`);
+        const res = await pool.query(`INSERT INTO users(nickname, mail, mailVeryfity, passCache) VALUES (${values.map((val) => { return val.join(', '); }).join('),\n(')}) RETURNING id`);
         for (let i = 0; i < 2 && i < res.rows.length; i++)
             await pool.query(`INSERT INTO masters (id, description, active) VALUES ($1, $2, $3);`, [res.rows[i].id, `Мастер инициализации`, true])
         if (res.rows.length >= 3)
