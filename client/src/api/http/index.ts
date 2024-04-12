@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse } from '../models/AuthResponse.ts';
+import { LoginResponse } from '../models/LoginResponse.ts';
 
 export const API_URL = 'http://localhost:2052'
 
@@ -20,7 +20,7 @@ api.interceptors.response.use((config) => {
     if (error.response.status == 401 && error.config && originalReqquest._isRetry) {
         originalReqquest._isRetry = false;
         try {
-            const responce = await axios.get<AuthResponse>(`${API_URL}/api/user/refresh`, { withCredentials: true })
+            const responce = await axios.get<LoginResponse>(`${API_URL}/api/user/refresh`, { withCredentials: true })
             localStorage.setItem('token', responce.data.tokens.accessToken);
             return api.request(originalReqquest);
         } catch (error) {

@@ -16,6 +16,52 @@
             display: flex;
             padding: 30px;
 
+            .Button {
+                background-color: var(--SupportColor4);
+                color: var(--SupportColor1);
+                padding: 5px;
+                border-radius: 50px;
+                border: 1px solid var(--SupportColor1);
+            }
+
+            .Part2 {
+                width: 520px;
+                margin-left: 60px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                .Buttons {
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-around;
+                }
+
+                .PlaysContainer {
+                    width: 100%;
+                    padding: 10px;
+                    .Plays {
+                        padding: 10px 50px;
+                        width: 100%;
+
+                        .TwoPlays {
+                            display: flex;
+                            width: 100%;
+
+                            .Play {
+                                font-size: 22px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                height: 40px;
+                                width: 50%;
+                                border: 1px solid var(--BackgroundColor2);
+                            }
+                        }
+                    }
+                }
+            }
+
             .Part {
                 .Image {
                     width: 360px;
@@ -34,16 +80,52 @@
                     font-size: 32px;
                 }
 
-                .Button {
-                    background-color: var(--SupportColor4);
-                    color: var(--SupportColor1);
-                    padding: 5px;
-                    border-radius: 50px;
-                    border: 1px solid var(--SupportColor1);
+
+                .UnderImage {
+                    margin: 10px 0;
+                    font-size: 24px;
+                    display: flex;
+                    justify-content: space-between;
+
+
+                    .Role {
+                        border: 2px solid transparent;
+                        width: min-content;
+                        padding: 2px;
+                        border-radius: 10px;
+                    }
+
+                    .Roles {
+                        display: flex;
+                        flex-grow: 1;
+                        justify-content: start;
+
+                        div {
+                            margin-right: 10px;
+                            border: 2px solid black;
+                            width: min-content;
+                            padding: 2px;
+                            border-radius: 10px;
+                        }
+
+                        .Gamer {
+                            background-color: gainsboro;
+                        }
+
+                        .Master {
+                            background-color: pink;
+                        }
+
+                        .Admin {
+                            background-color: yellow;
+                        }
+                    }
                 }
-                .Roles {
-                    margin-top: 10px;
-                    font-size: 16px;
+
+                .MailVeryfity {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 10px 0;
                 }
             }
         }

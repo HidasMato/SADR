@@ -148,7 +148,7 @@ class PlayService {
                     name: inf.mastername
                 },
                 players: {
-                    count:inf.gamercount,
+                    count:Number(inf.gamercount),
                     min:inf.minplayers,
                     max:inf.maxplayers
                 },

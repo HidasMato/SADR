@@ -21,6 +21,7 @@ async function AuthMiddleWare(req: Request, res: Response, next: NextFunction) {
             return next();
         const role = await UserService.getUserRole({ id: user.id })
         req.body.roles = role;
+        req.body.uid = user.id;
         return next();
     } catch (error) {
         console.log(error)

@@ -1,30 +1,21 @@
 import { makeAutoObservable } from 'mobx'
-import AuthSevice from '../services/AuthSevice.ts';
+import LoginSevice from './services/LoginSevice.ts';
 import axios from 'axios';
-import { AuthResponse } from '../models/AuthResponse.ts';
-import { API_URL } from '../http/index.ts';
-import { UserInfo } from '../models/UserInfo.ts';
+import { LoginResponse } from './models/LoginResponse.ts';
+import { API_URL } from './http/index.ts';
+import { UserInfo } from './models/UserInfo.ts';
 
 export default class Store {
-    user = {} as UserInfo
+    user:undefined | UserInfo = undefined
     isAuth = false;
     isLoading = false;
-
-    constructor() {
-        makeAutoObservable(this)
-    }
-    setAuth(bool: boolean) {
-        this.isAuth = bool;
-    }
-    setLoading(bool: boolean) {
-        this.isLoading = bool;
-    }
-    setUser(user: UserInfo) {
-        this.user = user;
-    }
+    constructor() { makeAutoObservable(this) }
+    setAuth(bool: boolean) { this.isAuth = bool; }
+    setLoading(bool: boolean) { this.isLoading = bool; }
+    setUser(user: UserInfo | undefined) { this.user = user; }
     async login(mail: string, pass: string): Promise<{ status: number, user?: UserInfo, message?: string }> {
         try {
-            const responce = await AuthSevice.login(mail, pass);
+            const responce = await LoginSevice.login(mail, pass);
             localStorage.setItem('token', responce.data.tokens.accessToken)
             this.setAuth(true)
             this.setUser(responce.data.user)
@@ -41,7 +32,7 @@ export default class Store {
     }
     async registration(mail: string, pass: string, nickname: string): Promise<{ status: number, user?: UserInfo, message?: string }> {
         try {
-            const responce = await AuthSevice.registration(mail, nickname, pass);
+            const responce = await LoginSevice.registration(mail, nickname, pass);
             localStorage.setItem('token', responce.data.tokens.accessToken)
             this.setAuth(true)
             this.setUser(responce.data.user)
@@ -58,10 +49,10 @@ export default class Store {
     }
     async logout() {
         try {
-            const responce = await AuthSevice.logout();
+            const responce = await LoginSevice.logout();
             localStorage.removeItem('token')
             this.setAuth(false)
-            this.setUser({} as UserInfo)
+            this.setUser(undefined)
             return {
                 status: 200
             }
@@ -76,7 +67,7 @@ export default class Store {
         this.setLoading(true)
         try {
             axios.defaults.withCredentials = true
-            const responce = await axios.get<AuthResponse>(`${API_URL}/api/user/refresh`, { withCredentials: true })
+            const responce = await axios.get<LoginResponse>(`${API_URL}/api/user/refresh`, { withCredentials: true })
             localStorage.setItem('token', responce.data.tokens.accessToken);
             this.setAuth(true);
             this.setUser(responce.data.user);

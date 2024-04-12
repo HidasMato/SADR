@@ -1,18 +1,18 @@
 import React from "react";
-import styles from "./Game_rooms.module.scss";
+import styles from "./Plays.module.scss";
 import TestComponent from "../../components/TestComponent/TestComponent.tsx";
 import { useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 
-type Game_roomsObject = {
+type PlaysObject = {
 
 }
 
-const Game_rooms = (): JSX.Element => {
+const Plays = (): JSX.Element => {
     const { id } = useParams();
     return (
         <div className={styles.Main}>
-            Game_rooms
+            Plays
             <TestComponent opt1={1} opt2={"Hello!"}>
                 <div>
                     {id}
@@ -28,4 +28,4 @@ const Game_rooms = (): JSX.Element => {
     );
 };
 
-export default observer(Game_rooms);
+export default observer(Plays);

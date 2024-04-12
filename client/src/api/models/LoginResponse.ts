@@ -2,7 +2,7 @@ import { UserInfo } from "./UserInfo";
 import { tokens } from "./tokens";
 
 
-export interface AuthResponse {
+export interface LoginResponse {
     user: UserInfo,
     tokens: tokens
 }

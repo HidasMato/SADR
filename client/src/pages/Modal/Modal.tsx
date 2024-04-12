@@ -9,11 +9,11 @@ type ModalObject = {
 }
 
 const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
-    const [mailLogin, setMailLogin] = useState('blue_kitty@mail.ru');
-    const [passLogin, setPassLogin] = useState('qwertyuiop');
+    const [mailLogin, setMailLogin] = useState('');
+    const [passLogin, setPassLogin] = useState('');
     const SbrosLogin = () => {
-        setMailLogin('blue_kitty@mail.ru');
-        setPassLogin('qwertyuiop');
+        setMailLogin('');
+        setPassLogin('');
     }
     const SbrosReg = () => {
         setMailRegistration('');
@@ -127,6 +127,24 @@ const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                 <div className={styles.PreContainer}>
                     <div ref={ref} className={styles.Container}>
                         {isLogin ? getLogin() : getRegistration()}
+                        <div className={styles.MyProfiles}>
+                        <button onClick={() => {
+                            setMailLogin("mySun@mail.ru");
+                            setPassLogin("1234567890");
+                        }}>Солнышко</button>
+                        <button onClick={() => {
+                            setMailLogin("blue_kitty@mail.ru");
+                            setPassLogin("qwertyuiop");
+                        }}>Синий KUT</button>
+                        <button onClick={() => {
+                            setMailLogin("alex10821@mail.ru");
+                            setPassLogin("SupForMe");
+                        }}>Противная сирена</button>
+                        <button onClick={() => {
+                            setMailLogin("loloporow@mail.ru");
+                            setPassLogin("AbraKedabra");
+                        }}>Капелька</button>
+                        </div>
                     </div>
                 </div>
             </div>
