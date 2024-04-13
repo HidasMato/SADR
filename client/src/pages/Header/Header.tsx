@@ -3,7 +3,7 @@ import styles from "./Header.module.scss";
 import { Link } from "react-router-dom";
 import { ReactComponent as LogoIcon } from '../../images/logo.svg';
 import { ReactComponent as ProfileIcon } from '../../images/account_circle.svg';
-import { ReactComponent as PlaysIcon } from '../../images/tactic.svg';
+import { ReactComponent as PlaysIcon } from '../../images/stactic.svg';
 import { ReactComponent as GamesIcon } from '../../images/casino.svg';
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
