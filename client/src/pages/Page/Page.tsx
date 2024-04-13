@@ -1,14 +1,15 @@
-import React from "react";
+
 import styles from "./Page.module.scss";
 import { Route, Routes } from "react-router-dom";
-import MainPage from "../../pages/Main/Main.tsx";
-import Games from "../../pages/Games/Games.tsx";
-import Plays from "../../pages/Plays/Plays.tsx";
-import Profile from "../../pages/Profile/Profile.tsx";
-import Modal from "../Modal/Modal.tsx";
-import { observer } from "mobx-react-lite";
-import Play from "../Play/Play.tsx";
-import Game from "../Game/Game.tsx";
+import MainPage from "../../pages/Main/Main";
+import Games from "../../pages/Games/Games";
+import Plays from "../../pages/Plays/Plays";
+import Profile from "../../pages/Profile/Profile";
+import Modal from "../Modal/Modal";
+import Play from "../Play/Play";
+import Game from "../Game/Game";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 type PageObject = {
     showLogin: boolean;
@@ -16,15 +17,16 @@ type PageObject = {
 }
 
 const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
+    const { isUserLogged } = useContext(AuthContext);
     const Page = () => {
         return (
             <Routes>
-                <Route path="/" element={<MainPage />} />
+                {isUserLogged ? <Route path="/profile" element={<Profile />} /> : null}
                 <Route path="/games" element={<Games />} />
                 <Route path="/game/:id" element={<Game />} />
                 <Route path="/plays" element={<Plays />} />
                 <Route path="/play/:id" element={<Play />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/*" element={<MainPage />} />
             </Routes>
         );
     }
@@ -48,4 +50,4 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     return Main();
 };
 
-export default observer(Page)
+export default Page;

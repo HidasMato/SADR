@@ -1,16 +1,12 @@
-import React, { createContext } from "react";
-import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./App.tsx";
-import Store from "./api/LoginApi.ts";
+import App from "./App";
+import AuthProvider from "./context/AuthContext";
+import * as ReactDOM from "react-dom/client";
 
-const store = new Store();
 
-export const Context = createContext<{ store: Store }>({ store })
-
-const root = ReactDOM.createRoot(document.getElementById('root')!);
-root.render(
-    <Context.Provider value={{ store }}>
+// @ts-ignore
+ReactDOM.createRoot(document.getElementById("root")).render(
+    <AuthProvider>
         <App />
-    </Context.Provider>
+    </AuthProvider>
 );

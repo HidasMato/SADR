@@ -7,6 +7,31 @@ import { CLIENT_URL } from '../../tokens.json'
 import ApiError from '../Exeptions/ApiError';
 
 class UserController {
+    async getUserInfo(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.summary = 'Другой игрок может получить только имя и роль'
+            #swagger.parameters['id'] = {
+                in: 'path',                            
+                description: 'Айди пользователя',                          
+                type: 'number',                          
+            }
+            #swagger.responses[200] = {
+                description: "Упех",
+                schema:{
+                    $ref: "#/definitions/oneUser"
+                }
+            } 
+         */
+        try {
+            const id = req.body.uid;
+            if (isNaN(id))
+                throw ApiError.UnavtorisationError()
+            const user = await UserService.getUserInfoById({ id: id, MODE: 'sequrity' });
+            return res.json(user);
+        } catch (error: any) {
+            next(error)
+        }
+    }
     async getUserInfoById(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.summary = 'Другой игрок может получить только имя и роль'
@@ -155,9 +180,11 @@ class UserController {
          */
         try {
             const createDate: { mail: string, pass: string, nickname: string } = req.body;
-            const user = await UserService.registration({ mail: createDate.mail, pass: createDate.pass, nickname: createDate.nickname });
-            res.cookie('refreshToken', user.tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
-            return res.json(user);
+            const tokens = await UserService.registration({ mail: createDate.mail, pass: createDate.pass, nickname: createDate.nickname });
+            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
+            return res.json({
+                accessToken: tokens.accessToken
+            })
         } catch (error: any) {
             next(error)
         }
@@ -214,9 +241,11 @@ class UserController {
          */
         try {
             const authData: { mail: string, pass: string } = req.body;
-            const user = await UserService.login({ mail: authData.mail, pass: authData.pass });
-            res.cookie('refreshToken', user.tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
-            return res.json(user);
+            const tokens = await UserService.login({ mail: authData.mail, pass: authData.pass });
+            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
+            return res.json({
+                accessToken: tokens.accessToken
+            })
         } catch (error: any) {
             next(error)
         }
@@ -266,10 +295,11 @@ class UserController {
          */
         try {
             const { refreshToken } = req.cookies;
-            console.log(req.cookies)
-            const user = await UserService.refresh({ oldRefreshToken: refreshToken });
-            res.cookie('refreshToken', user.tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
-            return res.json(user);
+            const tokens = await UserService.refresh({ oldRefreshToken: refreshToken });
+            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
+            return res.json({
+                accessToken: tokens.accessToken
+            })
         } catch (error: any) {
             next(error)
         }

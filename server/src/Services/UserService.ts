@@ -77,6 +77,7 @@ class UserService {
         const res: QueryResult = await pool.query(`SELECT ${UserService.getMasMode(MODE).join(', ')} FROM users WHERE id = $1`, [id]);
         if (res.rows.length == 0)
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        res.rows[0].roles = await this.getUserRole({id:res.rows[0].id});
         return res.rows[0];
     }
     async getUserRole({ id }: { id: number }) {
@@ -180,7 +181,7 @@ class UserService {
         UserService.getTruePass(pass)
         const id = (await pool.query(`INSERT INTO users(mail, passCache, nickname) VALUES ($1, $2, $3) RETURNING id;`, [mail, await UserService.getCache(pass), nickname])).rows?.[0]?.id;
         await SendMessage.sendMailAccess({ type: 'registration', mail: mail, userid: id });
-        return await this.getNewToken({id:id})
+        return await this.getNewToken({ id: id })
     }
     async login({ mail, pass }: { mail: string, pass: string }) {
         UserService.getTrueMail(mail)
@@ -190,7 +191,7 @@ class UserService {
             throw ApiError.BadRequest({ message: "Почты не существует" })
         if (!(await bcrypt.compare(pass, res.rows[0].passcache)))
             throw ApiError.BadRequest({ message: "Неверный пароль" })
-        return await this.getNewToken({id:res.rows[0].id})
+        return await this.getNewToken({ id: res.rows[0].id })
     }
     async logout({ refreshToken }: { refreshToken: string }) {
         await TokenService.removeToken({ refreshToken })
@@ -206,18 +207,14 @@ class UserService {
             await TokenService.removeToken({ refreshToken: oldRefreshToken })
             throw ApiError.UnavtorisationError()
         }
-        return await this.getNewToken({id:user.id})
+        return await this.getNewToken({ id: user.id })
     }
     async getNewToken({ id }: { id: number }) {
-        
+
         const newUser = (await (new UserService).getUserInfoById({ id: id, MODE: "sequrity" })) as UserToCookie
         const tokens = await TokenService.generateToken({ payload: { id: newUser.id, mail: newUser.mail, nickname: newUser.nickname } })
         await TokenService.saveToken({ userId: newUser.id, refreshToken: tokens.refreshToken })
-        newUser.role = await this.getUserRole({id:newUser.id})
-        return {
-            user: newUser,
-            tokens: tokens
-        };
+        return tokens;
     }
 }
 

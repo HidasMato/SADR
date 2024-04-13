@@ -1,12 +1,12 @@
-import React, { useContext, useState } from "react";
+
 import styles from "./Header.module.scss";
 import { Link } from "react-router-dom";
 import { ReactComponent as LogoIcon } from '../../images/logo.svg';
 import { ReactComponent as ProfileIcon } from '../../images/account_circle.svg';
 import { ReactComponent as PlaysIcon } from '../../images/tactic.svg';
 import { ReactComponent as GamesIcon } from '../../images/casino.svg';
-import { Context } from "../../index.tsx";
-import { observer } from 'mobx-react-lite';
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 type HeaderObject = {
     showLogin: boolean;
@@ -14,8 +14,8 @@ type HeaderObject = {
 }
 
 const Header = ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
+    const { isUserLogged } = useContext(AuthContext)
     const Main = () => {
-        const { store } = useContext(Context);
         return (
             <header className={styles.Main}>
                 <nav className={styles.Nav}>
@@ -30,7 +30,7 @@ const Header = ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
                         <PlaysIcon className={styles.Icon} />
                         <div className={styles.Text}>Игротеки</div>
                     </Link>
-                    {store.isAuth ?
+                    {isUserLogged ?
                         <Link className={styles.Link} to={`/profile`}>
                             <ProfileIcon className={styles.Icon} />
                             <div className={styles.Text}>Профиль</div>
@@ -48,4 +48,4 @@ const Header = ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
     return Main();
 };
 
-export default observer(Header)
+export default Header;

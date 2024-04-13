@@ -1,31 +1,30 @@
-import React from "react";
-import styles from "./Games.module.scss";
-import TestComponent from "../../components/TestComponent/TestComponent.tsx";
-import { useParams } from "react-router-dom";
-import { observer } from "mobx-react-lite";
 
-type GamesObject={
+import styles from "./Games.module.scss";
+import TestComponent from "../../components/TestComponent/TestComponent";
+import { useParams } from "react-router-dom";
+
+type GamesObject = {
 
 }
 
-const Games = ():JSX.Element=>{
-	const {id} = useParams();
-	return(
-		<div className={styles.Main}>
+const Games = (): JSX.Element => {
+    const { id } = useParams();
+    return (
+        <div className={styles.Main}>
             Games
-			<TestComponent opt1={1} opt2={"Hello!"}>
-				<div>
-					{id}
-				</div>
-				<div>
+            <TestComponent opt1={1} opt2={"Hello!"}>
+                <div>
+                    {id}
+                </div>
+                <div>
                     This thing2!
-				</div>
-				<div>
+                </div>
+                <div>
                     This thing3!
-				</div>
-			</TestComponent>
-		</div>
-	);
+                </div>
+            </TestComponent>
+        </div>
+    );
 };
 
-export default observer(Games);
+export default Games;

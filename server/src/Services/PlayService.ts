@@ -141,16 +141,16 @@ class PlayService {
             const inf = (await pool.query(`SELECT id, name, masterid, minplayers, maxplayers, description, status, dateend, datestart, (SELECT nickname from users where id = plays.masterid) as mastername, (SELECT count(*) from usersofplay where playid = plays.id ) as gamercount FROM plays WHERE id = $1;`, [id])).rows[0];
             return {
                 id: inf.id,
-                name:inf.name,
-                description:inf.description,
+                name: inf.name,
+                description: inf.description,
                 master: {
                     id: inf.masterid,
                     name: inf.mastername
                 },
                 players: {
-                    count:Number(inf.gamercount),
-                    min:inf.minplayers,
-                    max:inf.maxplayers
+                    count: Number(inf.gamercount),
+                    min: inf.minplayers,
+                    max: inf.maxplayers
                 },
                 status: {
                     status: inf.status,
@@ -174,12 +174,12 @@ class PlayService {
             const gamers = (await pool.query(`SELECT id, nickname FROM users WHERE id IN (SELECT userid FROM usersofplay WHERE playid = $1);`, [inf.id])).rows;
             return {
                 id: inf.id,
-                name:inf.name,
-                description:inf.description,
+                name: inf.name,
+                description: inf.description,
                 players: {
                     list: gamers,
-                    min:inf.minplayers,
-                    max:inf.maxplayers
+                    min: inf.minplayers,
+                    max: inf.maxplayers
                 },
                 status: {
                     status: inf.status,
