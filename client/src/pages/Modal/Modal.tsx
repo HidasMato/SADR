@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import styles from "./Modal.module.scss";
-import { Context } from "../../index.tsx";
-import { observer } from "mobx-react-lite";
+import { AuthContext } from "../../context/AuthContext";
 
 type ModalObject = {
     showLogin: boolean;
     setShowLogin: any;
 }
 
-const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
+const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
+    const { login, registration } = useContext(AuthContext)
     const [mailLogin, setMailLogin] = useState('');
     const [passLogin, setPassLogin] = useState('');
     const SbrosLogin = () => {
@@ -26,7 +26,6 @@ const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
     const [pass1Registration, setPass1Registration] = useState('');
     const [pass2Registration, setPass2Registration] = useState('');
     const [isLogin, setIsLogin] = useState(true)
-    const { store } = useContext(Context)
     const ref = useRef<HTMLDivElement>(null);
     const checkIfClickedOutside = (e: any) => {
         if (ref.current && !ref.current.contains(e.target)) {
@@ -50,28 +49,32 @@ const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
     const CheckName = (name: string) => {
         return true;
     }
-    const Vhod = async () => {
+    const Vhod = () => {
         CheckMail(mailLogin);
         CheckPass(passLogin);
-        const a = await store.login(mailLogin, passLogin)
-        if (a.status == 200) {
-            setShowLogin(false)
-            SbrosLogin();
-        } else {
-            alert(a.message)
-        }
+        login({ mail: mailLogin, pass: passLogin }).then(a => {
+            if (a.status == 200) {
+                setShowLogin(false)
+                SbrosLogin();
+            } else {
+                //TODO: Это заменить на визуальные показания неверности хуйни
+                alert(a.message)
+            }
+        })
     }
-    const Registration = async () => {
+    const Registration = () => {
         CheckMail(mailRegistration);
         CheckPass(pass1Registration);
         CheckPass(nameRegistration);
-        const a = await store.registration(mailRegistration, pass1Registration, nameRegistration)
-        if (a.status == 200) {
-            setShowLogin(false)
-            SbrosReg();
-        } else {
-            alert(a.message)
-        }
+        registration({ mail: mailRegistration, pass: pass1Registration, nickname: nameRegistration }).then(a => {
+            if (a.status == 200) {
+                setShowLogin(false)
+                SbrosReg();
+            } else {
+                //TODO: Это заменить на визуальные показания неверности хуйни
+                alert(a.message)
+            }
+        })
     }
     const getLogin = () => {
         return (
@@ -128,22 +131,22 @@ const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                     <div ref={ref} className={styles.Container}>
                         {isLogin ? getLogin() : getRegistration()}
                         <div className={styles.MyProfiles}>
-                        <button onClick={() => {
-                            setMailLogin("mySun@mail.ru");
-                            setPassLogin("1234567890");
-                        }}>Солнышко</button>
-                        <button onClick={() => {
-                            setMailLogin("blue_kitty@mail.ru");
-                            setPassLogin("qwertyuiop");
-                        }}>Синий KUT</button>
-                        <button onClick={() => {
-                            setMailLogin("alex10821@mail.ru");
-                            setPassLogin("SupForMe");
-                        }}>Противная сирена</button>
-                        <button onClick={() => {
-                            setMailLogin("loloporow@mail.ru");
-                            setPassLogin("AbraKedabra");
-                        }}>Капелька</button>
+                            <button onClick={() => {
+                                setMailLogin("mySun@mail.ru");
+                                setPassLogin("1234567890");
+                            }}>Солнышко</button>
+                            <button onClick={() => {
+                                setMailLogin("blue_kitty@mail.ru");
+                                setPassLogin("qwertyuiop");
+                            }}>Синий KUT</button>
+                            <button onClick={() => {
+                                setMailLogin("alex10821@mail.ru");
+                                setPassLogin("SupForMe");
+                            }}>Противная сирена</button>
+                            <button onClick={() => {
+                                setMailLogin("loloporow@mail.ru");
+                                setPassLogin("AbraKedabra");
+                            }}>Капелька</button>
                         </div>
                     </div>
                 </div>
@@ -153,4 +156,4 @@ const Modal =({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
     return Main();
 };
 
-export default observer(Modal)
+export default Modal;

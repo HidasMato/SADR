@@ -1,8 +1,7 @@
-import React from "react";
+
 import styles from "./Plays.module.scss";
-import TestComponent from "../../components/TestComponent/TestComponent.tsx";
+import TestComponent from "../../components/TestComponent/TestComponent";
 import { useParams } from "react-router-dom";
-import { observer } from "mobx-react-lite";
 
 type PlaysObject = {
 
@@ -28,4 +27,4 @@ const Plays = (): JSX.Element => {
     );
 };
 
-export default observer(Plays);
+export default Plays;

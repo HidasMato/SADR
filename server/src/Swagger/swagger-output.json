@@ -377,6 +377,32 @@
         }
       }
     },
+    "/api/user/info": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Другой игрок может получить только имя и роль",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Айди пользователя",
+            "type": "number",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Упех",
+            "schema": {
+              "$ref": "#/definitions/oneUser"
+            }
+          }
+        }
+      }
+    },
     "/api/user/{id}/playsgamer": {
       "get": {
         "tags": [
@@ -495,23 +521,18 @@
         "tags": [
           "user"
         ],
-        "summary": "Другой игрок может получить только имя и роль",
         "description": "",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "number",
-            "description": "Айди пользователя"
+            "type": "string"
           }
         ],
         "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "$ref": "#/definitions/oneUser"
-            }
+          "default": {
+            "description": ""
           }
         }
       }

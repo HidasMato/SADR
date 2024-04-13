@@ -1,51 +1,37 @@
-import React, { ReactElement, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "./Profile.module.scss";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { Context } from "../../index.tsx";
-import { API_URL } from "../../api/http/index.ts";
-import { observer } from "mobx-react-lite";
-import UserPlaysApi from "../../api/UserPlaysApi.ts";
-import { GamerPlays, MasterPlays } from "../../api/models/UserPlays.ts";
+import { Link, useNavigate } from "react-router-dom";
+import { API_URL } from "../../context/AuthContext";
+import UserPlaysAPI, { IGamerPlaysData, IMasterPlaysData } from "../../api/UserPlays.api";
+import { AuthContext } from "../../context/AuthContext";
+import UserInfoAPI, { IUserData } from "../../api/UserInfo.api";
 
 const Profile = (): JSX.Element => {
-    const { store } = useContext(Context);
+    const { logout } = useContext(AuthContext)
     const navigate = useNavigate();
-    const [gamerPlays, setGamerPlays] = useState<undefined | GamerPlays[]>(undefined);
-    const [masterPlays, setMasterPlays] = useState<undefined | MasterPlays[]>(undefined);
+    const [userInfo, setUserInfo] = useState<undefined | IUserData>(undefined);
+    const [gamerPlays, setGamerPlays] = useState<undefined | IGamerPlaysData['plays']>(undefined);
+    const [masterPlays, setMasterPlays] = useState<undefined | IMasterPlaysData['plays']>(undefined);
     useEffect(() => {
-        if (store.user?.id) {
-            UserPlaysApi.getGamerPlays(store.user.id).then(a => {
-                if (a.status == 200) {
-                    console.log('Записан на игротеки', a.plays)
-                    setGamerPlays(a.plays)
-                }
-                else {
-                    console.log(a.status, a.message)
-                    setGamerPlays(undefined)
-                }
+        UserInfoAPI.getUserInfo().then(a => {
+            setUserInfo(a)
+        })
+    }, [])
+    useEffect(() => {
+        if (userInfo?.roles.user) {
+            UserPlaysAPI.getGamerPlays(userInfo.id).then(a => {
+                setGamerPlays(a.plays)
             })
         }
-        if (store.user?.role.master) {
-            UserPlaysApi.getMasterPlays(store.user.id).then(a => {
-                if (a.status == 200) {
-                    setMasterPlays(a.plays)
-                    console.log('Проводит игротеки', a.plays)
-                }
-                else {
-                    console.log(a.status, a.message)
-                    setMasterPlays(undefined)
-                }
+        if (userInfo?.roles.master) {
+            UserPlaysAPI.getMasterPlays(userInfo.id).then(a => {
+                setMasterPlays(a.plays)
             })
         }
-    }, [store.user])
+    }, [userInfo])
     const getPart2 = () => {
         const Out = async () => {
-            const a = await store.logout()
-            if (a.status == 200) {
-                navigate("/")
-            } else {
-                alert(a.message)
-            }
+            const a = await logout()
             navigate("/")
         }
         const getGamerPlays = () => {
@@ -59,7 +45,7 @@ const Profile = (): JSX.Element => {
             return (
                 <div className={styles.PlaysContainer}>
                     <div>Список игротек</div>
-                    {gamerPlays
+                    {gamerPlays && gamerPlays.length > 0
                         ? <div className={styles.Plays}>
                             {Array.from(Array(Math.ceil(gamerPlays.length / 2)).keys()).map((blockNum) => {
                                 return <div key={"TwoPlays" + blockNum} className={styles.TwoPlays}>
@@ -119,20 +105,20 @@ const Profile = (): JSX.Element => {
         return (
             <div className={styles.Part}>
                 <div className={styles.Image}>
-                    <img src={`${API_URL}/user_${store.user?.id}.png`} onError={(e) => { e.currentTarget.src = `${API_URL}/image.png` }} />
+                    <img src={`${API_URL}/user_${userInfo.id}.png`} onError={(e) => { e.currentTarget.src = `${API_URL}/image.png` }} />
                 </div>
                 <div className={styles.Name}>
-                    {store.user?.nickname}
+                    {userInfo.nickname}
                 </div>
                 <div className={styles.UnderImage}>
                     <div className={styles.Role}>{`Роли`}{':'}</div>
                     <div className={styles.Roles}>
-                        {store.user?.role.user ? <div className={styles.Gamer}>{"Игрок"}</div> : ""}
-                        {store.user?.role.master ? <div className={styles.Master}>{"Мастер"}</div> : ""}
-                        {store.user?.role.admin ? <div className={styles.Admin}>{"Админ"}</div> : ""}
+                        {userInfo.roles.user ? <div className={styles.Gamer}>{"Игрок"}</div> : ""}
+                        {userInfo.roles.master ? <div className={styles.Master}>{"Мастер"}</div> : ""}
+                        {userInfo.roles.admin ? <div className={styles.Admin}>{"Админ"}</div> : ""}
                     </div>
                 </div>
-                {store.user?.mailVeryfity
+                {userInfo.mailVeryfity
                     ? <div className={styles.MailVeryfity}>
                         {"Почта подтверждена"}
                     </div>
@@ -144,9 +130,7 @@ const Profile = (): JSX.Element => {
         );
     }
     const Content = () => {
-        if (store.isLoading) {
-            return <div>Загрузка...</div>
-        } else if (store.user) {
+        if (userInfo != undefined) {
             return (
                 <div className={styles.Main}>
                     <div className={styles.Flesh}>
@@ -157,14 +141,16 @@ const Profile = (): JSX.Element => {
                     </div>
                 </div>
             );
-        } else {
-            navigate("/")
+        }
+        else {
             return (
-                <div>Вам недоступна эта страница</div>
-            )
+                <div className={styles.Main}>
+                    Загрузка
+                </div>
+            );
         }
     }
     return Content();
 };
 
-export default observer(Profile);
+export default Profile;
