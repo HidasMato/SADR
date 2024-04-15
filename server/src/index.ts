@@ -18,6 +18,7 @@ import swaggerFile from './Swagger/swagger-output.json';
 import cors from "cors";
 import { CLIENT_URL } from '../tokens.json'
 import SQLaddNext from "./SQLInit/SQLaddNext";
+const Fingerprint = require('express-fingerprint');
 
 
 
@@ -73,7 +74,13 @@ app.use(cors(
     }
 ));
 
-
+app.use(Fingerprint({
+    parameters: [
+        Fingerprint.useragent,
+        Fingerprint.acceptHeaders,
+        Fingerprint.geoip
+    ]
+}))
 
 app.use(LogMiddleWare)
 app.use(AuthMiddleWare)

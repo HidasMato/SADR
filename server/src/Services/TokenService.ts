@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { TOKENS_KEYS } from '../../tokens.json'
-import { pool } from './_getPool';
+import { pool } from '../Repositiories/_getPool';
 import ApiError from '../Exeptions/ApiError';
+import { MAX_SESSIONS } from '../../tokens.json'
+import TokenRepository from '../Repositiories/TokenRepository';
 class TokenService {
     async generateToken({ payload }: { payload: { id: number, mail: string, nickname: string } }) {
         try {
@@ -9,30 +11,30 @@ class TokenService {
             const refreshToken = jwt.sign(payload, TOKENS_KEYS.SECRET_REFRESH_KEY, { expiresIn: '30d' })
             return { accessToken, refreshToken };
         } catch (error) {
+            console.log(error)
             throw ApiError.BadRequest({ message: "Не удалось сгенерировать токен" })
         }
     }
-    async saveToken({ userId, refreshToken }: { userId: number, refreshToken: string }) {
+    async saveToken({ userId, refreshToken, hash }: { userId: number, refreshToken: string, hash: string }): Promise<boolean | undefined> {
         try {
-            //Сейчас можно создать только одну запись токена в таблице
-            if ((await pool.query(`SELECT count(userid) as sum FROM refreshtokens WHERE userid = $1;`, [userId])).rows[0].sum == 0) {
-                await pool.query(`INSERT INTO refreshtokens (userid, refreshtoken) VALUES ($1, $2);`, [userId, refreshToken])
-                return;
+            if ((await TokenRepository.getSumRefreshTokens({ userId: userId })) == MAX_SESSIONS) {
+                await TokenRepository.removeFirstToken({ userId: userId });
             }
-            await pool.query(`UPDATE refreshtokens SET refreshtoken = $1 WHERE userid = $2;`, [refreshToken, userId])
-            return;
+            return await TokenRepository.addToken({ userId: userId, hash: hash, refreshtoken: refreshToken });
         } catch (error) {
+            console.log(error)
             if (!(error instanceof ApiError))
                 throw ApiError.BadRequest({ message: "Не удалось сохранить токен" })
         }
     }
-    async removeToken({ refreshToken }: { refreshToken: string }) {
+    async removeToken({ refreshToken }: { refreshToken: string }): Promise<boolean | undefined> {
         try {
-            if ((await pool.query(`SELECT count(*) as sum FROM refreshtokens WHERE refreshtoken = $1;`, [refreshToken])).rows[0].sum == 0) {
+            if (!(await TokenRepository.isExistsRefreshToken({ refreshToken: refreshToken }))) {
                 throw ApiError.BadRequest({ message: "Не авторизованы" })
             }
-            await pool.query(`DELETE FROM refreshtokens WHERE refreshtoken = $1;`, [refreshToken]);
+            return (await TokenRepository.removeToken({ refreshToken: refreshToken }));
         } catch (error) {
+            console.log(error)
             if (!(error instanceof ApiError))
                 throw ApiError.BadRequest({ message: "Не удалось удалить токен" })
         }
@@ -49,13 +51,6 @@ class TokenService {
             return (jwt.verify(token, TOKENS_KEYS.SECRET_REFRESH_KEY, {}) as { mail: string, nickname: string, id: number })
         } catch (error) {
             return undefined;
-        }
-    }
-    async findRefreshToken({ token }: { token: string }) {
-        try {
-            return ((await pool.query(`SELECT count(*) as sum FROM refreshtokens WHERE refreshtoken = $1;`, [token])).rows[0].sum == 0)
-        } catch (error) {
-            throw ApiError.BadRequest({ message: "Token error" })
         }
     }
 }

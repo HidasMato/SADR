@@ -24,8 +24,6 @@ class UserController {
          */
         try {
             const id = req.body.uid;
-            if (isNaN(id))
-                throw ApiError.UnavtorisationError()
             const user = await UserService.getUserInfoById({ id: id, MODE: 'sequrity' });
             return res.json(user);
         } catch (error: any) {
@@ -49,8 +47,6 @@ class UserController {
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ message: "Неправильное значение id" })
             //TODO: здесь проверка кто запрашивает инфу пока будет секьюрити
             const user = await UserService.getUserInfoById({ id: id, MODE: 'sequrity' });
             return res.json(user);
@@ -99,11 +95,7 @@ class UserController {
             const setting = { start: Number(query.start), count: Number(query.count) };
             // const filter = { minPlayer: Number(query.minPlayer), maxPlayer: Number(query.maxPlayer) };
             const filter = {}
-            if (isNaN(setting.start) || setting.start < 0)
-                setting.start = 0
-            if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
-                setting.count = 20
-            const arrUser = await UserService.getUserList({ settingList: setting, filter: filter, MODE: "forAll" });
+            const arrUser = await UserService.getUserList({ setting: setting, filter: filter, MODE: "forAll" });
             if (arrUser.length == 0)
                 return res.status(403).json({ message: "В базе данных больше нет игроков" });
             return res.json(arrUser);
@@ -134,15 +126,13 @@ class UserController {
             //TODO: Добавить тут получение почты через id
             const image = req.files?.image;
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ message: "Неправильное значение id" })
             const changeDate: { mail: string, pass: string, nickname: string, role: string, description: string } = req.body;
             if (changeDate.pass)
                 await UserService.changePass({ mail: changeDate.mail, pass: changeDate.pass, id: id });
             else if (changeDate.nickname)
                 await UserService.changeNickName({ mail: changeDate.mail, nickname: changeDate.nickname, id: id });
             else if (image) {
-                const fileName = await FileService.saveFile({ file: image as UploadedFile, fileName: 'user_' + id + '.png' })
+                await FileService.saveFile({ file: image as UploadedFile, fileName: 'user_' + id + '.png' })
             }
             else if (changeDate.role)
                 await UserService.changeRole({ mail: changeDate.mail, role: changeDate.role, id: id });
@@ -151,6 +141,30 @@ class UserController {
             else
                 await UserService.changeMail({ mail: changeDate.mail, id: id });
             return res.json("Sucsess");
+        } catch (error: any) {
+            next(error)
+        }
+    }
+    async activateLink(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.parameters['link'] = {
+                in: 'query',         
+                type: 'string',                
+            }
+            #swagger.responses[200] = {
+                description: "Упех" 
+            }   
+            #swagger.responses[402] = {
+                description: "Время действия ссылки истекло",
+                schema:{
+                    "message": "Время действия ссылки истекло"
+                }
+            }  
+         */
+        try {
+            const link = req.params.link;
+            await UserService.activateLink({ link: link });
+            return res.redirect(CLIENT_URL)
         } catch (error: any) {
             next(error)
         }
@@ -180,35 +194,12 @@ class UserController {
          */
         try {
             const createDate: { mail: string, pass: string, nickname: string } = req.body;
-            const tokens = await UserService.registration({ mail: createDate.mail, pass: createDate.pass, nickname: createDate.nickname });
+            const { hash } = req.body.fingerprint;
+            const tokens = await UserService.registration({ mail: createDate.mail, pass: createDate.pass, nickname: createDate.nickname, hash: hash });
             res.cookie('refreshToken', tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
             return res.json({
                 accessToken: tokens.accessToken
             })
-        } catch (error: any) {
-            next(error)
-        }
-    }
-    async activateLink(req: Request, res: Response, next: NextFunction) {
-        /* 
-            #swagger.parameters['link'] = {
-                in: 'query',         
-                type: 'string',                
-            }
-            #swagger.responses[200] = {
-                description: "Упех" 
-            }   
-            #swagger.responses[402] = {
-                description: "Время действия ссылки истекло",
-                schema:{
-                    "message": "Время действия ссылки истекло"
-                }
-            }  
-         */
-        try {
-            const link = req.params.link;
-            await UserService.activateLink({ link: link });
-            return res.redirect(CLIENT_URL)
         } catch (error: any) {
             next(error)
         }
@@ -241,7 +232,8 @@ class UserController {
          */
         try {
             const authData: { mail: string, pass: string } = req.body;
-            const tokens = await UserService.login({ mail: authData.mail, pass: authData.pass });
+            const { hash } = req.body.fingerprint;
+            const tokens = await UserService.login({ mail: authData.mail, pass: authData.pass, hash: hash });
             res.cookie('refreshToken', tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
             return res.json({
                 accessToken: tokens.accessToken
@@ -295,12 +287,14 @@ class UserController {
          */
         try {
             const { refreshToken } = req.cookies;
-            const tokens = await UserService.refresh({ oldRefreshToken: refreshToken });
+            const { hash } = req.body.fingerprint;
+            const tokens = await UserService.refresh({ oldRefreshToken: refreshToken, hash: hash });
             res.cookie('refreshToken', tokens.refreshToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true })
             return res.json({
                 accessToken: tokens.accessToken
             })
         } catch (error: any) {
+            res.clearCookie('refreshToken');
             next(error)
         }
     }

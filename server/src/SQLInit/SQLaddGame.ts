@@ -1,4 +1,4 @@
-import { pool } from '../Services/_getPool';
+import { pool } from '../Repositiories/_getPool';
 import { NoticeMessage } from 'pg-protocol/dist/messages';
 import game from './game.json';
 

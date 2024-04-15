@@ -1,13 +1,10 @@
-
-import { QueryResult } from 'pg';
-import { pool } from './_getPool';
 import SendMessage from './SendMessage';
 import bcrypt from 'bcrypt';
 import TokenService from './TokenService';
 import ApiError from '../Exeptions/ApiError';
-import ForAllService from './ForAllService';
+import UserRepository from '../Repositiories/UserRepository';
 type getList = {
-    settingList: {
+    setting: {
         start: number,
         count: number
     },
@@ -19,7 +16,7 @@ type UserToCookie = {
     nickname: string,
     id: number,
     mailveryfity: boolean,
-    role: {
+    roles: {
         user: boolean,
         master: boolean,
         admin: boolean
@@ -58,162 +55,160 @@ class UserService {
                 throw ApiError.BadRequest({ message: "Неверные символы в никнейме" })
         }
     }
-    static getMasMode(MODE: "sequrity" | "forAll") {
-        let mas = ['id'];
-        //TODO: Добавить получение роли
-        switch (MODE) {
-            case "sequrity": {
-                mas = mas.concat(['nickname', 'mail', 'mailVeryfity'])
-                break;
-            }
-            case "forAll": {
-                mas = mas.concat(['nickname'])
-                break;
-            }
-        }
-        return mas;
-    }
-    async getUserInfoById({ id, MODE }: { id: number, MODE: "sequrity" | "forAll" }) {
-        const res: QueryResult = await pool.query(`SELECT ${UserService.getMasMode(MODE).join(', ')} FROM users WHERE id = $1`, [id]);
-        if (res.rows.length == 0)
-            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
-        res.rows[0].roles = await this.getUserRole({id:res.rows[0].id});
-        return res.rows[0];
-    }
     async getUserRole({ id }: { id: number }) {
         const role = {
             user: false,
             master: false,
             admin: false
         }
-        if ((await pool.query(`SELECT (SELECT count(*) FROM users WHERE id = $1) > 0 as bol`, [id])).rows[0].bol) {
+        if (await UserRepository.isUserUser({ id: id })) {
             role.user = true;
-            if ((await pool.query(`SELECT (SELECT count(*) FROM masters WHERE id = $1) > 0 as bol`, [id])).rows[0].bol)
+            if (await UserRepository.isUserMaster({ id: id }) && (await UserRepository.getMasterActive({ id: id })))
                 role.master = true;
-            if ((await pool.query(`SELECT (SELECT count(*) FROM admins WHERE id = $1) > 0 as bol`, [id])).rows[0].bol)
+            if (await UserRepository.isUserAdmin({ id: id }))
                 role.admin = true;
             return role;
         }
         return role
     }
-    async getUserList({ settingList, filter, MODE }: getList) {
+    async getUserInfoById({ id, MODE }: { id: number, MODE: "sequrity" | "forAll" }) {
+        if (isNaN(id))
+            throw ApiError.UnavtorisationError()
+        const userInfo = await UserRepository.getUserInfoById({ id: id, MODE: MODE });
+        if (!userInfo)
+            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        userInfo.roles = await this.getUserRole({ id: userInfo.id });
+        return userInfo;
+    }
+    async getUserList({ setting, filter, MODE }: getList) {
+        if (isNaN(setting.start) || setting.start < 0)
+            setting.start = 0
+        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
+            setting.count = 20
         //TODO: реализовать фильт поиска
-        const res: QueryResult = await pool.query(`SELECT ${UserService.getMasMode(MODE).join(', ')} FROM users LIMIT $1 OFFSET $2;`, [settingList.count, settingList.start]);
-        return res.rows;
+        return await UserRepository.getUserList({ setting, filter, MODE });
     }
     async changePass({ id, mail, pass }: { id: number, mail: string, pass: string }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ message: "Неправильное значение id" })
         UserService.getTrueMail(mail)
         UserService.getTruePass(pass)
-        SendMessage.notification({ text: "Пароль был изменен", mail: mail })
-        const res: QueryResult = await pool.query(`UPDATE users SET passCache = $1 WHERE mail = $2 AND id = $3;`, [await UserService.getCache(pass), mail, id]);
-        if (res.rowCount == 0)
+        if (!(await UserRepository.changePass({ cache: await UserService.getCache(pass), id: id, mail: mail })))
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        await SendMessage.notification({ text: "Пароль был изменен", mail: mail })
     }
     async changeNickName({ id, mail, nickname }: { id: number, mail: string, nickname: string }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ message: "Неправильное значение id" })
         UserService.getTrueMail(mail)
         UserService.getTrueNickName(nickname)
-        SendMessage.notification({ text: "Никнейм был изменен", mail: mail })
-        const res: QueryResult = await pool.query(`UPDATE users SET nickname = $1 WHERE mail = $2 AND id = $3;`, [nickname, mail, id]);
-        if (res.rowCount == 0)
+        if (!(await UserRepository.changeNickName({ id: id, nickname: nickname, mail: mail })))
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
-
+        SendMessage.notification({ text: "Никнейм был изменен", mail: mail })
     }
     async changeRole({ id, role, mail }: { mail: string, id: number, role: string }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ message: "Неправильное значение id" })
         UserService.getTrueMail(mail);
-        let res: QueryResult;
-        if (! await ForAllService.isExists({ id: id, tableName: 'users' })) throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        if (! await UserRepository.isUserExists({ id: id })) throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        const userRoles = await this.getUserRole({ id: id });
+        let active: boolean | undefined;
         switch (role) {
-            case "user":
-                res = await pool.query(`SELECT active FROM masters WHERE id = $1`, [id]);
-                if (res?.rowCount == 0)
-                    throw ApiError.BadRequest({ message: "Пользователь не был мастером" })
-                else if (res.rows[0].active == false)
-                    throw ApiError.BadRequest({ message: "Пользователь уже был расформирован" })
+            case "user": {
+                if (!userRoles.master) {
+                    active = await UserRepository.getMasterActive({ id: id });
+                    if (active == undefined)
+                        throw ApiError.BadRequest({ message: "Пользователь не был мастером" })
+                    else if (active == false)
+                        throw ApiError.BadRequest({ message: "Пользователь уже был расформирован" })
+                }
                 else {
-                    await pool.query(`UPDATE masters SET active = False WHERE id = $1;`, [id]);
+                    await UserRepository.downMaster({ id: id });
                     SendMessage.notification({ text: "Ваша роль была понижена до игрока", mail: mail })
                 }
                 break;
-            case "master":
-                res = await pool.query(`SELECT active FROM masters WHERE id = $1`, [id]);
-                if (res?.rowCount == 0) {
-                    await pool.query(`INSERT INTO masters (id) VALUES ($1);`, [id])
+            }
+            case "master": {
+                active = await UserRepository.getMasterActive({ id: id });
+                if (active == undefined) {
+                    await UserRepository.upgradeUserToMater({ id: id })
                     SendMessage.notification({ text: "Вам была дарована роль мастера", mail: mail })
-                } else if (res.rows[0].active == false) {
-                    await pool.query(`UPDATE masters SET active = True WHERE id = $1 ;`, [id]);
+                } else if (active == false) {
+                    await UserRepository.returnMaster({ id: id });
                     SendMessage.notification({ text: "Вам была возвращена роль мастера", mail: mail })
                 } else
                     throw ApiError.BadRequest({ message: "Пользователь уже мастер" })
                 break;
+            }
         }
     }
     async changeDescription({ id, description, mail }: { mail: string, id: number, description: string }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ message: "Неправильное значение id" })
         UserService.getTrueMail(mail);
-        let res: QueryResult = await pool.query(`UPDATE masters SET description = $2 WHERE id = $1`, [id, description]);
-        if (res.rowCount == 0)
+        if (await UserRepository.changeDescription({ id: id, description: description }))
             throw ApiError.BadRequest({ status: 473, message: "Мастера не существует" })
     }
     async changeMail({ id, mail }: { id: number, mail: string }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ message: "Неправильное значение id" })
         UserService.getTrueMail(mail)
-        SendMessage.sendMailAccess({ type: "changemail", mail: mail, userid: id })
-        const res: QueryResult = await pool.query(`UPDATE users SET mail = $1 WHERE  id = $2;`, [mail, id]);
-        if (res.rowCount == 0)
+        if (await UserRepository.changeMail({ id: id, mail: mail }))
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
+        SendMessage.sendMailAccess({ type: "changemail", mail: mail, userid: id })
     }
     async activateLink({ link }: { link: string }) {
-        const res: QueryResult = await pool.query(`SELECT userid, dateend, mail FROM maillink WHERE link = $1;`, [link]);
-        if (res.rows.length == 0)
+        const res = await UserRepository.getMyLinkActivate({ link: link });
+        if (!res)
             throw ApiError.BadRequest({ message: "Время действия ссылки истекло" })
-        if (res.rows[0].dateend < UserService.createDateAsUTC()) {
-            await pool.query(`DELETE FROM maillink WHERE userid = $1;`, [res.rows[0].userid]);
+        await UserRepository.deleteMyLink({ userid: res.userid })
+        if (res.dateend < UserService.createDateAsUTC()) {
             throw ApiError.BadRequest({ message: "Время действия ссылки истекло" })
         }
-        await pool.query(`DELETE FROM maillink WHERE userid = $1;`, [res.rows[0].userid]);
-        await pool.query(`UPDATE users SET mail = $2, mailveryfity = true WHERE id = $1`, [res.rows[0].userid, res.rows[0].mail]);
+        await UserRepository.changeMailVerifity({ userid: res.userid, mail: res.mail, value: true })
     }
-    async registration({ mail, nickname, pass }: { mail: string, nickname: string, pass: string }) {
+    async registration({ mail, nickname, pass, hash }: { mail: string, nickname: string, pass: string, hash: string }) {
         UserService.getTrueMail(mail)
-        if ((await pool.query(`SELECT count(id) as sum FROM users WHERE mail = $1`, [mail])).rows[0].sum != 0)
+        if (await UserRepository.isMailExists({ mail: mail }))
             throw ApiError.BadRequest({ message: 'Почта уже использована' });
         UserService.getTrueNickName(nickname)
-        if ((await pool.query(`SELECT count(id) as sum FROM users WHERE nickname = $1`, [nickname])).rows[0].sum != 0)
+        if (await UserRepository.isNameExists({ nickname: nickname }))
             throw ApiError.BadRequest({ message: 'Никнейм уже использована' });
         UserService.getTruePass(pass)
-        const id = (await pool.query(`INSERT INTO users(mail, passCache, nickname) VALUES ($1, $2, $3) RETURNING id;`, [mail, await UserService.getCache(pass), nickname])).rows?.[0]?.id;
+        const id = await UserRepository.addUser({ mail: mail, cache: await UserService.getCache(pass), nickname: nickname })
         await SendMessage.sendMailAccess({ type: 'registration', mail: mail, userid: id });
-        return await this.getNewToken({ id: id })
+        return await this.getNewToken({ id: id, hash: hash })
     }
-    async login({ mail, pass }: { mail: string, pass: string }) {
+    async login({ mail, pass, hash }: { mail: string, pass: string, hash: string }) {
         UserService.getTrueMail(mail)
         UserService.getTruePass(pass)
-        const res: QueryResult = await pool.query(`SELECT passCache, id, nickname FROM users WHERE mail = $1`, [mail]);
-        if (res.rows.length == 0)
+        const user = await UserRepository.findUserMail({ mail: mail })
+        if (!user)
             throw ApiError.BadRequest({ message: "Почты не существует" })
-        if (!(await bcrypt.compare(pass, res.rows[0].passcache)))
+        if (!(await bcrypt.compare(pass, user.passcache)))
             throw ApiError.BadRequest({ message: "Неверный пароль" })
-        return await this.getNewToken({ id: res.rows[0].id })
+        return await this.getNewToken({ id: user.id, hash: hash })
     }
     async logout({ refreshToken }: { refreshToken: string }) {
         await TokenService.removeToken({ refreshToken })
     }
-    async refresh({ oldRefreshToken }: { oldRefreshToken: string }) {
+    async refresh({ oldRefreshToken, hash }: { oldRefreshToken: string, hash: string }) {
         if (!oldRefreshToken) {
             await TokenService.removeToken({ refreshToken: oldRefreshToken })
             throw ApiError.UnavtorisationError()
         }
         const user = await TokenService.validateRefreshToken({ token: oldRefreshToken })
-        const rows = (await pool.query(`SELECT refreshtoken FROM refreshtokens WHERE userid = $1`, [user?.id])).rows;
-        if (!user || rows.length == 0 || rows[0].refreshtoken != oldRefreshToken) {
+        if (!user || await UserRepository.getRefreshToken({ id: user?.id, hash: hash }) != oldRefreshToken) {
             await TokenService.removeToken({ refreshToken: oldRefreshToken })
             throw ApiError.UnavtorisationError()
         }
-        return await this.getNewToken({ id: user.id })
+        await TokenService.removeToken({ refreshToken: oldRefreshToken })
+        return await this.getNewToken({ id: user.id, hash: hash })
     }
-    async getNewToken({ id }: { id: number }) {
-
+    async getNewToken({ id, hash }: { id: number, hash: string }) {
         const newUser = (await (new UserService).getUserInfoById({ id: id, MODE: "sequrity" })) as UserToCookie
         const tokens = await TokenService.generateToken({ payload: { id: newUser.id, mail: newUser.mail, nickname: newUser.nickname } })
-        await TokenService.saveToken({ userId: newUser.id, refreshToken: tokens.refreshToken })
+        await TokenService.saveToken({ userId: newUser.id, refreshToken: tokens.refreshToken, hash: hash })
         return tokens;
     }
 }

@@ -1,4 +1,4 @@
-import { pool } from '../Services/_getPool';
+import { pool } from '../Repositiories/_getPool';
 import { NoticeMessage } from 'pg-protocol/dist/messages';
 
 const SQLdeleteTables = async () => {

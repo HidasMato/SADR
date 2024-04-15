@@ -1,13 +1,13 @@
 
-import { QueryResult } from 'pg';
-import { pool } from './_getPool';
 import ApiError from '../Exeptions/ApiError';
 import { UploadedFile } from 'express-fileupload';
 import FileService from './FileService';
-import ForAllService from './ForAllService';
+import PlayRepository from '../Repositiories/PlayRepository';
+import GameRepository from '../Repositiories/GameRepository';
+import UserRepository from '../Repositiories/UserRepository';
 
 type getList = {
-    settingList: {
+    setting: {
         start: number,
         count: number
     },
@@ -28,150 +28,150 @@ type update = {
 
 class PlayService {
     async getPlayInfoById({ id }: { id: number }) {
-        const res: QueryResult = await pool.query(`SELECT * FROM plays WHERE id = $1`, [id]);
-        return res.rows[0];
+        if (isNaN(id))
+            throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" });
+        const play = await PlayRepository.getPlayInfoById({ id: id });
+        if (!play)
+            throw ApiError.BadRequest({ status: 460, message: "Игры не существует" })
+        return play;
     }
-    async getPlayList({ settingList, filter }: getList) {
+    async getPlayList({ setting, filter }: getList) {
+        if (isNaN(setting.start) || setting.start < 0)
+            setting.start = 0
+        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
+            setting.count = 20
         //TODO: реализовать фильт поиска
-        const res: QueryResult = await pool.query(`SELECT * FROM plays LIMIT $1 OFFSET $2;`, [settingList.count, settingList.start]);
-        return res.rows;
+        return await PlayRepository.getPlayList({ setting: setting, filter: filter });
     }
-    async delete({ id }: { id: number }) {
-        const res: QueryResult = await pool.query(`DELETE FROM plays WHERE id = $1;`, [id]);
-        return res.rowCount || 0;
+    async deletePlay({ id }: { id: number }): Promise<boolean> {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" });
+        return PlayRepository.deletePlay({ id: id });
     }
-    async update({ id, update, image }: { id: number, update: update, image?: UploadedFile | undefined }) {
-        if (!(await ForAllService.isExists({ id: id, tableName: "plays" })))
+    async changeGamesOnPlay({ playId, games }: { playId: number, games: number[] }): Promise<boolean> {
+        const gamesOnPlay = await PlayRepository.getGamesOnPlay({ playId: playId });
+        let isChanges = false;
+        for (let game of gamesOnPlay) {
+            if (!games.includes(game)) {
+                isChanges = true;
+                await PlayRepository.deleteGameOfPlay({ playId: playId, gameId: game });
+            }
+        }
+        for (let game of games) {
+            if (!gamesOnPlay.includes(game)) {
+                isChanges = true;
+                await PlayRepository.addGameOfPlay({ playId: playId, gameId: game });
+            }
+        }
+        return isChanges;
+    }
+    async updatePlay({ id, update, image }: { id: number, update: update, image?: UploadedFile | undefined }): Promise<boolean> {
+        if (isNaN(id))
+            throw ApiError.BadRequest({ message: "Неправильное значение id" })
+        if (!(await PlayRepository.isPlayExists({ id: id })))
             throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
-        let maybeOne = false;
-        let strDelete = '';
-        let strCreate = '';
+        let maybeOne = false, meybeGame = false;
         const updateParametrs = ['name', 'masterId', 'minplayers', 'maxplayers', 'description', 'status', 'datestart', 'dateend']
-        if (update.games?.length != 0) {
-            const res2: QueryResult = await pool.query(`SELECT gameid FROM gamesofplay where playid = ${id}`);
-            const ourMas = res2.rows.map(val => { return val.gameid })
-            ourMas.map(val => {
-                if (!update.games?.includes(val))
-                    strDelete += (strDelete.length == 0 ? '' : ', ') + val;
-            })
-            if (strDelete.length > 0)
-                await pool.query(`DELETE FROM gamesofplay where gameid in (${strDelete}) AND playid = ${id}`);
-            update.games?.map(val => {
-                if (!ourMas.includes(val))
-                    strCreate += (strCreate.length == 0 ? '' : '), \n(') + val + ', ' + id;
-            })
-            if (strCreate.length > 0)
-                await pool.query(`INSERT INTO gamesofplay(gameid, playid) VALUES (${strCreate}) `);
-        }
-        for (let per of updateParametrs)
-            if (update[per as keyof update]) {
-                maybeOne = true;
-                break;
-            }
-        if (maybeOne) {
-            let str1 = "", mas: any[] = [id];
-            for (let add of updateParametrs) {
-                if (update[add as keyof update] != undefined) {
-                    mas.push(update[add as keyof update])
-                    str1 += (str1 == '' ? '' : ', ') + `${add} = $${mas.length}`;
-                }
-            }
-            await pool.query(`UPDATE plays SET ${str1} WHERE id = $1;`, mas);
-        }
-        if (image)
-            await FileService.saveFile({ file: image as UploadedFile, fileName: 'play_' + id + '.png' })
-        if (!maybeOne && strCreate.length == 0 && strDelete.length == 0)
-            return false;
-        else
-            return true;
+        for (let per of updateParametrs) if (update[per as keyof update]) { maybeOne = true; break; }
+        //Обновляем игры
+        if (update.games) meybeGame = await (new PlayService).changeGamesOnPlay({ playId: id, games: update.games });
+        //Обновляем инфу
+        if (maybeOne) await PlayRepository.updatePlay({ id: id, update: update })
+        //Обновляем картинку
+        if (image) await FileService.saveFile({ file: image as UploadedFile, fileName: 'play_' + id + '.png' })
+        if (!maybeOne && meybeGame) return false; else return true;
     }
-    async create({ createInf, image }: { createInf: update, image?: UploadedFile | undefined }) {
+    async createPlay({ createInf, image }: { createInf: update, image?: UploadedFile | undefined }): Promise<number | boolean[]> {
+        if (!createInf.name)
+            throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name" })
         if (createInf.games && createInf.games.length > 0) {
-            let str3 = "(";
-            for (let gameId of createInf.games)
-                str3 = str3 + (str3.length == 1 ? '' : ', ') + gameId;
-            const res2: QueryResult = await pool.query(`SELECT id FROM games where id in ${str3})`);
-            res2.rows.map(val => {
-                if (!createInf.games?.includes(val.id))
-                    throw ApiError.BadRequest({ status: 472, message: `Игра с id=${val} не существует` });
-            })
+            let thr = false;
+            const isGamesExists = await Promise.all(createInf.games.map(async gameId => {
+                const bool = await GameRepository.isGameExists({ id: gameId });
+                if (!bool) thr = true;
+                return bool;
+            }))
+            if (thr)
+                return isGamesExists;
         }
-        let str1 = "name", str2 = "$1", mas: any[] = [createInf.name];
-        for (let add of ['masterId', 'minplayers', 'maxplayers', 'description', 'status', 'datestart', 'dateend']) {
-            if (createInf[add as keyof update]) {
-                str1 += ', ' + add;
-                mas.push(createInf[add as keyof update])
-                str2 += ', $' + mas.length;
-            }
-        }
-        const res: QueryResult = await pool.query(`INSERT INTO plays(${str1}) VALUES (${str2}) RETURNING id;`, mas);
-        if (res.rows?.[0]?.id && createInf.games && createInf.games?.length > 0)
-            (new PlayService).update({ id: res.rows?.[0]?.id, update: { games: createInf.games } as update })
+        const newId = await PlayRepository.createPlay({ createInf: createInf });
+        if (!newId)
+            throw ApiError.BadRequest({ status: 460, message: "Не удалось создать игру" })
+        if (createInf.games && createInf.games?.length > 0)
+            (new PlayService).updatePlay({ id: newId, update: { games: createInf.games } as update })
         if (image)
-            await FileService.saveFile({ file: image as UploadedFile, fileName: 'play_' + res.rows?.[0]?.id + '.png' })
-        return res.rows?.[0]?.id;
+            await FileService.saveFile({ file: image as UploadedFile, fileName: 'play_' + newId + '.png' })
+        return newId;
     }
-    async registrUserToPlay({ playId, userId }: { playId: number, userId: number }) {
-        if (!(await ForAllService.isExists({ id: playId, tableName: "plays" })))
+    async registrUserToPlay({ playId, userId }: { playId: number, userId: number }): Promise<boolean> {
+        if (isNaN(playId))
+            throw ApiError.BadRequest({ status: 460, message: "Неправильное значение id" });
+        if (isNaN(userId))
+            throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id пользователя" });
+        if (!(await PlayRepository.isPlayExists({ id: playId })))
             throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
-        if (!(await ForAllService.isExists({ id: userId, tableName: "users" })))
+        if (!(await UserRepository.isUserExists({ id: userId })))
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
-        if ((await pool.query(`SELECT count(id) FROM usersofplay WHERE userid = $1 AND playid = $2`, [userId, playId])).rows[0].count != 0)
+        if (await PlayRepository.isUserOnPlay({ playId: playId, userId: userId }))
             throw ApiError.BadRequest({ message: 'Пользователь уже записан на игротеку' });
-        if ((await pool.query(`SELECT((SELECT count(id) FROM usersofplay WHERE playid = $1) >= (SELECT maxplayers FROM plays WHERE id = $1 LIMIT 1)) as bol`, [playId])).rows[0].bol)
+        if (await PlayRepository.isPlayMax({ playId: playId }))
             throw ApiError.BadRequest({ message: 'Мест нет' })
-        await pool.query(`INSERT INTO public.usersofplay( userid, playid ) VALUES ($1,$2)`, [userId, playId])
+        return await PlayRepository.addGamerToPlay({ playId: playId, userId: userId })
     }
-    async unRegistrUserToPlay({ playId, userId }: { playId: number, userId: number }) {
-        if (!(await ForAllService.isExists({ id: playId, tableName: "plays" })))
+    async unRegistrUserToPlay({ playId, userId }: { playId: number, userId: number }): Promise<boolean> {
+        if (isNaN(playId))
+            throw ApiError.BadRequest({ status: 460, message: "Неправильное значение id" });
+        if (isNaN(userId))
+            throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id пользователя" });
+        if (!(await PlayRepository.isPlayExists({ id: playId })))
             throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
-        if (!(await ForAllService.isExists({ id: userId, tableName: "users" })))
+        if (!(await UserRepository.isUserExists({ id: userId })))
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
-        if ((await pool.query(`SELECT count(id) FROM usersofplay WHERE userid = $1 AND playid = $2`, [userId, playId])).rows[0].count == 0)
+        if (!(await PlayRepository.isUserOnPlay({ playId: playId, userId: userId })))
             throw ApiError.BadRequest({ message: 'Пользователь не записан на игротеку' });
-        await pool.query(`DELETE FROM usersofplay WHERE userid = $1 AND playid = $2`, [userId, playId])
+        return await PlayRepository.deleteGamerofPlay({ playId: playId, userId: userId })
     }
     async getPlaysGamer({ id }: { id: number }) {
-        if (!(await ForAllService.isExists({ id: id, tableName: "users" })))
+        if (isNaN(id))
+            throw ApiError.BadRequest({ status: 460, message: 'Неправильное значение id пользователя' });
+        if (!(await UserRepository.isUserExists({ id: id })))
             throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
-        const playsId = (await pool.query(`SELECT playid FROM usersofplay WHERE userid = $1`, [id])).rows.map(val => {
-            return val.playid
-        });
-        const plays = await Promise.all(playsId.map(async id => {
-            const inf = (await pool.query(`SELECT id, name, masterid, minplayers, maxplayers, description, status, dateend, datestart, (SELECT nickname from users where id = plays.masterid) as mastername, (SELECT count(*) from usersofplay where playid = plays.id ) as gamercount FROM plays WHERE id = $1;`, [id])).rows[0];
+        const playsId = await PlayRepository.getAllGamersPlays({ gamerId: id });
+        const plays = await Promise.all(playsId.map(async playId => {
+            const playInfo = await PlayRepository.getPlayInfoById({ id: playId });
+            const masterName = (await UserRepository.getUserInfoById({ id: playInfo.masterid, MODE: "forAll" })).nickname;
+            const gamersCount = (await PlayRepository.getGamesOnPlay({ playId: id }))
             return {
-                id: inf.id,
-                name: inf.name,
-                description: inf.description,
+                id: playId,
+                name: playInfo.name,
+                description: playInfo.description,
                 master: {
-                    id: inf.masterid,
-                    name: inf.mastername
+                    id: playInfo.masterid,
+                    name: masterName
                 },
                 players: {
-                    count: Number(inf.gamercount),
-                    min: inf.minplayers,
-                    max: inf.maxplayers
+                    count: gamersCount,
+                    min: playInfo.minplayers,
+                    max: playInfo.maxplayers
                 },
                 status: {
-                    status: inf.status,
-                    dateStart: inf.datestart,
-                    dateEnd: inf.dateend
+                    status: playInfo.status,
+                    dateStart: playInfo.datestart,
+                    dateEnd: playInfo.dateend
                 }
             }
         }))
         return plays;
     }
     async getPlaysMaster({ id }: { id: number }) {
-        if (!(await ForAllService.isExists({ id: id, tableName: "users" })))
-            throw ApiError.BadRequest({ status: 470, message: "Пользователя не существует" })
-        if (!(await ForAllService.isExists({ id: id, tableName: "masters" })))
+        if (isNaN(id))
+            throw ApiError.BadRequest({ status: 460, message: 'Неправильное значение id пользователя' });
+        if (!(await UserRepository.isMasterExists({ id: id })))
             throw ApiError.BadRequest({ status: 473, message: "Мастера не существует" })
-        const playsId = (await pool.query(`SELECT DISTINCT playid FROM usersofplay WHERE playid IN (SELECT id FROM plays WHERE masterid = $1)`, [id])).rows.map(val => {
-            return val.playid
-        });
+        const playsId = await PlayRepository.getAllMastersPlays({ masterId: id })
         const plays = await Promise.all(playsId.map(async id => {
-            const inf = (await pool.query(`SELECT id, name, minplayers, maxplayers, description, status, dateend, datestart FROM plays WHERE id = $1;`, [id])).rows[0];
-            const gamers = (await pool.query(`SELECT id, nickname FROM users WHERE id IN (SELECT userid FROM usersofplay WHERE playid = $1);`, [inf.id])).rows;
+            const inf = await PlayRepository.getPlayInfoById({ id: id });
+            const gamers = await PlayRepository.getAllGamersInfoOnPlays({ playId: inf.id });
             return {
                 id: inf.id,
                 name: inf.name,

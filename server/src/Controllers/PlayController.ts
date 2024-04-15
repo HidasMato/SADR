@@ -40,8 +40,6 @@ class PlayController {
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                return res.status(461).json({ message: "Неправильное значение id" });
             const response = await PlayService.getPlayInfoById({ id });
             if (!response)
                 return res.status(461).json({ message: "Нет такого id в базе" });
@@ -92,11 +90,7 @@ class PlayController {
             }
             const setting = { start: Number(query.start), count: Number(query.count) };
             const filter = { minplayer: Number(query.minplayer), maxplayer: Number(query.maxplayer) };
-            if (isNaN(setting.start) || setting.start < 0)
-                setting.start = 0
-            if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
-                setting.count = 20
-            const arrPlay = await PlayService.getPlayList({ settingList: setting, filter: filter });
+            const arrPlay = await PlayService.getPlayList({ setting: setting, filter: filter });
             if (arrPlay.length == 0)
                 return res.status(460).json({ message: "В базе данных больше нет игротек" });
             return res.json(arrPlay);
@@ -120,13 +114,14 @@ class PlayController {
          */
         try {
             const create: update = req.body;
-            if (!create.name)
-                throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name" })
             let image = req.files?.image;
             if (image?.constructor === Array)
                 image = image[0];
-            const result = await PlayService.create({ createInf: create, image: image as UploadedFile });
-            return res.json({ redirectionId: result });
+            const result = await PlayService.createPlay({ createInf: create, image: image as UploadedFile });
+            if (typeof result == 'number')
+                return res.json({ redirectionId: result });
+            else
+                return res.status(462).json({ message: "Не существует игр", isGamesExists: result });
         } catch (error: any) {
             next(error)
         }
@@ -152,13 +147,11 @@ class PlayController {
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ message: "Неправильное значение id" })
             let image = req.files?.image;
             if (image?.constructor === Array)
                 image = image[0];
             const update: update = req.body;
-            if (!await PlayService.update({ id: id, update: update, image: image as UploadedFile | undefined }))
+            if (!await PlayService.updatePlay({ id: id, update: update, image: image as UploadedFile | undefined }))
                 return res.status(460).json({ message: "Пустой массив изменений" });
             else
                 return res.json({ message: "Изменения совершены" })
@@ -188,10 +181,8 @@ class PlayController {
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                return res.status(401).json({ message: "Неправильное значение id" });
-            const result = await PlayService.delete({ id });
-            if (result != 0)
+            const result = await PlayService.deletePlay({ id });
+            if (result)
                 return res.json({ message: "Удаление успешно" });
             else
                 return res.status(401).json({ message: "Удаление не произошло" });
@@ -199,7 +190,7 @@ class PlayController {
             next(error)
         }
     };
-    async plusUser(req: Request, res: Response, next: NextFunction) {
+    async plusGamer(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
                 in: 'path',                            
@@ -234,17 +225,13 @@ class PlayController {
         try {
             const playId = parseInt(req.params.id);
             const { userId }: { userId: number } = req.body;
-            if (isNaN(playId))
-                return res.status(460).json({ message: "Неправильное значение id" });
-            if (isNaN(userId))
-                return res.status(461).json({ message: "Неправильное значение id пользователя" });
             await PlayService.registrUserToPlay({ playId: playId, userId: userId })
             return res.json({ message: "Пользователь добавлен" });
         } catch (error: any) {
             next(error)
         }
     };
-    async minusUser(req: Request, res: Response, next: NextFunction) {
+    async minusGamer(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
                 in: 'path',                            
@@ -279,10 +266,6 @@ class PlayController {
         try {
             const playId = parseInt(req.params.id);
             const { userId }: { userId: number } = req.body;
-            if (isNaN(playId))
-                return res.status(401).json({ message: "Неправильное значение id" });
-            if (isNaN(userId))
-                return res.status(401).json({ message: "Неправильное значение id пользователя" });
             await PlayService.unRegistrUserToPlay({ playId: playId, userId: userId })
             return res.json({ message: "Пользователь удален" });
         } catch (error: any) {
@@ -313,8 +296,6 @@ class PlayController {
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ status: 460, message: 'Неправильное значение id пользователя' });
             const plays = await PlayService.getPlaysGamer({ id: id })
             return res.json({ plays: plays });
         } catch (error: any) {
@@ -343,8 +324,6 @@ class PlayController {
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ status: 460, message: 'Неправильное значение id пользователя' });
             const plays = await PlayService.getPlaysMaster({ id: id })
             return res.json({ plays: plays });
         } catch (error: any) {

@@ -1,8 +1,8 @@
 import * as uuid from 'uuid';
 import nodemailer from 'nodemailer'
-import { pool } from './_getPool';
 import { MAIL_DATA } from '../../tokens.json'
 import MessagesPattern from './MessagesPattern';
+import UserRepository from '../Repositiories/UserRepository';
 
 class SendMessage {
     async mail({ to, message, title }: { to: string, message: string, title: string }) {
@@ -25,7 +25,7 @@ class SendMessage {
     }
     async sendMailAccess({ mail, userid, type }: { mail: string, userid: number, type: "registration" | "changemail" }) {
         const activationLink = uuid.v4();
-        await pool.query(`INSERT INTO maillink (mail, userid, link, dateend) VALUES ($1, $2, $3, now() + '5 hour'::interval);`, [mail, userid, activationLink])
+        await UserRepository.addLinkActivate({ mail: mail, userid: userid, link: activationLink })
         if (type == "registration")
             this.mail({
                 to: mail, title: "Регистрация на сайте любителинастолок.рф", message: MessagesPattern.registrationMail({ activationLink: activationLink })
