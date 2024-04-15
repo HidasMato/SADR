@@ -1,4 +1,4 @@
-import { pool } from '../Services/_getPool';
+import { pool } from '../Repositiories/_getPool';
 import { NoticeMessage } from 'pg-protocol/dist/messages';
 
 // Get all tasks
@@ -22,7 +22,7 @@ const SQLinit = async () => {
             nickname varchar(100) unique NOT NULL,
             mail varchar(100) unique NOT NULL,
             mailVeryfity boolean NOT NULL default(False),
-            passCache varchar(1000) NOT NULL ,
+            passcache varchar(1000) NOT NULL ,
             PRIMARY KEY(id)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS maillink 
@@ -36,10 +36,11 @@ const SQLinit = async () => {
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS refreshtokens 
         (
-            userid int unique,
-            refreshtoken varchar(1000) unique NOT NULL,
-            PRIMARY KEY(userid),
-            FOREIGN KEY (userid) REFERENCES users(id)
+            id SERIAL,
+            userid int,
+            refreshtoken varchar(1000) NOT NULL,
+            fingerprint VARCHAR(100) NOT NULL,
+            UNIQUE(fingerprint, userid)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS masters 
         (

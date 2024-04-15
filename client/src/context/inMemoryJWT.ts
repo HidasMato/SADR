@@ -1,3 +1,5 @@
+import config from "../config";
+
 const inMemoryJervice = () => {
     let inMemoryJWT = null;
 
@@ -10,6 +12,7 @@ const inMemoryJervice = () => {
 
     const deleteToken = () => {
         inMemoryJWT = null;
+        localStorage.setItem(config.LOGOUT_STORAGE_KEY, Date.now().toString());
     };
 
     return {

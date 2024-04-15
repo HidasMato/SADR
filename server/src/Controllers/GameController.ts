@@ -40,12 +40,6 @@ class GameController {
                 description: "Уcпех",
                 schema:{ $ref: '#/definitions/listOfGames' }
             }   
-            #swagger.responses[460] = {
-                description: "Нет игр",
-                schema:{
-                    "message":"Больше игр нет"
-                }
-            }   
          */
         try {
             const query = req.query as object as {
@@ -54,16 +48,15 @@ class GameController {
                 minplayer: number,
                 maxplayer: number
             }
-            const setting = { start: Number(query.start), count: Number(query.count) };
-            const filter = { minplayer: Number(query.minplayer), maxplayer: Number(query.maxplayer) };
-            if (isNaN(setting.start) || setting.start < 0)
-                setting.start = 0
-            if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
-                setting.count = 20
-            const arrGame = await GameService.getGameList({ settingList: setting, filter: filter });
-            if (arrGame.length == 0)
-                return res.status(460).json();
-            return res.json(arrGame);
+            const setting = {
+                start: Number(query.start),
+                count: Number(query.count)
+            };
+            const filter = {
+                minplayer: Number(query.minplayer),
+                maxplayer: Number(query.maxplayer)
+            };
+            return res.json(await GameService.getGameList({ setting: setting, filter: filter }));
         } catch (error: any) {
             next(error)
         }
@@ -89,13 +82,8 @@ class GameController {
             }   
          */
         try {
-            const id = parseInt(req.params.id);
-            if (isNaN(id))
-                return res.status(460).json({ message: "Неправильное значение id" });
-            const response = await GameService.getGameInfoById({ id });
-            if (!response)
-                return res.status(461).json({ message: "Нет такого id в базе" });
-            return res.json(response);
+            const id = Number(req.params.id);
+            return res.json(await GameService.getGameInfoById({ id }));
         } catch (error: any) {
             next(error)
         }
@@ -116,11 +104,8 @@ class GameController {
          */
         try {
             const create: update = req.body;
-            let image = req.files?.image;
-            if (image?.constructor === Array)
-                image = image[0];
-            const result = await GameService.create({ createInf: create, image: image as UploadedFile | undefined });
-            return res.json({ redirectionId: result });
+            const image = (req.files?.image?.constructor === Array) ? req.files?.image[0] : req.files?.image;
+            return res.json({ redirectionId: await GameService.create({ createInf: create, image: image as UploadedFile | undefined }) });
         } catch (error: any) {
             next(error)
         }
@@ -145,12 +130,8 @@ class GameController {
             }  
          */
         try {
-            let image = req.files?.image;
-            if (image?.constructor === Array)
-                image = image[0];
+            const image = (req.files?.image?.constructor === Array) ? req.files?.image[0] : req.files?.image;
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ message: "Неправильное значение id" })
             const update: update = req.body;
             await GameService.update({ id: id, update: update, image: image as UploadedFile | undefined })
             return res.json({ message: "Изменение успешно" });
@@ -177,16 +158,17 @@ class GameController {
                     message: "Удаление не произошло"
                 }
             }  
+            #swagger.responses[461] = {
+                description: "Упех",
+                schema:{
+                    message: "Неправильное значение id"
+                }
+            }  
          */
         try {
             const id = parseInt(req.params.id);
-            if (isNaN(id))
-                throw ApiError.BadRequest({ message: "Неправильное значение id" })
-            const result = await GameService.delete({ id });
-            if (result != 0)
-                return res.json({ message: "Удаление успешно" });
-            else
-                return res.status(460).json({ message: "Удаление не произошло" });
+            await GameService.delete({ id });
+            return res.json({ message: "success" });
         } catch (error: any) {
             next(error)
         }

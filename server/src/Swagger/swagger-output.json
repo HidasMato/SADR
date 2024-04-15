@@ -50,21 +50,6 @@
             "schema": {
               "$ref": "#/definitions/listOfGames"
             }
-          },
-          "460": {
-            "description": "Нет игр",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Больше игр нет"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
           }
         }
       }
@@ -216,6 +201,21 @@
                 "message": {
                   "type": "string",
                   "example": "Удаление не произошло"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "461": {
+            "description": "Упех",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Неправильное значение id"
                 }
               },
               "xml": {
@@ -875,6 +875,9 @@
                 "name": "main"
               }
             }
+          },
+          "462": {
+            "description": ""
           }
         }
       }
@@ -997,9 +1000,6 @@
                 "name": "main"
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "460": {
             "description": "Неправильно значение id игротеки",

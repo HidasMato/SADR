@@ -18,36 +18,12 @@ import swaggerFile from './Swagger/swagger-output.json';
 import cors from "cors";
 import { CLIENT_URL } from '../tokens.json'
 import SQLaddNext from "./SQLInit/SQLaddNext";
+const Fingerprint = require('express-fingerprint');
 
+// Дальше находятся чекеры инициализации базы данных
+// Для этого должна существовать база, а данные для подключения
+// должны быть записаны в файле tokens.json
 
-
-/*
-    Дальше находятся чекеры инициализации базы данных
-    Для этого должна существовать база, а данные для подключения
-    должны быть записаны в файле tokens.json в формате:
-    {
-        "DATABASE": {
-            "USER_NAME": "game_administrator",
-            "USER_PASSWORD": "1234567890",
-            "BASE_NAME": "SADR",
-            "PORT": 5432,
-            "HOST": "localhost"
-        },
-        "TOKENS_KEYS": {
-            "SECRET_ACCESS_KEY": "my the most secret access key",
-            "SECRET_REFRESH_KEY": "my the most secret refresh key"
-        },
-        "MAIL_DATA": {
-            "HOST": "smtp.yandex.ru",
-            "PORT": 465,
-            "USER_MAIL": "lubiteli.nastolok@yandex.ru",
-            "USER_PASSWORD": "sxdfxpwbdmkqqypt"
-        },
-        "SERVER_URL": "http://localhost:2052",
-        "CLIENT_URL": "http://localhost:2051"
-    }
-    Тут USER_PASSWORD это не пароль от почты, а спец токен от почты для приложения. В яндексе подключается как все настроки включить smdp или чота так
-*/
 const deleteTables = false; //Перед инициализацией бд удалить таблицы
 const initBd = false; // Инициализировать создание таблиц в базе данных.
 const addGame = false; //Добавить в бд предустановленные игры
@@ -73,7 +49,13 @@ app.use(cors(
     }
 ));
 
-
+app.use(Fingerprint({
+    parameters: [
+        Fingerprint.useragent,
+        Fingerprint.acceptHeaders,
+        Fingerprint.geoip
+    ]
+}))
 
 app.use(LogMiddleWare)
 app.use(AuthMiddleWare)
