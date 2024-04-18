@@ -16,21 +16,9 @@ const bodyParser = require('body-parser')
 import swaggerUI from 'swagger-ui-express';
 import swaggerFile from './Swagger/swagger-output.json';
 import cors from "cors";
-import { CLIENT_URL } from '../tokens.json'
+import { CLIENT_URL, DATABASE_SCRYPTS } from '../tokens.json'
 import SQLaddNext from "./SQLInit/SQLaddNext";
 const Fingerprint = require('express-fingerprint');
-
-// Дальше находятся чекеры инициализации базы данных
-// Для этого должна существовать база, а данные для подключения
-// должны быть записаны в файле tokens.json
-
-const deleteTables = false; //Перед инициализацией бд удалить таблицы
-const initBd = false; // Инициализировать создание таблиц в базе данных.
-const addGame = false; //Добавить в бд предустановленные игры
-const addUser = false; //Добавить в бд зарегестрированных пользователе
-const addPlay = false; //Добавить в бд предустановленные игротеки
-const addNext = false; //Добавить в бд предустановленные игротеки
-
 
 const app = express();
 const PORT = 2052;
@@ -74,18 +62,18 @@ app.use('/api/play', PlayRouter
     //#swagger.tags = ['play']
 );
 
-//Обработчик ошибок
+
 app.use(ErrorMiddleWare)
 
 
 const startApp = async () => {
     try {
-        if (deleteTables) await SQLdeleteTables();
-        if (initBd) await SQLinit();
-        if (addGame) await SQLaddGame();
-        if (addUser) await SQLaddUsers();
-        if (addPlay) await SQLaddPlay();
-        if (addNext) await SQLaddNext();
+        if (DATABASE_SCRYPTS.CREATE) await SQLdeleteTables();
+        if (DATABASE_SCRYPTS.CREATE) await SQLinit();
+        if (DATABASE_SCRYPTS.ADD_GAMES) await SQLaddGame();
+        if (DATABASE_SCRYPTS.ADD_USERS) await SQLaddUsers();
+        if (DATABASE_SCRYPTS.ADD_PLAYS) await SQLaddPlay();
+        if (DATABASE_SCRYPTS.ADD_NEXT) await SQLaddNext();
         app.listen(PORT)
         console.log(`Server start! url: http://localhost:${PORT}/`);
         console.log(`Swagger url: http://localhost:${PORT}/api/doc`);

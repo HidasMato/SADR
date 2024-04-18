@@ -5,11 +5,6 @@ import UserService from "../Services/UserService";
 
 async function AuthMiddleWare(req: Request, res: Response, next: NextFunction) {
     try {
-        req.body.roles = {
-            user: false,
-            master: false,
-            admin: false
-        }
         const authorizationHeader = req.headers.authorization;
         if (!authorizationHeader)
             return next();
@@ -19,9 +14,20 @@ async function AuthMiddleWare(req: Request, res: Response, next: NextFunction) {
         const user = await TokenService.validateAccessToken({ token: accessToken });
         if (!user)
             return next();
-        const role = await UserService.getUserRole({ id: user.id })
-        req.body.roles = role;
+        const roles = await UserService.getUserRole({ id: user.id })
+        req.body.roles = roles;
         req.body.uid = user.id;
+        // let logStr = ''
+        // if (!roles.gamer)
+        //     logStr = 'Не пользователь'
+        // else {
+        //     logStr = "Игрок"
+        //     if (roles.master)
+        //         logStr += ', Мастер'
+        //     if (roles.admin)
+        //         logStr += ', Админ'
+        // }
+        // console.log(logStr)
         return next();
     } catch (error) {
         console.log(error)

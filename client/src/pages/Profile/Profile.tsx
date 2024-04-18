@@ -2,9 +2,9 @@ import { useContext, useEffect, useState } from "react";
 import styles from "./Profile.module.scss";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../../context/AuthContext";
-import UserPlaysAPI, { IGamerPlaysData, IMasterPlaysData } from "../../api/UserPlays.api";
+import UserProfileAPI, { IGamerPlaysData, IMasterPlaysData, IUserData } from "../../api/UserProfile.api";
 import { AuthContext } from "../../context/AuthContext";
-import UserInfoAPI, { IUserData } from "../../api/UserInfo.api";
+import Button from "../../components/Button/Button";
 
 const Profile = (): JSX.Element => {
     const { logout } = useContext(AuthContext)
@@ -13,18 +13,18 @@ const Profile = (): JSX.Element => {
     const [gamerPlays, setGamerPlays] = useState<undefined | IGamerPlaysData['plays']>(undefined);
     const [masterPlays, setMasterPlays] = useState<undefined | IMasterPlaysData['plays']>(undefined);
     useEffect(() => {
-        UserInfoAPI.getUserInfo().then(a => {
+        UserProfileAPI.getUserInfo().then(a => {
             setUserInfo(a)
         })
     }, [])
     useEffect(() => {
-        if (userInfo?.roles.user) {
-            UserPlaysAPI.getGamerPlays(userInfo.id).then(a => {
+        if (userInfo?.roles.gamer) {
+            UserProfileAPI.getGamerPlays(userInfo.id).then(a => {
                 setGamerPlays(a.plays)
             })
         }
         if (userInfo?.roles.master) {
-            UserPlaysAPI.getMasterPlays(userInfo.id).then(a => {
+            UserProfileAPI.getMasterPlays(userInfo.id).then(a => {
                 setMasterPlays(a.plays)
             })
         }
@@ -92,8 +92,8 @@ const Profile = (): JSX.Element => {
         return (
             <div className={styles.Part2}>
                 <div className={styles.Buttons}>
-                    <button className={styles.Button}>Редактировать аккаунт</button>
-                    <button className={styles.Button} onClick={Out}>Выйти из аккаунта</button>
+                    <Button text={"Редактировать аккаунт"} onClick={() => { console.log("Редактировать аккаунт") }} />
+                    <Button text={"Выйти из аккаунта"} onClick={Out} />
                 </div>
                 {getGamerPlays()}
                 {masterPlays ? getMasterPlays() : null}
@@ -105,7 +105,7 @@ const Profile = (): JSX.Element => {
         return (
             <div className={styles.Part}>
                 <div className={styles.Image}>
-                    <img src={`${API_URL}/user_${userInfo.id}.png`} onError={(e) => { e.currentTarget.src = `${API_URL}/image.png` }} />
+                    <img src={`${API_URL}/users/${userInfo.id}.png`} onError={(e) => { e.currentTarget.src = `${API_URL}/image.png` }} />
                 </div>
                 <div className={styles.Name}>
                     {userInfo.nickname}
@@ -113,7 +113,7 @@ const Profile = (): JSX.Element => {
                 <div className={styles.UnderImage}>
                     <div className={styles.Role}>{`Роли`}{':'}</div>
                     <div className={styles.Roles}>
-                        {userInfo.roles.user ? <div className={styles.Gamer}>{"Игрок"}</div> : ""}
+                        {userInfo.roles.gamer ? <div className={styles.Gamer}>{"Игрок"}</div> : ""}
                         {userInfo.roles.master ? <div className={styles.Master}>{"Мастер"}</div> : ""}
                         {userInfo.roles.admin ? <div className={styles.Admin}>{"Админ"}</div> : ""}
                     </div>
@@ -124,7 +124,8 @@ const Profile = (): JSX.Element => {
                     </div>
                     : <div className={styles.MailVeryfity}>
                         {"Подтвердите почту"}
-                        <button className={styles.Button}>Отправить повторно</button></div>
+                        <Button text={"Отправить повторно"} onClick={() => { console.log("Отправить повторно") }} />
+                    </div>
                 }
             </div>
         );

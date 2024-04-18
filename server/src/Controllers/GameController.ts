@@ -1,17 +1,9 @@
 
-import { NextFunction, Request, Response, response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import GameService from '../Services/GameService';
 import { UploadedFile } from 'express-fileupload';
-import ApiError from '../Exeptions/ApiError';
-type update = {
-    name: string | undefined,
-    minplayers: number | undefined,
-    maxplayers: number | undefined,
-    mintimeplay: number | undefined,
-    maxtimeplay: number | undefined,
-    hardless: number | undefined,
-    description: string | undefined
-}
+import { GameUpdate } from '../Types/GameUpdate';
+
 
 class GameController {
     async getList(req: Request, res: Response, next: NextFunction) {
@@ -43,18 +35,20 @@ class GameController {
          */
         try {
             const query = req.query as object as {
-                start: number,
-                count: number,
-                minplayer: number,
-                maxplayer: number
+                page: number,
+                player: number,
+                time: number,
+                hardless: number
+                findname: string
             }
             const setting = {
-                start: Number(query.start),
-                count: Number(query.count)
+                page: Number(query.page)
             };
             const filter = {
-                minplayer: Number(query.minplayer),
-                maxplayer: Number(query.maxplayer)
+                player: Number(query.player),
+                time: Number(query.time),
+                hardless: Number(query.hardless),
+                findname: query.findname
             };
             return res.json(await GameService.getGameList({ setting: setting, filter: filter }));
         } catch (error: any) {
@@ -103,7 +97,7 @@ class GameController {
             }  
          */
         try {
-            const create: update = req.body;
+            const create: GameUpdate = req.body;
             const image = (req.files?.image?.constructor === Array) ? req.files?.image[0] : req.files?.image;
             return res.json({ redirectionId: await GameService.create({ createInf: create, image: image as UploadedFile | undefined }) });
         } catch (error: any) {
@@ -131,8 +125,8 @@ class GameController {
          */
         try {
             const image = (req.files?.image?.constructor === Array) ? req.files?.image[0] : req.files?.image;
-            const id = parseInt(req.params.id);
-            const update: update = req.body;
+            const id = Number(req.params.id);
+            const update: GameUpdate = req.body;
             await GameService.update({ id: id, update: update, image: image as UploadedFile | undefined })
             return res.json({ message: "Изменение успешно" });
         } catch (error: any) {
@@ -166,7 +160,7 @@ class GameController {
             }  
          */
         try {
-            const id = parseInt(req.params.id);
+            const id = Number(req.params.id);
             await GameService.delete({ id });
             return res.json({ message: "success" });
         } catch (error: any) {

@@ -3,25 +3,9 @@ import bcrypt from 'bcrypt';
 import TokenService from './TokenService';
 import ApiError from '../Exeptions/ApiError';
 import UserRepository from '../Repositiories/UserRepository';
-type getList = {
-    setting: {
-        start: number,
-        count: number
-    },
-    filter: {},
-    MODE: "sequrity" | "forAll"
-}
-type UserToCookie = {
-    mail: string,
-    nickname: string,
-    id: number,
-    mailveryfity: boolean,
-    roles: {
-        user: boolean,
-        master: boolean,
-        admin: boolean
-    }
-};
+import { Roles } from '../Types/Roles';
+import { UserSetting } from '../Types/UserSetting';
+import { UserToCookie } from '../Types/UserToCookie';
 class UserService {
     static createDateAsUTC() {
         const date = new Date()
@@ -57,12 +41,12 @@ class UserService {
     }
     async getUserRole({ id }: { id: number }) {
         const role = {
-            user: false,
+            gamer: false,
             master: false,
             admin: false
         }
         if (await UserRepository.isUserUser({ id: id })) {
-            role.user = true;
+            role.gamer = true;
             if (await UserRepository.isUserMaster({ id: id }) && (await UserRepository.getMasterActive({ id: id })))
                 role.master = true;
             if (await UserRepository.isUserAdmin({ id: id }))
@@ -80,7 +64,7 @@ class UserService {
         userInfo.roles = await this.getUserRole({ id: userInfo.id });
         return userInfo;
     }
-    async getUserList({ setting, filter, MODE }: getList) {
+    async getUserList({ setting, filter, MODE }: UserSetting) {
         if (isNaN(setting.start) || setting.start < 0)
             setting.start = 0
         if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
@@ -114,7 +98,7 @@ class UserService {
         const userRoles = await this.getUserRole({ id: id });
         let active: boolean | undefined;
         switch (role) {
-            case "user": {
+            case "gamer": {
                 if (!userRoles.master) {
                     active = await UserRepository.getMasterActive({ id: id });
                     if (active == undefined)

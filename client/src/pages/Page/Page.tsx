@@ -10,6 +10,7 @@ import Play from "../Play/Play";
 import Game from "../Game/Game";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import ErrorPage from "../ErrorPage/ErrorPage";
 
 type PageObject = {
     showLogin: boolean;
@@ -22,11 +23,12 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
         return (
             <Routes>
                 {isUserLogged ? <Route path="/profile" element={<Profile />} /> : null}
-                <Route path="/games" element={<Games />} />
+                <Route path="/" element={<MainPage />} />
+                <Route path="/games/" element={<Games />} />
                 <Route path="/game/:id" element={<Game />} />
                 <Route path="/plays" element={<Plays />} />
                 <Route path="/play/:id" element={<Play />} />
-                <Route path="/*" element={<MainPage />} />
+                <Route path="/*" element={<ErrorPage />} />
             </Routes>
         );
     }

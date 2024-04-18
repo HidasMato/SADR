@@ -1,26 +1,6 @@
-
-import { QueryResult } from 'pg';
 import { pool } from './_getPool';
-import ApiError from '../Exeptions/ApiError';
-type getList = {
-    setting: {
-        start: number,
-        count: number
-    },
-    filter: {},
-    MODE: "sequrity" | "forAll"
-}
-type UserToCookie = {
-    mail: string,
-    nickname: string,
-    id: number,
-    mailveryfity: boolean,
-    roles: {
-        user: boolean,
-        master: boolean,
-        admin: boolean
-    }
-};
+import { UserToCookie } from '../Types/UserToCookie';
+import { UserSetting } from '../Types/UserSetting';
 class UserService {
     getMasMode(MODE: "sequrity" | "forAll") {
         let mas = ['id'];
@@ -61,7 +41,7 @@ class UserService {
     async returnMaster({ id }: { id: number }): Promise<boolean | undefined> {
         return (await pool.query(`UPDATE masters SET active = True WHERE id = $1 ;`, [id]))?.rowCount as number > 0;
     }
-    async getUserList({ setting, filter, MODE }: getList) {
+    async getUserList({ setting, filter, MODE }: UserSetting) {
         let filterStr = '';
         //TODO: реализовать строку фильтра
         for (let add of Object.keys(filter)) {

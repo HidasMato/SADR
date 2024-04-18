@@ -6,13 +6,13 @@ const UserRouter = Router();
 
 UserRouter.get('/activate/:link',UserController.activateLink)
 UserRouter.get('/refresh', UserController.refresh)
-UserRouter.get('/all', UserController.getList)
+// UserRouter.get('/all', UserController.getList)
 UserRouter.get('/info', UserController.getUserInfo);
 UserRouter.get('/:id/playsgamer', PlayController.getPlaysGamer);
 UserRouter.get('/:id/playsmaster', PlayController.getPlaysMaster);
-UserRouter.get('/:id', UserController.getUserInfoById);
+// UserRouter.get('/:id', UserController.getUserInfoById);
 
-UserRouter.put('/:id/update', UserController.change);
+UserRouter.put('/update', UserController.change);
 
 UserRouter.post('/registration', UserController.registration)
 UserRouter.post('/login',UserController.login) 

@@ -5,6 +5,8 @@ import FileService from '../Services/FileService';
 import { UploadedFile } from 'express-fileupload';
 import { CLIENT_URL } from '../../tokens.json'
 import ApiError from '../Exeptions/ApiError';
+import RigthsService from '../Services/RigthsService';
+import { Roles } from '../Types/Roles';
 
 class UserController {
     async getUserInfo(req: Request, res: Response, next: NextFunction) {
@@ -23,6 +25,8 @@ class UserController {
             } 
          */
         try {
+            if (!RigthsService.forGamerOrMasterOrAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
             const id = req.body.uid;
             const user = await UserService.getUserInfoById({ id: id, MODE: 'sequrity' });
             return res.json(user);
@@ -46,7 +50,9 @@ class UserController {
             } 
          */
         try {
-            const id = parseInt(req.params.id);
+            if (!RigthsService.forMasterOrAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
+            const id = Number(req.params.id);
             //TODO: здесь проверка кто запрашивает инфу пока будет секьюрити
             const user = await UserService.getUserInfoById({ id: id, MODE: 'sequrity' });
             return res.json(user);
@@ -79,15 +85,8 @@ class UserController {
             }   
          */
         try {
-            if (!req.body.roles.user)
-                console.log("Не пользователь. Доступен только базовый функционал")
-            else {
-                console.log("Пользователь. Доступен функционал игрока")
-                if (req.body.roles.master)
-                    console.log("Мастер. Доступен функционал мастера")
-                if (!req.body.roles.admin)
-                    console.log("Администратор. Доступен функционал администратора")
-            }
+            if (!RigthsService.forMasterOrAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
             const query = req.query as object as {
                 start: number,
                 count: number,
@@ -106,11 +105,6 @@ class UserController {
     async change(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.description = 'Обновляет только одну вещь за раз. Если есть пароль, то обновить пароль. Иначе если есть никнейм обновит никнейм. Иначе Если есть картика, то обновить картинку. Иначе если есть роль обновит роль. Иначе если есть описание (у мастера) обновит описание. Иначе обновит почту'
-            #swagger.parameters['id'] = {
-                in: 'path',                            
-                description: 'Айди пользователя',                          
-                type: 'number',                          
-            }
             #swagger.parameters['body'] = {
                 in: 'body',         
                 schema: { $ref: '#/definitions/changeUser' }                     
@@ -123,9 +117,10 @@ class UserController {
             } 
          */
         try {
-            //TODO: Добавить тут получение почты через id
+            if (req.body.id != undefined && !RigthsService.onlyForAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
+            const id = Number(req.body.id == undefined ? req.body.uid : req.body.id);
             const image = req.files?.image;
-            const id = parseInt(req.params.id);
             const changeDate: { mail: string, pass: string, nickname: string, role: string, description: string } = req.body;
             if (changeDate.pass)
                 await UserService.changePass({ mail: changeDate.mail, pass: changeDate.pass, id: id });

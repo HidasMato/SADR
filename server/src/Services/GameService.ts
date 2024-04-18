@@ -2,32 +2,33 @@ import ApiError from '../Exeptions/ApiError';
 import { UploadedFile } from 'express-fileupload';
 import FileService from './FileService';
 import GameRepository from '../Repositiories/GameRepository';
+import { GameSetting } from '../Types/GameSetting';
+import { GameUpdate } from '../Types/GameUpdate';
 
-type getList = {
-    setting: {
-        start: number,
-        count: number
-    },
-    filter: {}
-}
-type update = {
-    name: string | undefined,
-    minplayers: number | undefined,
-    maxplayers: number | undefined,
-    mintimeplay: number | undefined,
-    maxtimeplay: number | undefined,
-    hardless: number | undefined,
-    description: string | undefined
-}
 
 class GameService {
-    async getGameList({ setting, filter }: getList) {
-        if (isNaN(setting.start) || setting.start < 0)
-            setting.start = 0
-        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
-            setting.count = 20
+    async getGameList({ setting, filter }: GameSetting) {
+        if (setting.page == undefined)
+            setting.page = 1
+        else if (isNaN(setting.page) || setting.page < 1)
+            setting.page = 1
+        if (filter.hardless != undefined)
+            if (isNaN(filter.hardless))
+                filter.hardless = undefined
+            else
+                filter.hardless = Number(filter.hardless)
+        if (filter.player != undefined)
+            if (isNaN(filter.player))
+                filter.player = undefined
+            else
+                filter.player = Number(filter.player)
+        if (filter.time != undefined)
+            if (isNaN(filter.time))
+                filter.time = undefined
+            else
+                filter.time = Number(filter.time)
         //TODO: реализовать фильт поиска
-        return await GameRepository.getGameList({ setting: setting, filter: filter });
+        return await GameRepository.getGameList({ setting: setting, filter: filter })
     }
     async getGameInfoById({ id }: { id: number }) {
         if (isNaN(id))
@@ -46,13 +47,13 @@ class GameService {
         if (!isTrue)
             throw ApiError.BadRequest({ status: 460, message: "Не удалось удалить" })
     }
-    async update({ id, update, image }: { id: number, update: update, image: UploadedFile | undefined }) {
+    async update({ id, update, image }: { id: number, update: GameUpdate, image: UploadedFile | undefined }) {
         if (isNaN(id))
             throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" })
         if (await GameRepository.isGameExists({ id: id }))
             throw ApiError.BadRequest({ status: 462, message: "Игры не существует" })
         let maybeOne = false;
-        for (let per in update) { if (update[per as keyof update]) { maybeOne = true; break; } }
+        for (let per in update) { if (update[per as keyof GameUpdate]) { maybeOne = true; break; } }
         if (!maybeOne)
             throw ApiError.BadRequest({ message: "Нет параметров для редактирования" })
         const isTrue = GameRepository.updateGame({ id: id, update: update });
@@ -61,7 +62,7 @@ class GameService {
         if (image)
             await FileService.saveFile({ file: image as UploadedFile, fileName: 'game_' + id + '.png' })
     }
-    async create({ createInf, image }: { createInf: update, image?: UploadedFile | undefined }) {
+    async create({ createInf, image }: { createInf: GameUpdate, image?: UploadedFile | undefined }) {
         if (!createInf.name)
             throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name" })
         const newId = await GameRepository.createGame({ createInf: createInf });

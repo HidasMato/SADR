@@ -20,12 +20,20 @@ npm i</code>
         "USER_NAME": "",
         "USER_PASSWORD": "",
         "BASE_NAME": "",
-        "PORT": ,
+        "PORT": 5432,
         "HOST": "localhost"
     },
+    "DATABASE_SCRYPTS": {
+        "DELETE": true,
+        "CREATE": true,
+        "ADD_GAMES": true,
+        "ADD_USERS": true,
+        "ADD_PLAYS": true,
+        "ADD_NEXT": true
+    },
     "TOKENS_KEYS": {
-        "SECRET_ACCESS_KEY": "",
-        "SECRET_REFRESH_KEY": ""
+        "SECRET_ACCESS_KEY": "my the most secret access key",
+        "SECRET_REFRESH_KEY": "my the most secret refresh key"
     },
     "MAIL_DATA": {
         "HOST": "smtp.yandex.ru",

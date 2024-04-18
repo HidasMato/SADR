@@ -1,41 +1,15 @@
 
+import { PlayQuery } from '../Types/PlayQuery';
+import { PlaySetting } from '../Types/PlaySetting';
+import { PlayUpdate } from '../Types/PlayUpdate';
 import { pool } from './_getPool';
 
-type getList = {
-    setting: {
-        start: number,
-        count: number
-    },
-    filter: {}
-}
-
-type update = {
-    name: string | undefined,
-    masterId: number | undefined,
-    minplayers: number | undefined,
-    maxplayers: number | undefined,
-    description: string | undefined,
-    status: boolean | undefined
-    datestart: Date | undefined,
-    dateend: Date | undefined
-}
-type PlayQuery = {
-    id: number,
-    name: string,
-    masterid: number,
-    minplayers: number,
-    maxplayers: number,
-    description: string,
-    status: boolean,
-    datestart: Date,
-    dateend: Date,
-}
 
 class PlayRepository {
     async getPlayInfoById({ id }: { id: number }): Promise<PlayQuery> {
         return (await pool.query(`SELECT * FROM plays WHERE id = $1`, [id]))?.rows?.[0];
     }
-    async getPlayList({ setting, filter }: getList): Promise<PlayQuery[]> {
+    async getPlayList({ setting, filter }: PlaySetting): Promise<PlayQuery[]> {
         let filterStr = '';
         //TODO: реализовать строку фильтра
         for (let add of Object.keys(filter)) {
@@ -59,22 +33,22 @@ class PlayRepository {
     async deletePlay({ id }: { id: number }): Promise<boolean> {
         return (await pool.query(`DELETE FROM plays WHERE id = $1;`, [id])).rowCount as number > 0 ? true : false;
     }
-    async updatePlay({ id, update }: { id: number, update: update }): Promise<boolean> {
+    async updatePlay({ id, update }: { id: number, update: PlayUpdate }): Promise<boolean> {
         let str1 = "", mas: any[] = [id];
-        for (let add of Object.keys(update)) {
-            if (update[add as keyof update] != undefined) {
-                mas.push(update[add as keyof update])
+        for (let add of ['name', 'masterId', 'minplayers', 'maxplayers', 'description', 'status', 'datestart', 'dateend']) {
+            if (update[add as keyof PlayUpdate] != undefined) {
+                mas.push(update[add as keyof PlayUpdate])
                 str1 += (str1 == '' ? '' : ', ') + `${add} = $${mas.length}`;
             }
         }
         return (await pool.query(`UPDATE plays SET ${str1} WHERE id = $1;`, mas)).rowCount as number > 0 ? true : false;
     }
-    async createPlay({ createInf }: { createInf: update }): Promise<number | undefined> {
+    async createPlay({ createInf }: { createInf: PlayUpdate }): Promise<number | undefined> {
         let str1 = "name", str2 = "$1", mas: any[] = [createInf.name];
         for (let add of ['masterId', 'minplayers', 'maxplayers', 'description', 'status', 'datestart', 'dateend']) {
-            if (createInf[add as keyof update]) {
+            if (createInf[add as keyof PlayUpdate]) {
                 str1 += ', ' + add;
-                mas.push(createInf[add as keyof update])
+                mas.push(createInf[add as keyof PlayUpdate])
                 str2 += ', $' + mas.length;
             }
         }

@@ -5,28 +5,18 @@ import FileService from './FileService';
 import PlayRepository from '../Repositiories/PlayRepository';
 import GameRepository from '../Repositiories/GameRepository';
 import UserRepository from '../Repositiories/UserRepository';
-
-type getList = {
-    setting: {
-        start: number,
-        count: number
-    },
-    filter: {}
-}
-
-type update = {
-    name: string | undefined,
-    masterId: number | undefined,
-    minplayers: number | undefined,
-    maxplayers: number | undefined,
-    description: string | undefined,
-    status: boolean | undefined
-    datestart: Date | undefined,
-    dateend: Date | undefined,
-    games: number[] | undefined
-}
+import { PlaySetting } from '../Types/PlaySetting';
+import { PlayUpdate } from '../Types/PlayUpdate';
 
 class PlayService {
+    async getMasterId({ playId }: { playId: number }) {
+        if (isNaN(playId))
+            throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" });
+        const masterId = (await PlayRepository.getPlayInfoById({ id: playId }))?.masterid;
+        if (!masterId)
+            throw ApiError.BadRequest({ status: 460, message: "Игры не существует" })
+        return Number(masterId);
+    }
     async getPlayInfoById({ id }: { id: number }) {
         if (isNaN(id))
             throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" });
@@ -35,7 +25,7 @@ class PlayService {
             throw ApiError.BadRequest({ status: 460, message: "Игры не существует" })
         return play;
     }
-    async getPlayList({ setting, filter }: getList) {
+    async getPlayList({ setting, filter }: PlaySetting) {
         if (isNaN(setting.start) || setting.start < 0)
             setting.start = 0
         if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
@@ -65,14 +55,14 @@ class PlayService {
         }
         return isChanges;
     }
-    async updatePlay({ id, update, image }: { id: number, update: update, image?: UploadedFile | undefined }): Promise<boolean> {
+    async updatePlay({ id, update, image }: { id: number, update: PlayUpdate, image?: UploadedFile | undefined }): Promise<boolean> {
         if (isNaN(id))
             throw ApiError.BadRequest({ message: "Неправильное значение id" })
         if (!(await PlayRepository.isPlayExists({ id: id })))
             throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" })
         let maybeOne = false, meybeGame = false;
         const updateParametrs = ['name', 'masterId', 'minplayers', 'maxplayers', 'description', 'status', 'datestart', 'dateend']
-        for (let per of updateParametrs) if (update[per as keyof update]) { maybeOne = true; break; }
+        for (let per of updateParametrs) if (update[per as keyof PlayUpdate]) { maybeOne = true; break; }
         //Обновляем игры
         if (update.games) meybeGame = await (new PlayService).changeGamesOnPlay({ playId: id, games: update.games });
         //Обновляем инфу
@@ -81,7 +71,7 @@ class PlayService {
         if (image) await FileService.saveFile({ file: image as UploadedFile, fileName: 'play_' + id + '.png' })
         if (!maybeOne && meybeGame) return false; else return true;
     }
-    async createPlay({ createInf, image }: { createInf: update, image?: UploadedFile | undefined }): Promise<number | boolean[]> {
+    async createPlay({ createInf, image }: { createInf: PlayUpdate, image?: UploadedFile | undefined }): Promise<number | boolean[]> {
         if (!createInf.name)
             throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name" })
         if (createInf.games && createInf.games.length > 0) {
@@ -98,7 +88,7 @@ class PlayService {
         if (!newId)
             throw ApiError.BadRequest({ status: 460, message: "Не удалось создать игру" })
         if (createInf.games && createInf.games?.length > 0)
-            (new PlayService).updatePlay({ id: newId, update: { games: createInf.games } as update })
+            (new PlayService).updatePlay({ id: newId, update: { games: createInf.games } as PlayUpdate })
         if (image)
             await FileService.saveFile({ file: image as UploadedFile, fileName: 'play_' + newId + '.png' })
         return newId;

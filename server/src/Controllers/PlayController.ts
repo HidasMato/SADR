@@ -3,18 +3,9 @@ import { NextFunction, Request, Response, response } from 'express';
 import PlayService from '../Services/PlayService';
 import { UploadedFile } from 'express-fileupload';
 import ApiError from '../Exeptions/ApiError';
-
-type update = {
-    name: string | undefined,
-    masterId: number | undefined,
-    minplayers: number | undefined,
-    maxplayers: number | undefined,
-    description: string | undefined,
-    status: boolean | undefined,
-    datestart: Date | undefined,
-    dateend: Date | undefined,
-    games: number[] | undefined
-}
+import RigthsService from '../Services/RigthsService';
+import { Roles } from '../Types/Roles';
+import { PlayUpdate } from '../Types/PlayUpdate';
 
 
 class PlayController {
@@ -39,7 +30,7 @@ class PlayController {
             }   
          */
         try {
-            const id = parseInt(req.params.id);
+            const id = Number(req.params.id);
             const response = await PlayService.getPlayInfoById({ id });
             if (!response)
                 return res.status(461).json({ message: "Нет такого id в базе" });
@@ -113,7 +104,9 @@ class PlayController {
             }  
          */
         try {
-            const create: update = req.body;
+            if (!RigthsService.forMasterOrAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
+            const create: PlayUpdate = req.body;
             let image = req.files?.image;
             if (image?.constructor === Array)
                 image = image[0];
@@ -146,11 +139,15 @@ class PlayController {
             }  
          */
         try {
-            const id = parseInt(req.params.id);
+            if (!RigthsService.forMasterOrAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
+            const id = Number(req.params.id);
+            if (RigthsService.onlyForMaster({ roles: req.body.roles as Roles }) && !((await PlayService.getMasterId({ playId: id })) == id))
+                throw ApiError.Teapot();
             let image = req.files?.image;
             if (image?.constructor === Array)
                 image = image[0];
-            const update: update = req.body;
+            const update: PlayUpdate = req.body;
             if (!await PlayService.updatePlay({ id: id, update: update, image: image as UploadedFile | undefined }))
                 return res.status(460).json({ message: "Пустой массив изменений" });
             else
@@ -180,7 +177,9 @@ class PlayController {
             }  
          */
         try {
-            const id = parseInt(req.params.id);
+            if (!RigthsService.onlyForAdmin({ roles: req.body.roles as Roles }))
+                throw ApiError.Teapot();
+            const id = Number(req.params.id);
             const result = await PlayService.deletePlay({ id });
             if (result)
                 return res.json({ message: "Удаление успешно" });
@@ -223,8 +222,10 @@ class PlayController {
             }  
          */
         try {
-            const playId = parseInt(req.params.id);
+            const playId = Number(req.params.id);
             const { userId }: { userId: number } = req.body;
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && userId == req.body.uid))
+                throw ApiError.Teapot();
             await PlayService.registrUserToPlay({ playId: playId, userId: userId })
             return res.json({ message: "Пользователь добавлен" });
         } catch (error: any) {
@@ -264,8 +265,10 @@ class PlayController {
             }  
          */
         try {
-            const playId = parseInt(req.params.id);
+            const playId = Number(req.params.id);
             const { userId }: { userId: number } = req.body;
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && userId == req.body.uid))
+                throw ApiError.Teapot();
             await PlayService.unRegistrUserToPlay({ playId: playId, userId: userId })
             return res.json({ message: "Пользователь удален" });
         } catch (error: any) {
@@ -295,7 +298,9 @@ class PlayController {
             }
          */
         try {
-            const id = parseInt(req.params.id);
+            const id = Number(req.params.id);
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && id != req.body.uid))
+                throw ApiError.Teapot();
             const plays = await PlayService.getPlaysGamer({ id: id })
             return res.json({ plays: plays });
         } catch (error: any) {
@@ -323,7 +328,9 @@ class PlayController {
             }
          */
         try {
-            const id = parseInt(req.params.id);
+            const id = Number(req.params.id);
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && id != req.body.uid))
+                throw ApiError.Teapot();
             const plays = await PlayService.getPlaysMaster({ id: id })
             return res.json({ plays: plays });
         } catch (error: any) {

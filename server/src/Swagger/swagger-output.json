@@ -42,6 +42,31 @@
             "in": "query",
             "description": "Метод фильтра (Не реализовано)",
             "type": "number"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "player",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "time",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "hardless",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "findname",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
@@ -328,55 +353,6 @@
         }
       }
     },
-    "/api/user/all": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Другой игрок может получить только имя и роль",
-        "description": "",
-        "parameters": [
-          {
-            "name": "start",
-            "in": "query",
-            "description": "Начиная с какого номера, def = 0",
-            "type": "number"
-          },
-          {
-            "name": "count",
-            "in": "query",
-            "description": "Сколько позиций будет возвращено, def = 20",
-            "type": "number"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Уcпех",
-            "schema": {
-              "$ref": "#/definitions/listOfUsers"
-            }
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "460": {
-            "description": "Нет игротек",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "В базе данных больше нет игроков"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/user/info": {
       "get": {
         "tags": [
@@ -516,41 +492,13 @@
         }
       }
     },
-    "/api/user/{id}": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/user/{id}/update": {
+    "/api/user/update": {
       "put": {
         "tags": [
           "user"
         ],
         "description": "Обновляет только одну вещь за раз. Если есть пароль, то обновить пароль. Иначе если есть никнейм обновит никнейм. Иначе Если есть картика, то обновить картинку. Иначе если есть роль обновит роль. Иначе если есть описание (у мастера) обновит описание. Иначе обновит почту",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди пользователя"
-          },
           {
             "name": "body",
             "in": "body",
@@ -1092,6 +1040,18 @@
             "required": true,
             "type": "number",
             "description": "Айди игротеки"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "example": "any"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -1358,6 +1318,10 @@
     "changeUser": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
         "nickname": {
           "type": "string",
           "example": "Никнейм"

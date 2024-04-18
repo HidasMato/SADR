@@ -67,6 +67,7 @@ const doc = {
             role: 'Мастер'
         },
         changeUser: {
+            id: 1,
             nickname: 'Никнейм',
             mail: 'mail@mail.mail',
             mailVeryfity: true,
