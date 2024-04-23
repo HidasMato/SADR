@@ -42,7 +42,7 @@ interface returnAuth {
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(
-    undefined,
+    undefined
 );
 
 const AuthProvider = ({ children }) => {
@@ -83,7 +83,7 @@ const AuthProvider = ({ children }) => {
         try {
             const responce = await AuthAPI.post<LoginResponse>(
                 "/user/registration",
-                { mail, pass, nickname },
+                { mail, pass, nickname }
             );
             inMemoryJWT.setToken(responce.data.accessToken);
             setIsUserLogged(true);
@@ -166,7 +166,7 @@ const AuthProvider = ({ children }) => {
                     }
                 }
                 throw error;
-            },
+            }
         );
     }, []);
 
@@ -178,8 +178,7 @@ const AuthProvider = ({ children }) => {
                 registration,
                 isAppReady,
                 isUserLogged,
-            }}
-        >
+            }}>
             {children}
         </AuthContext.Provider>
     );

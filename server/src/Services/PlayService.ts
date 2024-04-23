@@ -157,7 +157,7 @@ class PlayService {
                     });
                     if (!bool) thr = true;
                     return bool;
-                }),
+                })
             );
             if (thr) return isGamesExists;
         }
@@ -308,7 +308,7 @@ class PlayService {
                         dateEnd: playInfo.dateend,
                     },
                 };
-            }),
+            })
         );
         return plays;
     }
@@ -347,7 +347,7 @@ class PlayService {
                         dateEnd: inf.dateend,
                     },
                 };
-            }),
+            })
         );
         return plays;
     }

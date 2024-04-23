@@ -25,8 +25,7 @@ const Option = ({
                 onChange={(e) => {
                     setValue(e.target.value);
                 }}
-                id="player"
-            >
+                id="player">
                 <option key={name + "--"} value={undefined}>
                     {"--"}
                 </option>

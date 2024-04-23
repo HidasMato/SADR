@@ -16,8 +16,8 @@ class UserService {
                 date.getDate(),
                 date.getHours(),
                 date.getMinutes(),
-                date.getSeconds(),
-            ),
+                date.getSeconds()
+            )
         );
     }
     static async getCache(pass: string) {

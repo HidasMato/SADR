@@ -56,8 +56,7 @@ const Games = (): JSX.Element => {
                                                 games[num * 4 + ind]?.id
                                             }
                                             className={styles.Item}
-                                            key={num * 4 + ind}
-                                        >
+                                            key={num * 4 + ind}>
                                             <GameCard
                                                 game={games[num * 4 + ind]}
                                             />
@@ -66,7 +65,7 @@ const Games = (): JSX.Element => {
                                 })}
                             </div>
                         );
-                    },
+                    }
                 )}
             </div>
         );
@@ -159,8 +158,7 @@ const Games = (): JSX.Element => {
                                 className={styles.ThisPage}
                                 onClick={() => {
                                     toPage(a);
-                                }}
-                            >
+                                }}>
                                 {a}
                             </div>
                         );
@@ -169,8 +167,7 @@ const Games = (): JSX.Element => {
                             key={"page" + a}
                             onClick={() => {
                                 toPage(a);
-                            }}
-                        >
+                            }}>
                             {a}
                         </div>
                     );

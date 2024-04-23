@@ -33,7 +33,7 @@ app.use(
     cors({
         credentials: true,
         origin: ["http://localhost:2051", CLIENT_URL],
-    }),
+    })
 );
 
 app.use(
@@ -43,7 +43,7 @@ app.use(
             Fingerprint.acceptHeaders,
             Fingerprint.geoip,
         ],
-    }),
+    })
 );
 
 app.use(LogMiddleWare);
@@ -55,17 +55,17 @@ app.use(express.static("images"));
 
 app.use(
     "/api/game",
-    GameRouter,
+    GameRouter
     //#swagger.tags = ['game']
 );
 app.use(
     "/api/user",
-    UserRouter,
+    UserRouter
     //#swagger.tags = ['user']
 );
 app.use(
     "/api/play",
-    PlayRouter,
+    PlayRouter
     //#swagger.tags = ['play']
 );
 

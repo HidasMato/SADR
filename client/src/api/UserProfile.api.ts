@@ -59,7 +59,7 @@ export default class UserProfileAPI {
         };
     }
     static async getMasterPlays(
-        id: number | undefined,
+        id: number | undefined
     ): Promise<IMasterPlaysData> {
         return {
             plays: (

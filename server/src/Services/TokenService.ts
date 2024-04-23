@@ -14,12 +14,12 @@ class TokenService {
             const accessToken = jwt.sign(
                 payload,
                 TOKENS_KEYS.SECRET_ACCESS_KEY,
-                { expiresIn: "30m" },
+                { expiresIn: "30m" }
             );
             const refreshToken = jwt.sign(
                 payload,
                 TOKENS_KEYS.SECRET_REFRESH_KEY,
-                { expiresIn: "30d" },
+                { expiresIn: "30d" }
             );
             return { accessToken, refreshToken };
         } catch (error) {

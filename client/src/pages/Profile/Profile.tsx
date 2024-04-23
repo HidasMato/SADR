@@ -48,8 +48,7 @@ const Profile = (): JSX.Element => {
                     <Link
                         className={styles.Play}
                         key={ind}
-                        to={`/play/${play.id}`}
-                    >
+                        to={`/play/${play.id}`}>
                         {play.name}
                     </Link>
                 );
@@ -60,17 +59,16 @@ const Profile = (): JSX.Element => {
                     {gamerPlays && gamerPlays.length > 0 ? (
                         <div className={styles.Plays}>
                             {Array.from(
-                                Array(Math.ceil(gamerPlays.length / 2)).keys(),
+                                Array(Math.ceil(gamerPlays.length / 2)).keys()
                             ).map((blockNum) => {
                                 return (
                                     <div
                                         key={"TwoPlays" + blockNum}
-                                        className={styles.TwoPlays}
-                                    >
+                                        className={styles.TwoPlays}>
                                         {gamerPlays
                                             .slice(
                                                 2 * blockNum,
-                                                2 * (blockNum + 1),
+                                                2 * (blockNum + 1)
                                             )
                                             .map((play, ind) => {
                                                 return getOnePlay(play, ind);
@@ -96,8 +94,7 @@ const Profile = (): JSX.Element => {
                     <Link
                         className={styles.Play}
                         key={ind}
-                        to={`/play/${play.id}`}
-                    >
+                        to={`/play/${play.id}`}>
                         {play.name}
                     </Link>
                 );
@@ -108,17 +105,16 @@ const Profile = (): JSX.Element => {
                     {masterPlays?.length ? (
                         <div className={styles.Plays}>
                             {Array.from(
-                                Array(Math.ceil(masterPlays.length / 2)).keys(),
+                                Array(Math.ceil(masterPlays.length / 2)).keys()
                             ).map((blockNum) => {
                                 return (
                                     <div
                                         key={"TwoPlays" + blockNum}
-                                        className={styles.TwoPlays}
-                                    >
+                                        className={styles.TwoPlays}>
                                         {masterPlays
                                             .slice(
                                                 2 * blockNum,
-                                                2 * (blockNum + 1),
+                                                2 * (blockNum + 1)
                                             )
                                             .map((play, ind) => {
                                                 return getOnePlay(play, ind);

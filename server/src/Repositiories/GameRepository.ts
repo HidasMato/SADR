@@ -28,11 +28,11 @@ class GameRepository {
                 else filterStr += " AND ";
                 filterStr += Variable[add as keyof GameFilterVar].replaceAll(
                     "|||",
-                    filterVar.length + 1 + "",
+                    filterVar.length + 1 + ""
                 );
                 if (add == "findname")
                     filterVar.push(
-                        "%" + (filter.findname ?? "").toLowerCase() + "%",
+                        "%" + (filter.findname ?? "").toLowerCase() + "%"
                     );
                 else filterVar.push(filter[add as keyof GameFilter]);
             }
@@ -41,13 +41,13 @@ class GameRepository {
         const games = (
             await pool.query(
                 `SELECT id, name FROM games ${filterStr} ${addStr};`,
-                filterVar,
+                filterVar
             )
         ).rows as GameQuery[];
         const count = (
             await pool.query(
                 `SELECT count(*) as sum FROM games ${filterStr}`,
-                filterVar,
+                filterVar
             )
         ).rows[0].sum;
         return {
@@ -117,7 +117,7 @@ class GameRepository {
         return (
             await pool.query(
                 `INSERT INTO games(${str1}) VALUES (${str2}) RETURNING id;`,
-                mas,
+                mas
             )
         )?.rows?.[0]?.id;
     }
@@ -126,7 +126,7 @@ class GameRepository {
             (
                 await pool.query(
                     `SELECT (SELECT count(*) FROM games WHERE id = $1) > 0 as bol`,
-                    [id],
+                    [id]
                 )
             )?.rows?.[0]?.bol || false
         );

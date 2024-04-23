@@ -5,7 +5,7 @@ function ErrorMiddleWare(
     err: any,
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) {
     console.log(err);
     if (err instanceof ApiError)

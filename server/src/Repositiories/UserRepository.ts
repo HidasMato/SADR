@@ -27,7 +27,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT ${this.getMasMode(MODE).join(", ")} FROM users WHERE id = $1`,
-                [id],
+                [id]
             )
         )?.rows?.[0] as UserToCookie;
     }
@@ -35,7 +35,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(*) FROM users WHERE id = $1) > 0 as bol`,
-                [id],
+                [id]
             )
         ).rows[0].bol;
     }
@@ -43,7 +43,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(*) FROM masters WHERE id = $1 AND active = True) > 0 as bol`,
-                [id],
+                [id]
             )
         ).rows[0].bol;
     }
@@ -51,7 +51,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(*) FROM admins WHERE id = $1) > 0 as bol`,
-                [id],
+                [id]
             )
         ).rows[0].bol;
     }
@@ -69,7 +69,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE masters SET active = False WHERE id = $1;`,
-                    [id],
+                    [id]
                 )
             )?.rowCount as number) > 0
         );
@@ -89,7 +89,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE masters SET active = True WHERE id = $1 ;`,
-                    [id],
+                    [id]
                 )
             )?.rowCount as number) > 0
         );
@@ -128,7 +128,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE users SET passcache = $1 WHERE mail = $2 AND id = $3;`,
-                    [cache, mail, id],
+                    [cache, mail, id]
                 )
             ).rowCount as number) > 0
         );
@@ -146,7 +146,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE users SET nickname = $1 WHERE mail = $2 AND id = $3;`,
-                    [nickname, mail, id],
+                    [nickname, mail, id]
                 )
             ).rowCount as number) > 0
         );
@@ -162,7 +162,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE masters SET description = $2 WHERE id = $1`,
-                    [id, description],
+                    [id, description]
                 )
             ).rowCount as number) > 0
         );
@@ -178,7 +178,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE users SET mail = $1, mailveryfity = $3 WHERE  id = $2;`,
-                    [mail, id, false],
+                    [mail, id, false]
                 )
             ).rowCount as number) > 0
         );
@@ -191,7 +191,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT userid, dateend, mail FROM maillink WHERE link = $1;`,
-                [link],
+                [link]
             )
         ).rows?.[0];
     }
@@ -208,7 +208,7 @@ class UserService {
             ((
                 await pool.query(
                     `INSERT INTO maillink (mail, userid, link, dateend) VALUES ($1, $2, $3, now() + '5 hour'::interval)`,
-                    [mail, userid, link],
+                    [mail, userid, link]
                 )
             ).rowCount as number) > 0
         );
@@ -235,7 +235,7 @@ class UserService {
             ((
                 await pool.query(
                     `UPDATE users SET mail = $2, mailveryfity = $3 WHERE id = $1`,
-                    [userid, mail, value],
+                    [userid, mail, value]
                 )
             ).rowCount as number) > 0
         );
@@ -252,7 +252,7 @@ class UserService {
         return (
             await pool.query(
                 `INSERT INTO users(mail, passcache, nickname) VALUES ($1, $2, $3) RETURNING id;`,
-                [mail, cache, nickname],
+                [mail, cache, nickname]
             )
         ).rows?.[0]?.id;
     }
@@ -266,7 +266,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT passcache, id, nickname FROM users WHERE mail = $1`,
-                [mail],
+                [mail]
             )
         )?.rows?.[0];
     }
@@ -280,7 +280,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT refreshtoken FROM refreshtokens WHERE userid = $1 AND fingerprint = $2`,
-                [id, hash],
+                [id, hash]
             )
         ).rows?.[0]?.refreshtoken;
     }
@@ -288,7 +288,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(*) FROM users WHERE id = $1) > 0 as bol`,
-                [id],
+                [id]
             )
         ).rows[0].bol;
     }
@@ -296,7 +296,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(*) FROM masters WHERE id = $1) > 0 as bol`,
-                [id],
+                [id]
             )
         ).rows[0].bol;
     }
@@ -304,7 +304,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(id) FROM users WHERE mail = $1) > 0 as bol`,
-                [mail],
+                [mail]
             )
         ).rows[0].bol;
     }
@@ -312,7 +312,7 @@ class UserService {
         return (
             await pool.query(
                 `SELECT (SELECT count(id) as sum FROM users WHERE nickname = $1) > 0 as bol`,
-                [nickname],
+                [nickname]
             )
         ).rows[0].bol;
     }

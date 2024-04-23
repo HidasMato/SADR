@@ -149,7 +149,7 @@ class UserController {
             )
                 throw ApiError.Teapot();
             const id = Number(
-                req.body.id == undefined ? req.body.uid : req.body.id,
+                req.body.id == undefined ? req.body.uid : req.body.id
             );
             const image = req.files?.image;
             const changeDate: {

@@ -33,7 +33,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `SELECT (SELECT count(*) FROM plays WHERE id = $1) > 0 as bol`,
-                [id],
+                [id]
             )
         ).rows[0].bol;
     }
@@ -99,7 +99,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `INSERT INTO plays(${str1}) VALUES (${str2}) RETURNING id;`,
-                mas,
+                mas
             )
         )?.rows?.[0]?.id;
     }
@@ -107,7 +107,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `SELECT gameid FROM gamesofplay WHERE playid = $1`,
-                [playId],
+                [playId]
             )
         )?.rows?.map((row) => {
             return row.gameid as number;
@@ -124,7 +124,7 @@ class PlayRepository {
             (((
                 await pool.query(
                     `DELETE FROM gamesofplay WHERE playid = $1 AND gameId = $2`,
-                    [playId, gameId],
+                    [playId, gameId]
                 )
             )?.rowCount as number) > 0
                 ? true
@@ -142,7 +142,7 @@ class PlayRepository {
             (((
                 await pool.query(
                     `INSERT INTO gamesofplay( gamesid, playid ) VALUES ($1, $2)`,
-                    [gameId, playId],
+                    [gameId, playId]
                 )
             )?.rowCount as number) > 0
                 ? true
@@ -159,7 +159,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `SELECT(SELECT count(id) FROM usersofplay WHERE userid = $1 AND playid = $2) > 0 as bol`,
-                [userId, playId],
+                [userId, playId]
             )
         ).rows[0].bol;
     }
@@ -167,7 +167,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `SELECT((SELECT count(id) FROM usersofplay WHERE playid = $1) >= (SELECT maxplayers FROM plays WHERE id = $1 LIMIT 1)) as bol`,
-                [playId],
+                [playId]
             )
         ).rows[0].bol;
     }
@@ -182,7 +182,7 @@ class PlayRepository {
             ((
                 await pool.query(
                     `INSERT INTO usersofplay( userid, playid ) VALUES ($1,$2)`,
-                    [userId, playId],
+                    [userId, playId]
                 )
             ).rowCount as number) > 0
         );
@@ -198,7 +198,7 @@ class PlayRepository {
             ((
                 await pool.query(
                     `DELETE FROM usersofplay WHERE userid = $1 AND playid - $2 `,
-                    [userId, playId],
+                    [userId, playId]
                 )
             ).rowCount as number) > 0
         );
@@ -211,7 +211,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `SELECT playid FROM usersofplay WHERE userid = $1`,
-                [gamerId],
+                [gamerId]
             )
         ).rows.map((val) => {
             return val.playid;
@@ -238,7 +238,7 @@ class PlayRepository {
         return (
             await pool.query(
                 `SELECT id, nickname FROM users WHERE id IN (SELECT userid FROM usersofplay WHERE playid = $1)`,
-                [playId],
+                [playId]
             )
         ).rows as { id: number; nickname: string }[];
     }

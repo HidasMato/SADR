@@ -18,7 +18,7 @@ class datetime {
         mounth: number,
         day: number,
         hour: number,
-        minute: number,
+        minute: number
     ) {
         this.year = year;
         this.mounth = mounth;
@@ -33,10 +33,10 @@ const Plays = (): JSX.Element => {
     const [plays, setPlays] = useState<IPlayData[] | undefined>(undefined);
     const [findName, setFindName] = useState<string>("");
     const [datetimeStart, setDatetimeStart] = useState<datetime | undefined>(
-        undefined,
+        undefined
     );
     const [datetimeEnd, setDatetimeEnd] = useState<datetime | undefined>(
-        undefined,
+        undefined
     );
     const [gameMaster, setGameMaster] = useState<string | undefined>(undefined);
     const [haveFree, setHaveFree] = useState<boolean | undefined>(undefined);
@@ -128,8 +128,7 @@ const Plays = (): JSX.Element => {
                                 className={styles.ThisPage}
                                 onClick={() => {
                                     toPage(a);
-                                }}
-                            >
+                                }}>
                                 {a}
                             </div>
                         );
@@ -138,8 +137,7 @@ const Plays = (): JSX.Element => {
                             key={"page" + a}
                             onClick={() => {
                                 toPage(a);
-                            }}
-                        >
+                            }}>
                             {a}
                         </div>
                     );

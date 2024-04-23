@@ -39,8 +39,7 @@ const Header = ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
                             className={styles.Link}
                             onClick={() => {
                                 setShowLogin(!showLogin);
-                            }}
-                        >
+                            }}>
                             <ProfileIcon className={styles.Icon} />
                             <div className={styles.Text}>Вход</div>
                         </div>

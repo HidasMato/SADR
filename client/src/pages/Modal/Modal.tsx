@@ -110,16 +110,14 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                 </div>
                 <button
                     onClick={Vhod}
-                    className={styles.Active + " " + styles.Vhod}
-                >
+                    className={styles.Active + " " + styles.Vhod}>
                     Вход
                 </button>
                 <button
                     onClick={() => {
                         setIsLogin(false);
                         SbrosLogin();
-                    }}
-                >
+                    }}>
                     Зарегестрироваться
                 </button>
             </div>
@@ -185,8 +183,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                     onClick={() => {
                         setIsLogin(true);
                         SbrosReg();
-                    }}
-                >
+                    }}>
                     Вход
                 </button>
             </div>
@@ -203,32 +200,28 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                                 onClick={() => {
                                     setMailLogin("mySun@mail.ru");
                                     setPassLogin("1234567890");
-                                }}
-                            >
+                                }}>
                                 Солнышко
                             </button>
                             <button
                                 onClick={() => {
                                     setMailLogin("blue_kitty@mail.ru");
                                     setPassLogin("qwertyuiop");
-                                }}
-                            >
+                                }}>
                                 Синий KUT
                             </button>
                             <button
                                 onClick={() => {
                                     setMailLogin("alex10821@mail.ru");
                                     setPassLogin("SupForMe");
-                                }}
-                            >
+                                }}>
                                 Противная сирена
                             </button>
                             <button
                                 onClick={() => {
                                     setMailLogin("loloporow@mail.ru");
                                     setPassLogin("AbraKedabra");
-                                }}
-                            >
+                                }}>
                                 Капелька
                             </button>
                         </div>

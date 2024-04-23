@@ -131,12 +131,10 @@ class PlayController {
             if (typeof result == "number")
                 return res.json({ redirectionId: result });
             else
-                return res
-                    .status(462)
-                    .json({
-                        message: "Не существует игр",
-                        isGamesExists: result,
-                    });
+                return res.status(462).json({
+                    message: "Не существует игр",
+                    isGamesExists: result,
+                });
         } catch (error: any) {
             next(error);
         }

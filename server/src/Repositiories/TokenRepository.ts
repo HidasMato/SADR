@@ -4,7 +4,7 @@ class TokenRepository {
         return (
             await pool.query(
                 `SELECT count(userid) as sum FROM refreshtokens WHERE userid = $1;`,
-                [userId],
+                [userId]
             )
         ).rows[0].sum as number;
     }
@@ -17,7 +17,7 @@ class TokenRepository {
             ((
                 await pool.query(
                     `SELECT userid FROM refreshtokens WHERE refreshtoken = $1;`,
-                    [refreshToken],
+                    [refreshToken]
                 )
             ).rowCount as number) > 0
         );
@@ -27,7 +27,7 @@ class TokenRepository {
             ((
                 await pool.query(
                     `DELETE FROM refreshtokens WHERE id = (SELECT id FROM refreshtokens WHERE userid = $1 LIMIT 1)`,
-                    [userId],
+                    [userId]
                 )
             ).rowCount as number) > 0
         );
@@ -45,7 +45,7 @@ class TokenRepository {
             ((
                 await pool.query(
                     `INSERT INTO refreshtokens (userid, refreshtoken, fingerprint) VALUES ($1, $2, $3)`,
-                    [userId, refreshtoken, hash],
+                    [userId, refreshtoken, hash]
                 )
             ).rowCount as number) > 0
         );
@@ -59,7 +59,7 @@ class TokenRepository {
             ((
                 await pool.query(
                     `DELETE FROM refreshtokens WHERE refreshtoken = $1;`,
-                    [refreshToken],
+                    [refreshToken]
                 )
             ).rowCount as number) > 0
         );

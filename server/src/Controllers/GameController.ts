@@ -52,7 +52,7 @@ class GameController {
                 await GameService.getGameList({
                     setting: setting,
                     filter: filter,
-                }),
+                })
             );
         } catch (error: any) {
             next(error);

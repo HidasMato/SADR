@@ -38,8 +38,7 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
             <div
                 className={
                     styles.UnModal + " " + (showLogin ? styles.Modal : "")
-                }
-            >
+                }>
                 <Modal showLogin={showLogin} setShowLogin={setShowLogin} />
             </div>
         );
