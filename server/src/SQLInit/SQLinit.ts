@@ -1,5 +1,5 @@
-import { pool } from '../Repositiories/_getPool';
-import { NoticeMessage } from 'pg-protocol/dist/messages';
+import { pool } from "../Repositiories/_getPool";
+import { NoticeMessage } from "pg-protocol/dist/messages";
 
 // Get all tasks
 const SQLinit = async () => {
@@ -128,17 +128,15 @@ const SQLinit = async () => {
             FOREIGN KEY (userid) REFERENCES users(id),
             UNIQUE(userid, masterid)
         );`);
-        console.log("База данных проинициализирована!")
+        console.log("База данных проинициализирована!");
     } catch (error) {
         const er = error as NoticeMessage;
-        Object.keys(er).forEach(element => {
+        Object.keys(er).forEach((element) => {
             console.log(element, ": ", er[element as keyof NoticeMessage]);
         });
-        console.log(er)
-        if (er.routine == 'auth_failed')
-            console.log("Ошибка авторизации")
-
+        console.log(er);
+        if (er.routine == "auth_failed") console.log("Ошибка авторизации");
     }
-}
+};
 
 export default SQLinit;

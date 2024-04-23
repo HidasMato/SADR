@@ -1,9 +1,7 @@
-
-import { NextFunction, Request, Response } from 'express';
-import GameService from '../Services/GameService';
-import { UploadedFile } from 'express-fileupload';
-import { GameUpdate } from '../Types/GameUpdate';
-
+import { NextFunction, Request, Response } from "express";
+import GameService from "../Services/GameService";
+import { UploadedFile } from "express-fileupload";
+import { GameUpdate } from "../Types/GameUpdate";
 
 class GameController {
     async getList(req: Request, res: Response, next: NextFunction) {
@@ -35,24 +33,29 @@ class GameController {
          */
         try {
             const query = req.query as object as {
-                page: number,
-                player: number,
-                time: number,
-                hardless: number
-                findname: string
-            }
+                page: number;
+                player: number;
+                time: number;
+                hardless: number;
+                findname: string;
+            };
             const setting = {
-                page: Number(query.page)
+                page: Number(query.page),
             };
             const filter = {
                 player: Number(query.player),
                 time: Number(query.time),
                 hardless: Number(query.hardless),
-                findname: query.findname
+                findname: query.findname,
             };
-            return res.json(await GameService.getGameList({ setting: setting, filter: filter }));
+            return res.json(
+                await GameService.getGameList({
+                    setting: setting,
+                    filter: filter,
+                }),
+            );
         } catch (error: any) {
-            next(error)
+            next(error);
         }
     }
     async getOneInfo(req: Request, res: Response, next: NextFunction) {
@@ -79,7 +82,7 @@ class GameController {
             const id = Number(req.params.id);
             return res.json(await GameService.getGameInfoById({ id }));
         } catch (error: any) {
-            next(error)
+            next(error);
         }
     }
     async create(req: Request, res: Response, next: NextFunction) {
@@ -98,12 +101,20 @@ class GameController {
          */
         try {
             const create: GameUpdate = req.body;
-            const image = (req.files?.image?.constructor === Array) ? req.files?.image[0] : req.files?.image;
-            return res.json({ redirectionId: await GameService.create({ createInf: create, image: image as UploadedFile | undefined }) });
+            const image =
+                req.files?.image?.constructor === Array
+                    ? req.files?.image[0]
+                    : req.files?.image;
+            return res.json({
+                redirectionId: await GameService.create({
+                    createInf: create,
+                    image: image as UploadedFile | undefined,
+                }),
+            });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async update(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.summary = 'По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел'
@@ -124,15 +135,22 @@ class GameController {
             }  
          */
         try {
-            const image = (req.files?.image?.constructor === Array) ? req.files?.image[0] : req.files?.image;
+            const image =
+                req.files?.image?.constructor === Array
+                    ? req.files?.image[0]
+                    : req.files?.image;
             const id = Number(req.params.id);
             const update: GameUpdate = req.body;
-            await GameService.update({ id: id, update: update, image: image as UploadedFile | undefined })
+            await GameService.update({
+                id: id,
+                update: update,
+                image: image as UploadedFile | undefined,
+            });
             return res.json({ message: "Изменение успешно" });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async delete(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
@@ -164,10 +182,9 @@ class GameController {
             await GameService.delete({ id });
             return res.json({ message: "success" });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
-
+    }
 }
 
 export default new GameController();

@@ -1,5 +1,5 @@
 .Main {
-    font-family: 'RobotoFlex';
+    font-family: "RobotoFlex";
     font-weight: 500;
     text-align: center;
     flex: 1 1 100%;
@@ -9,34 +9,34 @@
     overflow-y: scroll;
     position: relative;
 
-    --BackgroundColor1: #FFFFFF;
-    --BackgroundColor2: #DADADA;
+    --BackgroundColor1: #ffffff;
+    --BackgroundColor2: #dadada;
     --BorderColor: #242424;
-    --AccentColor1: #FFD1DC;
-    --AccentColor2: #99FF99;
-    --AccentColor3: #AFDAFC;
+    --AccentColor1: #ffd1dc;
+    --AccentColor2: #99ff99;
+    --AccentColor3: #afdafc;
     --TextColor: #454545;
     --SupportColor1: #060606;
-    --SupportColor2: #0C293D;
-    --SupportColor3: #1A5984;
-    --SecondaryColor: #2B94CA;
-    --SupportColor4: #2BC4C8;
+    --SupportColor2: #0c293d;
+    --SupportColor3: #1a5984;
+    --SecondaryColor: #2b94ca;
+    --SupportColor4: #2bc4c8;
     --maxWidth: 1200px;
     --HeaderHeigth: 80px;
     --FooterHeigth: 80px;
 }
 
 @font-face {
-    font-family: 'MyFont';
-    src: url('./fonts/Radiotechnika.otf');
+    font-family: "MyFont";
+    src: url("./fonts/Radiotechnika.otf");
 }
 
 @font-face {
-    font-family: 'RobotoFlex-Regular';
-    src: url('./fonts/RobotoFlex-Regular.ttf');
+    font-family: "RobotoFlex-Regular";
+    src: url("./fonts/RobotoFlex-Regular.ttf");
 }
 
 @font-face {
-    font-family: 'RobotoFlex';
-    src: url('./fonts/RobotoFlex-VariableFont_GRAD\,XOPQ\,XTRA\,YOPQ\,YTAS\,YTDE\,YTFI\,YTLC\,YTUC\,opsz\,slnt\,wdth\,wght.ttf');
+    font-family: "RobotoFlex";
+    src: url("./fonts/RobotoFlex-VariableFont_GRAD\,XOPQ\,XTRA\,YOPQ\,YTAS\,YTDE\,YTFI\,YTLC\,YTUC\,opsz\,slnt\,wdth\,wght.ttf");
 }

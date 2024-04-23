@@ -8,7 +8,7 @@ import { AuthContext } from "./context/AuthContext";
 
 const App = (): JSX.Element => {
     const [showLogin, setShowLogin] = useState(false);
-    const { isAppReady } = useContext(AuthContext)
+    const { isAppReady } = useContext(AuthContext);
     if (isAppReady)
         return (
             <div className={styles.Main}>
@@ -19,13 +19,7 @@ const App = (): JSX.Element => {
                 </Router>
             </div>
         );
-    else
-        return (
-            <div className={styles.Main}>
-                Загрузка
-            </div>);
+    else return <div className={styles.Main}>Загрузка</div>;
 };
 
-
 export default App;
-

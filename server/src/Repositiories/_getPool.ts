@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool } from "pg";
 import { DATABASE } from "../../tokens.json";
 
 export const pool = new Pool({
@@ -6,5 +6,5 @@ export const pool = new Pool({
     host: DATABASE.HOST,
     password: DATABASE.USER_PASSWORD,
     database: DATABASE.BASE_NAME,
-    port: DATABASE.PORT
+    port: DATABASE.PORT,
 });

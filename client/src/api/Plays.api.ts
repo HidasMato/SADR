@@ -1,14 +1,14 @@
 import { AuthAPI } from "../context/AuthContext";
 
-export interface IGameData {
+export interface IPlayData {
     name: string;
     id: number;
 }
-export interface IGameQuery {
-    games: IGameData[];
+export interface IPlayQuery {
+    games: IPlayData[];
     count: number;
 }
-export interface IGameFilter {
+export interface IPlayFilter {
     page?: number;
     filter?: {
         findname?: string;
@@ -18,9 +18,9 @@ export interface IGameFilter {
     };
 }
 export default class GameAPI {
-    static async getGames(filter: IGameFilter): Promise<IGameQuery> {
+    static async getGames(filter: IPlayFilter): Promise<IPlayQuery> {
         return (
-            await AuthAPI.get<IGameQuery>(`/game/all`, {
+            await AuthAPI.get<IPlayQuery>(`/game/all`, {
                 params: {
                     ...filter.filter,
                     page: filter.page,

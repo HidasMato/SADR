@@ -1,5 +1,5 @@
-import { pool } from '../Repositiories/_getPool';
-import { NoticeMessage } from 'pg-protocol/dist/messages';
+import { pool } from "../Repositiories/_getPool";
+import { NoticeMessage } from "pg-protocol/dist/messages";
 
 const SQLdeleteTables = async () => {
     try {
@@ -15,17 +15,15 @@ const SQLdeleteTables = async () => {
         await pool.query(`DROP TABLE IF EXISTS masters;`);
         await pool.query(`DROP TABLE IF EXISTS users;`);
         await pool.query(`DROP TABLE IF EXISTS games;`);
-        console.log("База данных удалена!")
+        console.log("База данных удалена!");
     } catch (error) {
         const er = error as NoticeMessage;
-        Object.keys(er).forEach(element => {
+        Object.keys(er).forEach((element) => {
             console.log(element, ": ", er[element as keyof NoticeMessage]);
         });
-        console.log(er)
-        if (er.routine == 'auth_failed')
-            console.log("Ошибка удаления")
-
+        console.log(er);
+        if (er.routine == "auth_failed") console.log("Ошибка удаления");
     }
-}
+};
 
 export default SQLdeleteTables;

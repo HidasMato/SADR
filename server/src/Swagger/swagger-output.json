@@ -1,1358 +1,1308 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "version": "0.1.0",
-    "title": "SADR API",
-    "description": "API нашего любимого сервера ♡"
-  },
-  "host": "localhost:2052",
-  "basePath": "/",
-  "schemes": [
-    "http"
-  ],
-  "securityDefinitions": {},
-  "paths": {
-    "/api/game/all": {
-      "get": {
-        "tags": [
-          "game"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "start",
-            "in": "query",
-            "description": "Начиная с какого номера, def = 0",
-            "type": "number"
-          },
-          {
-            "name": "count",
-            "in": "query",
-            "description": "Сколько позиций будет возвращено, def = 20",
-            "type": "number"
-          },
-          {
-            "name": "minplayer",
-            "in": "query",
-            "description": "Метод фильтра (Не реализовано)",
-            "type": "number"
-          },
-          {
-            "name": "maxplayer",
-            "in": "query",
-            "description": "Метод фильтра (Не реализовано)",
-            "type": "number"
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "player",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "time",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "hardless",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "findname",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Уcпех",
-            "schema": {
-              "$ref": "#/definitions/listOfGames"
-            }
-          }
-        }
-      }
+    "swagger": "2.0",
+    "info": {
+        "version": "0.1.0",
+        "title": "SADR API",
+        "description": "API нашего любимого сервера ♡"
     },
-    "/api/game/{id}": {
-      "get": {
-        "tags": [
-          "game"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игры"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "$ref": "#/definitions/oneGame"
-            }
-          },
-          "460": {
-            "description": "Параметр айди неверный"
-          },
-          "461": {
-            "description": "Игра не найдена"
-          }
-        }
-      }
-    },
-    "/api/game/new": {
-      "post": {
-        "tags": [
-          "game"
-        ],
-        "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/createGame"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "redirectionId": {
-                  "type": "number",
-                  "example": 1
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/game/{id}/update": {
-      "put": {
-        "tags": [
-          "game"
-        ],
-        "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игры"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/createGame"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Изменение успешно"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/game/{id}/delete": {
-      "delete": {
-        "tags": [
-          "game"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игры"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Удаление произошло"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "460": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Удаление не произошло"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "461": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильное значение id"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/activate/{link}": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "link",
-            "in": "query",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех"
-          },
-          "402": {
-            "description": "Время действия ссылки истекло",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Время действия ссылки истекло"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/refresh": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "refreshToken",
-            "in": "cookies",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "example": "number"
+    "host": "localhost:2052",
+    "basePath": "/",
+    "schemes": ["http"],
+    "securityDefinitions": {},
+    "paths": {
+        "/api/game/all": {
+            "get": {
+                "tags": ["game"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "description": "Начиная с какого номера, def = 0",
+                        "type": "number"
                     },
-                    "nickname": {
-                      "type": "string",
-                      "example": "string"
+                    {
+                        "name": "count",
+                        "in": "query",
+                        "description": "Сколько позиций будет возвращено, def = 20",
+                        "type": "number"
                     },
-                    "mail": {
-                      "type": "string",
-                      "example": "string"
+                    {
+                        "name": "minplayer",
+                        "in": "query",
+                        "description": "Метод фильтра (Не реализовано)",
+                        "type": "number"
                     },
-                    "mailVeryfity": {
-                      "type": "string",
-                      "example": "boolean"
+                    {
+                        "name": "maxplayer",
+                        "in": "query",
+                        "description": "Метод фильтра (Не реализовано)",
+                        "type": "number"
                     },
-                    "role": {
-                      "type": "string",
-                      "example": "string"
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "player",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "time",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "hardless",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "findname",
+                        "in": "query",
+                        "type": "string"
                     }
-                  }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Уcпех",
+                        "schema": {
+                            "$ref": "#/definitions/listOfGames"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/game/{id}": {
+            "get": {
+                "tags": ["game"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игры"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "$ref": "#/definitions/oneGame"
+                        }
+                    },
+                    "460": {
+                        "description": "Параметр айди неверный"
+                    },
+                    "461": {
+                        "description": "Игра не найдена"
+                    }
+                }
+            }
+        },
+        "/api/game/new": {
+            "post": {
+                "tags": ["game"],
+                "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/createGame"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "redirectionId": {
+                                    "type": "number",
+                                    "example": 1
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/game/{id}/update": {
+            "put": {
+                "tags": ["game"],
+                "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игры"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/createGame"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Изменение успешно"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/game/{id}/delete": {
+            "delete": {
+                "tags": ["game"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игры"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Удаление произошло"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "460": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Удаление не произошло"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "461": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильное значение id"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/activate/{link}": {
+            "get": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "link",
+                        "in": "query",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех"
+                    },
+                    "402": {
+                        "description": "Время действия ссылки истекло",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Время действия ссылки истекло"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/refresh": {
+            "get": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "refreshToken",
+                        "in": "cookies",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "number"
+                                        },
+                                        "nickname": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "mail": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "mailVeryfity": {
+                                            "type": "string",
+                                            "example": "boolean"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "string"
+                                        }
+                                    }
+                                },
+                                "tokens": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "refreshToken": {
+                                            "type": "string",
+                                            "example": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/info": {
+            "get": {
+                "tags": ["user"],
+                "summary": "Другой игрок может получить только имя и роль",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Айди пользователя",
+                        "type": "number",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "$ref": "#/definitions/oneUser"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/{id}/playsgamer": {
+            "get": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игрока"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Пользователь удален"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "460": {
+                        "description": "Неправильно значение id пользователя",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильно значение id пользователя"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "461": {
+                        "description": "Пользователя не существует",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Пользователя не существует"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/{id}/playsmaster": {
+            "get": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игрока"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Пользователь удален"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "460": {
+                        "description": "Неправильно значение id пользователя",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильно значение id"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/update": {
+            "put": {
+                "tags": ["user"],
+                "description": "Обновляет только одну вещь за раз. Если есть пароль, то обновить пароль. Иначе если есть никнейм обновит никнейм. Иначе Если есть картика, то обновить картинку. Иначе если есть роль обновит роль. Иначе если есть описание (у мастера) обновит описание. Иначе обновит почту",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/changeUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Success"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/registration": {
+            "post": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/createUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "number"
+                                        },
+                                        "nickname": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "mail": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "mailVeryfity": {
+                                            "type": "string",
+                                            "example": "boolean"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "string"
+                                        }
+                                    }
+                                },
+                                "tokens": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string",
+                                            "example": "123123"
+                                        },
+                                        "refreshToken": {
+                                            "type": "string",
+                                            "example": "123123123"
+                                        }
+                                    }
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "mail": {
+                                    "type": "string",
+                                    "example": "loloporow@mail.ru"
+                                },
+                                "pass": {
+                                    "type": "string",
+                                    "example": "AbraKedabra"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "user": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "number"
+                                        },
+                                        "nickname": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "mail": {
+                                            "type": "string",
+                                            "example": "string"
+                                        },
+                                        "mailVeryfity": {
+                                            "type": "string",
+                                            "example": "boolean"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "string"
+                                        }
+                                    }
+                                },
+                                "tokens": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string",
+                                            "example": "123123"
+                                        },
+                                        "refreshToken": {
+                                            "type": "string",
+                                            "example": "123123123"
+                                        }
+                                    }
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/logout": {
+            "post": {
+                "tags": ["user"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "refreshToken",
+                        "in": "cookies",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Выход успешен"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/play/all": {
+            "get": {
+                "tags": ["play"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "description": "Начиная с какого номера, def = 0",
+                        "type": "number"
+                    },
+                    {
+                        "name": "count",
+                        "in": "query",
+                        "description": "Сколько позиций будет возвращено, def = 20",
+                        "type": "number"
+                    },
+                    {
+                        "name": "minplayer",
+                        "in": "query",
+                        "description": "Метод фильтра (Не реализовано)",
+                        "type": "number"
+                    },
+                    {
+                        "name": "maxplayer",
+                        "in": "query",
+                        "description": "Метод фильтра (Не реализовано)",
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Уcпех",
+                        "schema": {
+                            "$ref": "#/definitions/listOfPlays"
+                        }
+                    },
+                    "460": {
+                        "description": "Нет игротек",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "В базе данных больше нет игротек"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/play/{id}": {
+            "get": {
+                "tags": ["play"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игры"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "$ref": "#/definitions/onePlay"
+                        }
+                    },
+                    "460": {
+                        "description": "Параметр айди неверный"
+                    },
+                    "461": {
+                        "description": "Игра не найдена"
+                    }
+                }
+            }
+        },
+        "/api/play/new": {
+            "post": {
+                "tags": ["play"],
+                "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/createPlay"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "redirectionId": {
+                                    "type": "number",
+                                    "example": 1
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "462": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/play/{id}/gamer": {
+            "post": {
+                "tags": ["play"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игротеки"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "userId": {
+                                    "type": "number",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Пользователь добавлен"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "460": {
+                        "description": "Неправильно значение id игротеки",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильно значение id"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "461": {
+                        "description": "Неправильно значение id пользователя",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильно значение id рользователя"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["play"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игротеки"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "userId": {
+                                    "type": "number",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Пользователь удален"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "460": {
+                        "description": "Неправильно значение id игротеки",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильно значение id"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "461": {
+                        "description": "Неправильно значение id пользователя",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Неправильно значение id рользователя"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/play/{id}/update": {
+            "put": {
+                "tags": ["play"],
+                "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игротеки"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/createPlay"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Изменение успешно"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "460": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/play/{id}/delete": {
+            "delete": {
+                "tags": ["play"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "number",
+                        "description": "Айди игротеки"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "roles": {
+                                    "example": "any"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Удаление произошло"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "460": {
+                        "description": "Упех",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "example": "Удаление не произошло"
+                                }
+                            },
+                            "xml": {
+                                "name": "main"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "createGame": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Имя игры"
                 },
-                "tokens": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": {
-                      "type": "string",
-                      "example": "string"
-                    },
-                    "refreshToken": {
-                      "type": "string",
-                      "example": "string"
-                    }
-                  }
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/info": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Другой игрок может получить только имя и роль",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Айди пользователя",
-            "type": "number",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "$ref": "#/definitions/oneUser"
-            }
-          }
-        }
-      }
-    },
-    "/api/user/{id}/playsgamer": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игрока"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Пользователь удален"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "460": {
-            "description": "Неправильно значение id пользователя",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильно значение id пользователя"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "461": {
-            "description": "Пользователя не существует",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Пользователя не существует"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/{id}/playsmaster": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игрока"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Пользователь удален"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "460": {
-            "description": "Неправильно значение id пользователя",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильно значение id"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/update": {
-      "put": {
-        "tags": [
-          "user"
-        ],
-        "description": "Обновляет только одну вещь за раз. Если есть пароль, то обновить пароль. Иначе если есть никнейм обновит никнейм. Иначе Если есть картика, то обновить картинку. Иначе если есть роль обновит роль. Иначе если есть описание (у мастера) обновит описание. Иначе обновит почту",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/changeUser"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Success"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/registration": {
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/createUser"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "example": "number"
-                    },
-                    "nickname": {
-                      "type": "string",
-                      "example": "string"
-                    },
-                    "mail": {
-                      "type": "string",
-                      "example": "string"
-                    },
-                    "mailVeryfity": {
-                      "type": "string",
-                      "example": "boolean"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "string"
-                    }
-                  }
+                "minplayers": {
+                    "type": "number",
+                    "example": 2
                 },
-                "tokens": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": {
-                      "type": "string",
-                      "example": "123123"
-                    },
-                    "refreshToken": {
-                      "type": "string",
-                      "example": "123123123"
-                    }
-                  }
+                "maxplayers": {
+                    "type": "number",
+                    "example": 4
+                },
+                "mintimeplay": {
+                    "type": "number",
+                    "example": 30
+                },
+                "maxtimeplay": {
+                    "type": "number",
+                    "example": 60
+                },
+                "hardless": {
+                    "type": "number",
+                    "example": 1
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Какое-то описание"
                 }
-              },
-              "xml": {
-                "name": "main"
-              }
             }
-          }
-        }
-      }
-    },
-    "/api/user/login": {
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
+        },
+        "oneGame": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Имя игры"
+                },
+                "minplayers": {
+                    "type": "number",
+                    "example": 2
+                },
+                "maxplayers": {
+                    "type": "number",
+                    "example": 4
+                },
+                "mintimeplay": {
+                    "type": "number",
+                    "example": 30
+                },
+                "maxtimeplay": {
+                    "type": "number",
+                    "example": 60
+                },
+                "hardless": {
+                    "type": "number",
+                    "example": 1
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Какое-то описание"
+                }
+            }
+        },
+        "listOfGames": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/oneGame"
+            }
+        },
+        "createPlay": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Имя игротеки"
+                },
+                "masterId": {
+                    "type": "number",
+                    "example": 1
+                },
+                "minplayers": {
+                    "type": "number",
+                    "example": 2
+                },
+                "maxplayers": {
+                    "type": "number",
+                    "example": 4
+                },
+                "description": {
+                    "type": "string",
+                    "example": ""
+                },
+                "status": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "datestart": {
+                    "type": "string",
+                    "example": "2024-02-01T15:00:00.000Z"
+                },
+                "dateend": {
+                    "type": "string",
+                    "example": "2024-02-01T15:00:00.000Z"
+                },
+                "games": {
+                    "type": "array",
+                    "example": [1, 2],
+                    "items": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "onePlay": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Имя игротеки"
+                },
+                "masterId": {
+                    "type": "number",
+                    "example": 1
+                },
+                "minplayers": {
+                    "type": "number",
+                    "example": 2
+                },
+                "maxplayers": {
+                    "type": "number",
+                    "example": 4
+                },
+                "description": {
+                    "type": "string",
+                    "example": ""
+                },
+                "status": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "datestart": {
+                    "type": "string",
+                    "example": "2024-02-01T15:00:00.000Z"
+                },
+                "dateend": {
+                    "type": "string",
+                    "example": "2024-02-01T15:00:00.000Z"
+                },
+                "games": {
+                    "type": "array",
+                    "example": [1, 2],
+                    "items": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "listOfPlays": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/onPlay"
+            }
+        },
+        "createUser": {
+            "type": "object",
+            "properties": {
+                "nickname": {
+                    "type": "string",
+                    "example": "Никнейм"
+                },
                 "mail": {
-                  "type": "string",
-                  "example": "loloporow@mail.ru"
+                    "type": "string",
+                    "example": "mail@mail.mail"
                 },
                 "pass": {
-                  "type": "string",
-                  "example": "AbraKedabra"
+                    "type": "string",
+                    "example": "Secretno"
                 }
-              }
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "example": "number"
-                    },
-                    "nickname": {
-                      "type": "string",
-                      "example": "string"
-                    },
-                    "mail": {
-                      "type": "string",
-                      "example": "string"
-                    },
-                    "mailVeryfity": {
-                      "type": "string",
-                      "example": "boolean"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "string"
-                    }
-                  }
+        },
+        "oneUser": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "example": 1
                 },
-                "tokens": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": {
-                      "type": "string",
-                      "example": "123123"
-                    },
-                    "refreshToken": {
-                      "type": "string",
-                      "example": "123123123"
-                    }
-                  }
+                "nickname": {
+                    "type": "string",
+                    "example": "Никнейм"
+                },
+                "mail": {
+                    "type": "string",
+                    "example": "mail@mail.mail"
+                },
+                "mailVeryfity": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "role": {
+                    "type": "string",
+                    "example": "Мастер"
                 }
-              },
-              "xml": {
-                "name": "main"
-              }
             }
-          }
+        },
+        "changeUser": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "example": 1
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "Никнейм"
+                },
+                "mail": {
+                    "type": "string",
+                    "example": "mail@mail.mail"
+                },
+                "mailVeryfity": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "role": {
+                    "type": "string",
+                    "example": "мастер"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Клевый мастер"
+                },
+                "pass": {
+                    "type": "string",
+                    "example": "Секретно"
+                }
+            }
+        },
+        "listOfUsers": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/oneUser"
+            }
         }
-      }
-    },
-    "/api/user/logout": {
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "refreshToken",
-            "in": "cookies",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Выход успешен"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/play/all": {
-      "get": {
-        "tags": [
-          "play"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "start",
-            "in": "query",
-            "description": "Начиная с какого номера, def = 0",
-            "type": "number"
-          },
-          {
-            "name": "count",
-            "in": "query",
-            "description": "Сколько позиций будет возвращено, def = 20",
-            "type": "number"
-          },
-          {
-            "name": "minplayer",
-            "in": "query",
-            "description": "Метод фильтра (Не реализовано)",
-            "type": "number"
-          },
-          {
-            "name": "maxplayer",
-            "in": "query",
-            "description": "Метод фильтра (Не реализовано)",
-            "type": "number"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Уcпех",
-            "schema": {
-              "$ref": "#/definitions/listOfPlays"
-            }
-          },
-          "460": {
-            "description": "Нет игротек",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "В базе данных больше нет игротек"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/play/{id}": {
-      "get": {
-        "tags": [
-          "play"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игры"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "$ref": "#/definitions/onePlay"
-            }
-          },
-          "460": {
-            "description": "Параметр айди неверный"
-          },
-          "461": {
-            "description": "Игра не найдена"
-          }
-        }
-      }
-    },
-    "/api/play/new": {
-      "post": {
-        "tags": [
-          "play"
-        ],
-        "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/createPlay"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "redirectionId": {
-                  "type": "number",
-                  "example": 1
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "462": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/play/{id}/gamer": {
-      "post": {
-        "tags": [
-          "play"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игротеки"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "userId": {
-                  "type": "number",
-                  "example": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Пользователь добавлен"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "460": {
-            "description": "Неправильно значение id игротеки",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильно значение id"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "461": {
-            "description": "Неправильно значение id пользователя",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильно значение id рользователя"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "play"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игротеки"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "userId": {
-                  "type": "number",
-                  "example": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Пользователь удален"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "460": {
-            "description": "Неправильно значение id игротеки",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильно значение id"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "461": {
-            "description": "Неправильно значение id пользователя",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Неправильно значение id рользователя"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/play/{id}/update": {
-      "put": {
-        "tags": [
-          "play"
-        ],
-        "summary": "По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игротеки"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/createPlay"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Изменение успешно"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "460": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/play/{id}/delete": {
-      "delete": {
-        "tags": [
-          "play"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "number",
-            "description": "Айди игротеки"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "roles": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Удаление произошло"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "460": {
-            "description": "Упех",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Удаление не произошло"
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          }
-        }
-      }
     }
-  },
-  "definitions": {
-    "createGame": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Имя игры"
-        },
-        "minplayers": {
-          "type": "number",
-          "example": 2
-        },
-        "maxplayers": {
-          "type": "number",
-          "example": 4
-        },
-        "mintimeplay": {
-          "type": "number",
-          "example": 30
-        },
-        "maxtimeplay": {
-          "type": "number",
-          "example": 60
-        },
-        "hardless": {
-          "type": "number",
-          "example": 1
-        },
-        "description": {
-          "type": "string",
-          "example": "Какое-то описание"
-        }
-      }
-    },
-    "oneGame": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "number",
-          "example": 1
-        },
-        "name": {
-          "type": "string",
-          "example": "Имя игры"
-        },
-        "minplayers": {
-          "type": "number",
-          "example": 2
-        },
-        "maxplayers": {
-          "type": "number",
-          "example": 4
-        },
-        "mintimeplay": {
-          "type": "number",
-          "example": 30
-        },
-        "maxtimeplay": {
-          "type": "number",
-          "example": 60
-        },
-        "hardless": {
-          "type": "number",
-          "example": 1
-        },
-        "description": {
-          "type": "string",
-          "example": "Какое-то описание"
-        }
-      }
-    },
-    "listOfGames": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/oneGame"
-      }
-    },
-    "createPlay": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "example": "Имя игротеки"
-        },
-        "masterId": {
-          "type": "number",
-          "example": 1
-        },
-        "minplayers": {
-          "type": "number",
-          "example": 2
-        },
-        "maxplayers": {
-          "type": "number",
-          "example": 4
-        },
-        "description": {
-          "type": "string",
-          "example": ""
-        },
-        "status": {
-          "type": "boolean",
-          "example": true
-        },
-        "datestart": {
-          "type": "string",
-          "example": "2024-02-01T15:00:00.000Z"
-        },
-        "dateend": {
-          "type": "string",
-          "example": "2024-02-01T15:00:00.000Z"
-        },
-        "games": {
-          "type": "array",
-          "example": [
-            1,
-            2
-          ],
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    "onePlay": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "number",
-          "example": 1
-        },
-        "name": {
-          "type": "string",
-          "example": "Имя игротеки"
-        },
-        "masterId": {
-          "type": "number",
-          "example": 1
-        },
-        "minplayers": {
-          "type": "number",
-          "example": 2
-        },
-        "maxplayers": {
-          "type": "number",
-          "example": 4
-        },
-        "description": {
-          "type": "string",
-          "example": ""
-        },
-        "status": {
-          "type": "boolean",
-          "example": true
-        },
-        "datestart": {
-          "type": "string",
-          "example": "2024-02-01T15:00:00.000Z"
-        },
-        "dateend": {
-          "type": "string",
-          "example": "2024-02-01T15:00:00.000Z"
-        },
-        "games": {
-          "type": "array",
-          "example": [
-            1,
-            2
-          ],
-          "items": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    "listOfPlays": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/onPlay"
-      }
-    },
-    "createUser": {
-      "type": "object",
-      "properties": {
-        "nickname": {
-          "type": "string",
-          "example": "Никнейм"
-        },
-        "mail": {
-          "type": "string",
-          "example": "mail@mail.mail"
-        },
-        "pass": {
-          "type": "string",
-          "example": "Secretno"
-        }
-      }
-    },
-    "oneUser": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "number",
-          "example": 1
-        },
-        "nickname": {
-          "type": "string",
-          "example": "Никнейм"
-        },
-        "mail": {
-          "type": "string",
-          "example": "mail@mail.mail"
-        },
-        "mailVeryfity": {
-          "type": "boolean",
-          "example": true
-        },
-        "role": {
-          "type": "string",
-          "example": "Мастер"
-        }
-      }
-    },
-    "changeUser": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "number",
-          "example": 1
-        },
-        "nickname": {
-          "type": "string",
-          "example": "Никнейм"
-        },
-        "mail": {
-          "type": "string",
-          "example": "mail@mail.mail"
-        },
-        "mailVeryfity": {
-          "type": "boolean",
-          "example": true
-        },
-        "role": {
-          "type": "string",
-          "example": "мастер"
-        },
-        "description": {
-          "type": "string",
-          "example": "Клевый мастер"
-        },
-        "pass": {
-          "type": "string",
-          "example": "Секретно"
-        }
-      }
-    },
-    "listOfUsers": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/oneUser"
-      }
-    }
-  }
 }

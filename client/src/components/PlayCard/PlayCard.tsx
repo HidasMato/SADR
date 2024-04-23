@@ -1,5 +1,5 @@
 import { API_URL } from "../../context/AuthContext";
-import styles from "./GameCard.module.scss";
+import styles from "./PlayCard.module.scss";
 
 type GameCardObject = {
     game: {
@@ -8,7 +8,7 @@ type GameCardObject = {
     };
 };
 
-const GameCard = ({ game }: GameCardObject): JSX.Element => {
+const PlayCard = ({ game }: GameCardObject): JSX.Element => {
     return (
         <div className={styles.Main + " " + (game ? "" : styles.DisplayNone)}>
             {game ? (
@@ -24,4 +24,4 @@ const GameCard = ({ game }: GameCardObject): JSX.Element => {
     );
 };
 
-export default GameCard;
+export default PlayCard;

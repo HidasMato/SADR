@@ -1,9 +1,6 @@
-
 import styles from "./Footer.module.scss";
 
-type GamesObject = {
-
-}
+type GamesObject = {};
 
 const Footer = (): JSX.Element => {
     return (
@@ -15,4 +12,4 @@ const Footer = (): JSX.Element => {
     );
 };
 
-export default Footer
+export default Footer;

@@ -1,12 +1,10 @@
-
-import { NextFunction, Request, Response, response } from 'express';
-import PlayService from '../Services/PlayService';
-import { UploadedFile } from 'express-fileupload';
-import ApiError from '../Exeptions/ApiError';
-import RigthsService from '../Services/RigthsService';
-import { Roles } from '../Types/Roles';
-import { PlayUpdate } from '../Types/PlayUpdate';
-
+import { NextFunction, Request, Response, response } from "express";
+import PlayService from "../Services/PlayService";
+import { UploadedFile } from "express-fileupload";
+import ApiError from "../Exeptions/ApiError";
+import RigthsService from "../Services/RigthsService";
+import { Roles } from "../Types/Roles";
+import { PlayUpdate } from "../Types/PlayUpdate";
 
 class PlayController {
     async getOneInfo(req: Request, res: Response, next: NextFunction) {
@@ -33,10 +31,12 @@ class PlayController {
             const id = Number(req.params.id);
             const response = await PlayService.getPlayInfoById({ id });
             if (!response)
-                return res.status(461).json({ message: "Нет такого id в базе" });
+                return res
+                    .status(461)
+                    .json({ message: "Нет такого id в базе" });
             return res.json(response);
         } catch (error: any) {
-            next(error)
+            next(error);
         }
     }
     async getList(req: Request, res: Response, next: NextFunction) {
@@ -74,19 +74,30 @@ class PlayController {
          */
         try {
             const query = req.query as object as {
-                start: number,
-                count: number,
-                minplayer: number,
-                maxplayer: number
-            }
-            const setting = { start: Number(query.start), count: Number(query.count) };
-            const filter = { minplayer: Number(query.minplayer), maxplayer: Number(query.maxplayer) };
-            const arrPlay = await PlayService.getPlayList({ setting: setting, filter: filter });
+                start: number;
+                count: number;
+                minplayer: number;
+                maxplayer: number;
+            };
+            const setting = {
+                start: Number(query.start),
+                count: Number(query.count),
+            };
+            const filter = {
+                minplayer: Number(query.minplayer),
+                maxplayer: Number(query.maxplayer),
+            };
+            const arrPlay = await PlayService.getPlayList({
+                setting: setting,
+                filter: filter,
+            });
             if (arrPlay.length == 0)
-                return res.status(460).json({ message: "В базе данных больше нет игротек" });
+                return res
+                    .status(460)
+                    .json({ message: "В базе данных больше нет игротек" });
             return res.json(arrPlay);
         } catch (error: any) {
-            next(error)
+            next(error);
         }
     }
     async create(req: Request, res: Response, next: NextFunction) {
@@ -104,21 +115,32 @@ class PlayController {
             }  
          */
         try {
-            if (!RigthsService.forMasterOrAdmin({ roles: req.body.roles as Roles }))
+            if (
+                !RigthsService.forMasterOrAdmin({
+                    roles: req.body.roles as Roles,
+                })
+            )
                 throw ApiError.Teapot();
             const create: PlayUpdate = req.body;
             let image = req.files?.image;
-            if (image?.constructor === Array)
-                image = image[0];
-            const result = await PlayService.createPlay({ createInf: create, image: image as UploadedFile });
-            if (typeof result == 'number')
+            if (image?.constructor === Array) image = image[0];
+            const result = await PlayService.createPlay({
+                createInf: create,
+                image: image as UploadedFile,
+            });
+            if (typeof result == "number")
                 return res.json({ redirectionId: result });
             else
-                return res.status(462).json({ message: "Не существует игр", isGamesExists: result });
+                return res
+                    .status(462)
+                    .json({
+                        message: "Не существует игр",
+                        isGamesExists: result,
+                    });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async update(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.summary = 'По этой ссылке можно отправляьт image файлом по formdata, но swagger говна поел'
@@ -139,23 +161,38 @@ class PlayController {
             }  
          */
         try {
-            if (!RigthsService.forMasterOrAdmin({ roles: req.body.roles as Roles }))
+            if (
+                !RigthsService.forMasterOrAdmin({
+                    roles: req.body.roles as Roles,
+                })
+            )
                 throw ApiError.Teapot();
             const id = Number(req.params.id);
-            if (RigthsService.onlyForMaster({ roles: req.body.roles as Roles }) && !((await PlayService.getMasterId({ playId: id })) == id))
+            if (
+                RigthsService.onlyForMaster({
+                    roles: req.body.roles as Roles,
+                }) &&
+                !((await PlayService.getMasterId({ playId: id })) == id)
+            )
                 throw ApiError.Teapot();
             let image = req.files?.image;
-            if (image?.constructor === Array)
-                image = image[0];
+            if (image?.constructor === Array) image = image[0];
             const update: PlayUpdate = req.body;
-            if (!await PlayService.updatePlay({ id: id, update: update, image: image as UploadedFile | undefined }))
-                return res.status(460).json({ message: "Пустой массив изменений" });
-            else
-                return res.json({ message: "Изменения совершены" })
+            if (
+                !(await PlayService.updatePlay({
+                    id: id,
+                    update: update,
+                    image: image as UploadedFile | undefined,
+                }))
+            )
+                return res
+                    .status(460)
+                    .json({ message: "Пустой массив изменений" });
+            else return res.json({ message: "Изменения совершены" });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async delete(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
@@ -181,14 +218,15 @@ class PlayController {
                 throw ApiError.Teapot();
             const id = Number(req.params.id);
             const result = await PlayService.deletePlay({ id });
-            if (result)
-                return res.json({ message: "Удаление успешно" });
+            if (result) return res.json({ message: "Удаление успешно" });
             else
-                return res.status(401).json({ message: "Удаление не произошло" });
+                return res
+                    .status(401)
+                    .json({ message: "Удаление не произошло" });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async plusGamer(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
@@ -224,14 +262,25 @@ class PlayController {
         try {
             const playId = Number(req.params.id);
             const { userId }: { userId: number } = req.body;
-            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && userId == req.body.uid))
+            if (
+                !RigthsService.forGamerOrAdmin({
+                    roles: req.body.roles as Roles,
+                }) ||
+                (RigthsService.onlyForGamer({
+                    roles: req.body.roles as Roles,
+                }) &&
+                    userId == req.body.uid)
+            )
                 throw ApiError.Teapot();
-            await PlayService.registrUserToPlay({ playId: playId, userId: userId })
+            await PlayService.registrUserToPlay({
+                playId: playId,
+                userId: userId,
+            });
             return res.json({ message: "Пользователь добавлен" });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async minusGamer(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
@@ -267,14 +316,25 @@ class PlayController {
         try {
             const playId = Number(req.params.id);
             const { userId }: { userId: number } = req.body;
-            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && userId == req.body.uid))
+            if (
+                !RigthsService.forGamerOrAdmin({
+                    roles: req.body.roles as Roles,
+                }) ||
+                (RigthsService.onlyForGamer({
+                    roles: req.body.roles as Roles,
+                }) &&
+                    userId == req.body.uid)
+            )
                 throw ApiError.Teapot();
-            await PlayService.unRegistrUserToPlay({ playId: playId, userId: userId })
+            await PlayService.unRegistrUserToPlay({
+                playId: playId,
+                userId: userId,
+            });
             return res.json({ message: "Пользователь удален" });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async getPlaysGamer(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
@@ -299,14 +359,22 @@ class PlayController {
          */
         try {
             const id = Number(req.params.id);
-            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && id != req.body.uid))
+            if (
+                !RigthsService.forGamerOrAdmin({
+                    roles: req.body.roles as Roles,
+                }) ||
+                (RigthsService.onlyForGamer({
+                    roles: req.body.roles as Roles,
+                }) &&
+                    id != req.body.uid)
+            )
                 throw ApiError.Teapot();
-            const plays = await PlayService.getPlaysGamer({ id: id })
+            const plays = await PlayService.getPlaysGamer({ id: id });
             return res.json({ plays: plays });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
     async getPlaysMaster(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.parameters['id'] = {
@@ -329,14 +397,22 @@ class PlayController {
          */
         try {
             const id = Number(req.params.id);
-            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.onlyForGamer({ roles: req.body.roles as Roles }) && id != req.body.uid))
+            if (
+                !RigthsService.forGamerOrAdmin({
+                    roles: req.body.roles as Roles,
+                }) ||
+                (RigthsService.onlyForGamer({
+                    roles: req.body.roles as Roles,
+                }) &&
+                    id != req.body.uid)
+            )
                 throw ApiError.Teapot();
-            const plays = await PlayService.getPlaysMaster({ id: id })
+            const plays = await PlayService.getPlaysMaster({ id: id });
             return res.json({ plays: plays });
         } catch (error: any) {
-            next(error)
+            next(error);
         }
-    };
+    }
 }
 
 export default new PlayController();

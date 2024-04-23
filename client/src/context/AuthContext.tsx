@@ -1,90 +1,129 @@
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import config from "../config";
-import inMemoryJWT from './inMemoryJWT'
+import inMemoryJWT from "./inMemoryJWT";
 
-export const API_URL = 'http://localhost:2052'
+export const API_URL = "http://localhost:2052";
 
 export const AuthAPI = axios.create({
     withCredentials: true,
-    baseURL: `${API_URL}/api`
-})
+    baseURL: `${API_URL}/api`,
+});
 
 export interface LoginResponse {
-    accessToken: string
+    accessToken: string;
 }
 
 interface AuthContextValue {
-    login: ({ mail, pass }: { mail: string, pass: string }) => Promise<returnAuth>,
-    logout: () => Promise<returnAuth>,
-    registration: ({ mail, pass, nickname }: { mail: string, pass: string, nickname: string }) => Promise<returnAuth>,
-    isAppReady: boolean,
-    isUserLogged: boolean
+    login: ({
+        mail,
+        pass,
+    }: {
+        mail: string;
+        pass: string;
+    }) => Promise<returnAuth>;
+    logout: () => Promise<returnAuth>;
+    registration: ({
+        mail,
+        pass,
+        nickname,
+    }: {
+        mail: string;
+        pass: string;
+        nickname: string;
+    }) => Promise<returnAuth>;
+    isAppReady: boolean;
+    isUserLogged: boolean;
 }
 
 interface returnAuth {
-    status: number,
-    message?: string
+    status: number;
+    message?: string;
 }
 
-
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(
+    undefined,
+);
 
 const AuthProvider = ({ children }) => {
     const [isAppReady, setIsAppReady] = useState(false);
     const [isUserLogged, setIsUserLogged] = useState(false);
 
-    const login = async ({ mail, pass }: { mail: string, pass: string }): Promise<returnAuth> => {
+    const login = async ({
+        mail,
+        pass,
+    }: {
+        mail: string;
+        pass: string;
+    }): Promise<returnAuth> => {
         try {
-            const responce = await AuthAPI.post<LoginResponse>('/user/login', { mail, pass });
-            inMemoryJWT.setToken(responce.data.accessToken)
+            const responce = await AuthAPI.post<LoginResponse>("/user/login", {
+                mail,
+                pass,
+            });
+            inMemoryJWT.setToken(responce.data.accessToken);
             setIsUserLogged(true);
-            return { status: 200 }
+            return { status: 200 };
         } catch (error) {
-            return ({
+            return {
                 status: error.response.status,
-                message: error.response.data.message
-            })
+                message: error.response.data.message,
+            };
         }
-    }
-    const registration = async ({ mail, pass, nickname }: { mail: string, pass: string, nickname: string }): Promise<returnAuth> => {
+    };
+    const registration = async ({
+        mail,
+        pass,
+        nickname,
+    }: {
+        mail: string;
+        pass: string;
+        nickname: string;
+    }): Promise<returnAuth> => {
         try {
-            const responce = await AuthAPI.post<LoginResponse>('/user/registration', { mail, pass, nickname });
-            inMemoryJWT.setToken(responce.data.accessToken)
+            const responce = await AuthAPI.post<LoginResponse>(
+                "/user/registration",
+                { mail, pass, nickname },
+            );
+            inMemoryJWT.setToken(responce.data.accessToken);
             setIsUserLogged(true);
-            return { status: 200 }
+            return { status: 200 };
         } catch (error) {
-            return ({
+            return {
                 status: error.response.status,
-                message: error.response.data.message
-            })
+                message: error.response.data.message,
+            };
         }
-    }
+    };
     const logout = async (): Promise<returnAuth> => {
         try {
-            const responce = await AuthAPI.post<LoginResponse>('/user/logout');
+            const responce = await AuthAPI.post<LoginResponse>("/user/logout");
             setIsUserLogged(false);
             inMemoryJWT.deleteToken();
-            return { status: 200 }
+            return { status: 200 };
         } catch (error) {
-            return ({
+            return {
                 status: error.response.status,
-                message: error.response.data.message
-            })
+                message: error.response.data.message,
+            };
         }
-    }
+    };
     const refresh = () => {
-        axios.get<LoginResponse>(`${API_URL}/api/user/refresh`, { withCredentials: true })
+        axios
+            .get<LoginResponse>(`${API_URL}/api/user/refresh`, {
+                withCredentials: true,
+            })
             .then((responce) => {
-                inMemoryJWT.setToken(responce.data.accessToken)
+                inMemoryJWT.setToken(responce.data.accessToken);
                 setIsUserLogged(true);
             })
             .catch(() => {
                 setIsUserLogged(false);
-            }).finally(() => {
+            })
+            .finally(() => {
                 setIsAppReady(true);
             });
-    }
+    };
     useEffect(() => {
         refresh();
     }, []);
@@ -103,27 +142,33 @@ const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        AuthAPI.interceptors.request.use(config => {
+        AuthAPI.interceptors.request.use((config) => {
             config.headers.Authorization = `Bearer ${inMemoryJWT.getToken()}`;
             return config;
-        })
-        AuthAPI.interceptors.response.use((config) => {
-            return config
-        }, async (error) => {
-            const originalReqquest = error.config
-            if (error.response.status == 401 && error.config && originalReqquest._isRetry) {
-                originalReqquest._isRetry = false;
-                try {
-                    refresh();
-                    return AuthAPI.request(originalReqquest);
-                } catch (error) {
-                    console.log('Не авторизован')
+        });
+        AuthAPI.interceptors.response.use(
+            (config) => {
+                return config;
+            },
+            async (error) => {
+                const originalReqquest = error.config;
+                if (
+                    error.response.status == 401 &&
+                    error.config &&
+                    originalReqquest._isRetry
+                ) {
+                    originalReqquest._isRetry = false;
+                    try {
+                        refresh();
+                        return AuthAPI.request(originalReqquest);
+                    } catch (error) {
+                        console.log("Не авторизован");
+                    }
                 }
-            }
-            throw error;
-        })
-    }, [])
-
+                throw error;
+            },
+        );
+    }, []);
 
     return (
         <AuthContext.Provider
@@ -132,7 +177,7 @@ const AuthProvider = ({ children }) => {
                 logout,
                 registration,
                 isAppReady,
-                isUserLogged
+                isUserLogged,
             }}
         >
             {children}

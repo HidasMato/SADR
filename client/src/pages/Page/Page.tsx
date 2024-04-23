@@ -1,4 +1,3 @@
-
 import styles from "./Page.module.scss";
 import { Route, Routes } from "react-router-dom";
 import MainPage from "../../pages/Main/Main";
@@ -15,14 +14,16 @@ import ErrorPage from "../ErrorPage/ErrorPage";
 type PageObject = {
     showLogin: boolean;
     setShowLogin: React.Dispatch<React.SetStateAction<boolean>>;
-}
+};
 
 const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     const { isUserLogged } = useContext(AuthContext);
     const Page = () => {
         return (
             <Routes>
-                {isUserLogged ? <Route path="/profile" element={<Profile />} /> : null}
+                {isUserLogged ? (
+                    <Route path="/profile" element={<Profile />} />
+                ) : null}
                 <Route path="/" element={<MainPage />} />
                 <Route path="/games/" element={<Games />} />
                 <Route path="/game/:id" element={<Game />} />
@@ -31,14 +32,18 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
                 <Route path="/*" element={<ErrorPage />} />
             </Routes>
         );
-    }
+    };
     const Modals = () => {
         return (
-            <div className={styles.UnModal + ' ' + (showLogin ? styles.Modal : "")}>
+            <div
+                className={
+                    styles.UnModal + " " + (showLogin ? styles.Modal : "")
+                }
+            >
                 <Modal showLogin={showLogin} setShowLogin={setShowLogin} />
             </div>
-        )
-    }
+        );
+    };
     const Main = () => {
         return (
             <div className={styles.Main}>
@@ -48,7 +53,7 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
                 </div>
             </div>
         );
-    }
+    };
     return Main();
 };
 

@@ -3,7 +3,6 @@ import config from "../config";
 const inMemoryJervice = () => {
     let inMemoryJWT = null;
 
-
     const getToken = () => inMemoryJWT;
 
     const setToken = (token) => {

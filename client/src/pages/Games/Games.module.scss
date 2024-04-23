@@ -16,7 +16,7 @@
             justify-content: space-around;
 
             .Item {
-                width: calc((100% - 80px)/4);
+                width: calc((100% - 80px) / 4);
             }
         }
     }
@@ -65,7 +65,7 @@
         .Svg {
             margin: 0 3px;
             padding: 6px;
-            &:hover{
+            &:hover {
                 cursor: pointer;
             }
         }
@@ -82,7 +82,7 @@
             margin: 0 3px;
             padding: 6px;
             color: var(--TextColor);
-            &:hover{
+            &:hover {
                 cursor: pointer;
             }
         }

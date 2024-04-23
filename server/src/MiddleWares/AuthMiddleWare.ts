@@ -6,15 +6,14 @@ import UserService from "../Services/UserService";
 async function AuthMiddleWare(req: Request, res: Response, next: NextFunction) {
     try {
         const authorizationHeader = req.headers.authorization;
-        if (!authorizationHeader)
-            return next();
-        const accessToken = authorizationHeader.split(' ')[1]
-        if (!accessToken)
-            return next();
-        const user = await TokenService.validateAccessToken({ token: accessToken });
-        if (!user)
-            return next();
-        const roles = await UserService.getUserRole({ id: user.id })
+        if (!authorizationHeader) return next();
+        const accessToken = authorizationHeader.split(" ")[1];
+        if (!accessToken) return next();
+        const user = await TokenService.validateAccessToken({
+            token: accessToken,
+        });
+        if (!user) return next();
+        const roles = await UserService.getUserRole({ id: user.id });
         req.body.roles = roles;
         req.body.uid = user.id;
         // let logStr = ''
@@ -30,8 +29,8 @@ async function AuthMiddleWare(req: Request, res: Response, next: NextFunction) {
         // console.log(logStr)
         return next();
     } catch (error) {
-        console.log(error)
-        next(ApiError.UnavtorisationError())
+        console.log(error);
+        next(ApiError.UnavtorisationError());
     }
 }
 
