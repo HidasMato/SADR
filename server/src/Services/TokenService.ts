@@ -5,22 +5,10 @@ import ApiError from "../Exeptions/ApiError";
 import { MAX_SESSIONS } from "../../tokens.json";
 import TokenRepository from "../Repositiories/TokenRepository";
 class TokenService {
-    async generateToken({
-        payload,
-    }: {
-        payload: { id: number; mail: string; nickname: string };
-    }) {
+    async generateToken({ payload }: { payload: { id: number; mail: string; nickname: string } }) {
         try {
-            const accessToken = jwt.sign(
-                payload,
-                TOKENS_KEYS.SECRET_ACCESS_KEY,
-                { expiresIn: "30m" }
-            );
-            const refreshToken = jwt.sign(
-                payload,
-                TOKENS_KEYS.SECRET_REFRESH_KEY,
-                { expiresIn: "30d" }
-            );
+            const accessToken = jwt.sign(payload, TOKENS_KEYS.SECRET_ACCESS_KEY, { expiresIn: "30m" });
+            const refreshToken = jwt.sign(payload, TOKENS_KEYS.SECRET_REFRESH_KEY, { expiresIn: "30d" });
             return { accessToken, refreshToken };
         } catch (error) {
             console.log(error);
@@ -29,15 +17,7 @@ class TokenService {
             });
         }
     }
-    async saveToken({
-        userId,
-        refreshToken,
-        hash,
-    }: {
-        userId: number;
-        refreshToken: string;
-        hash: string;
-    }): Promise<boolean | undefined> {
+    async saveToken({ userId, refreshToken, hash }: { userId: number; refreshToken: string; hash: string }): Promise<boolean | undefined> {
         try {
             if (
                 (await TokenRepository.getSumRefreshTokens({
@@ -59,11 +39,18 @@ class TokenService {
                 });
         }
     }
-    async removeToken({
-        refreshToken,
-    }: {
-        refreshToken: string;
-    }): Promise<boolean | undefined> {
+    async deleteFingerprint({ hash }: { hash: string }): Promise<boolean | undefined> {
+        try {
+            return await TokenRepository.deleteFingerprint({ hash: hash });
+        } catch (error) {
+            console.log(error);
+            if (!(error instanceof ApiError))
+                throw ApiError.BadRequest({
+                    message: "Не удалось удалить fingerprint",
+                });
+        }
+    }
+    async removeToken({ refreshToken }: { refreshToken: string }): Promise<boolean | undefined> {
         try {
             if (
                 !(await TokenRepository.isExistsRefreshToken({

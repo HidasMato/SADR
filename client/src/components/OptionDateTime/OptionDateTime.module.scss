@@ -1,0 +1,85 @@
+.Main {
+    display: flex;
+    position: relative;
+
+    .Title {
+        width: max-content;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0px 10px;
+        button {
+            margin-left: 10px;
+            background-color: var(--BackgroundColor1);
+            border: 1px solid var(--BackgroundColor2);
+            padding: 7px;
+            display: flex;
+        }
+        .Svg {
+            margin-left: 10px;
+            transform: rotate(-90deg);
+        }
+        --BackPage: var(--BackgroundColor2);
+    }
+    .Choise {
+        position: absolute;
+        right: 0;
+        z-index: 99;
+        .Calendar {
+            color: var(--AccentColor3);
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--SecondaryColor);
+            border: 2px solid var(--SupportColor3);
+            border-radius: 10px;
+            padding: 5px;
+            .Year {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px;
+                .Svg {
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+                .Next {
+                    z-index: 0;
+                    transform: rotate(180deg);
+                }
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            .Days {
+                display: flex;
+                flex-direction: column;
+                .Week {
+                    display: flex;
+                    .Day {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        background-color: var(--SupportColor3);
+                        width: 25px;
+                        height: 25px;
+                        margin: 2px;
+                    }
+                    .Hidden {
+                        background-color: var(--AccentColor3);
+                    }
+                    .Now {
+                        background-color: var(--TextColor);
+                    }
+                    .Select {
+                        background-color: var(--SupportColor4);
+                    }
+                }
+            }
+        }
+        --BackPage: var(--SupportColor3);
+    }
+}

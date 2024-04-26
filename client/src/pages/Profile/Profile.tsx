@@ -1,25 +1,16 @@
 import { useContext, useEffect, useState } from "react";
-import styles from "./Profile.module.scss";
 import { Link, useNavigate } from "react-router-dom";
-import { API_URL } from "../../context/AuthContext";
-import UserProfileAPI, {
-    IGamerPlaysData,
-    IMasterPlaysData,
-    IUserData,
-} from "../../api/UserProfile.api";
-import { AuthContext } from "../../context/AuthContext";
+import styles from "./Profile.module.scss";
+import UserProfileAPI, { IGamerPlaysData, IMasterPlaysData, IUserData } from "../../api/UserProfile.api";
 import Button from "../../components/Button/Button";
+import { API_URL, AuthContext } from "../../context/AuthContext";
 
 const Profile = (): JSX.Element => {
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState<undefined | IUserData>(undefined);
-    const [gamerPlays, setGamerPlays] = useState<
-        undefined | IGamerPlaysData["plays"]
-    >(undefined);
-    const [masterPlays, setMasterPlays] = useState<
-        undefined | IMasterPlaysData["plays"]
-    >(undefined);
+    const [gamerPlays, setGamerPlays] = useState<undefined | IGamerPlaysData["plays"]>(undefined);
+    const [masterPlays, setMasterPlays] = useState<undefined | IMasterPlaysData["plays"]>(undefined);
     useEffect(() => {
         UserProfileAPI.getUserInfo().then((a) => {
             setUserInfo(a);
@@ -39,16 +30,13 @@ const Profile = (): JSX.Element => {
     }, [userInfo]);
     const getPart2 = () => {
         const Out = async () => {
-            const a = await logout();
+            await logout();
             navigate("/");
         };
         const getGamerPlays = () => {
             const getOnePlay = (play: any, ind: number) => {
                 return (
-                    <Link
-                        className={styles.Play}
-                        key={ind}
-                        to={`/play/${play.id}`}>
+                    <Link className={styles.Play} key={ind} to={`/play/${play.id}`}>
                         {play.name}
                     </Link>
                 );
@@ -58,31 +46,19 @@ const Profile = (): JSX.Element => {
                     <div>Список игротек</div>
                     {gamerPlays && gamerPlays.length > 0 ? (
                         <div className={styles.Plays}>
-                            {Array.from(
-                                Array(Math.ceil(gamerPlays.length / 2)).keys()
-                            ).map((blockNum) => {
+                            {Array.from(Array(Math.ceil(gamerPlays.length / 2)).keys()).map((blockNum) => {
                                 return (
-                                    <div
-                                        key={"TwoPlays" + blockNum}
-                                        className={styles.TwoPlays}>
-                                        {gamerPlays
-                                            .slice(
-                                                2 * blockNum,
-                                                2 * (blockNum + 1)
-                                            )
-                                            .map((play, ind) => {
-                                                return getOnePlay(play, ind);
-                                            })}
+                                    <div key={"TwoPlays" + blockNum} className={styles.TwoPlays}>
+                                        {gamerPlays.slice(2 * blockNum, 2 * (blockNum + 1)).map((play, ind) => {
+                                            return getOnePlay(play, ind);
+                                        })}
                                     </div>
                                 );
                             })}
                         </div>
                     ) : (
                         <div className={styles.Profile_List}>
-                            <Link to={"/games"}>
-                                Запишитесь на наши игры! У нас очень весело!
-                                *ссылка на игротеки*
-                            </Link>
+                            <Link to={"/games"}>Запишитесь на наши игры! У нас очень весело! *ссылка на игротеки*</Link>
                         </div>
                     )}
                 </div>
@@ -91,10 +67,7 @@ const Profile = (): JSX.Element => {
         const getMasterPlays = () => {
             const getOnePlay = (play: any, ind: number) => {
                 return (
-                    <Link
-                        className={styles.Play}
-                        key={ind}
-                        to={`/play/${play.id}`}>
+                    <Link className={styles.Play} key={ind} to={`/play/${play.id}`}>
                         {play.name}
                     </Link>
                 );
@@ -104,30 +77,19 @@ const Profile = (): JSX.Element => {
                     <div>Список игротек мастера</div>
                     {masterPlays?.length ? (
                         <div className={styles.Plays}>
-                            {Array.from(
-                                Array(Math.ceil(masterPlays.length / 2)).keys()
-                            ).map((blockNum) => {
+                            {Array.from(Array(Math.ceil(masterPlays.length / 2)).keys()).map((blockNum) => {
                                 return (
-                                    <div
-                                        key={"TwoPlays" + blockNum}
-                                        className={styles.TwoPlays}>
-                                        {masterPlays
-                                            .slice(
-                                                2 * blockNum,
-                                                2 * (blockNum + 1)
-                                            )
-                                            .map((play, ind) => {
-                                                return getOnePlay(play, ind);
-                                            })}
+                                    <div key={"TwoPlays" + blockNum} className={styles.TwoPlays}>
+                                        {masterPlays.slice(2 * blockNum, 2 * (blockNum + 1)).map((play, ind) => {
+                                            return getOnePlay(play, ind);
+                                        })}
                                     </div>
                                 );
                             })}
                         </div>
                     ) : (
                         <div className={styles.Profile_List}>
-                            <Link to={"/games"}>
-                                Начни уже что-нибудь водить
-                            </Link>
+                            <Link to={"/games"}>Начни уже что-нибудь водить</Link>
                         </div>
                     )}
                 </div>
@@ -137,12 +99,13 @@ const Profile = (): JSX.Element => {
             <div className={styles.Part2}>
                 <div className={styles.Buttons}>
                     <Button
-                        text={"Редактировать аккаунт"}
                         onClick={() => {
                             console.log("Редактировать аккаунт");
                         }}
-                    />
-                    <Button text={"Выйти из аккаунта"} onClick={Out} />
+                    >
+                        {"Редактировать аккаунт"}
+                    </Button>
+                    <Button onClick={Out}>{"Выйти из аккаунта"}</Button>
                 </div>
                 {getGamerPlays()}
                 {masterPlays ? getMasterPlays() : null}
@@ -158,6 +121,7 @@ const Profile = (): JSX.Element => {
                         onError={(e) => {
                             e.currentTarget.src = `${API_URL}/image.png`;
                         }}
+                        alt="Аватарка"
                     />
                 </div>
                 <div className={styles.Name}>{userInfo.nickname}</div>
@@ -167,43 +131,30 @@ const Profile = (): JSX.Element => {
                         {":"}
                     </div>
                     <div className={styles.Roles}>
-                        {userInfo.roles.gamer ? (
-                            <div className={styles.Gamer}>{"Игрок"}</div>
-                        ) : (
-                            ""
-                        )}
-                        {userInfo.roles.master ? (
-                            <div className={styles.Master}>{"Мастер"}</div>
-                        ) : (
-                            ""
-                        )}
-                        {userInfo.roles.admin ? (
-                            <div className={styles.Admin}>{"Админ"}</div>
-                        ) : (
-                            ""
-                        )}
+                        {userInfo.roles.gamer ? <div className={styles.Gamer}>{"Игрок"}</div> : ""}
+                        {userInfo.roles.master ? <div className={styles.Master}>{"Мастер"}</div> : ""}
+                        {userInfo.roles.admin ? <div className={styles.Admin}>{"Админ"}</div> : ""}
                     </div>
                 </div>
                 {userInfo.mailVeryfity ? (
-                    <div className={styles.MailVeryfity}>
-                        {"Почта подтверждена"}
-                    </div>
+                    <div className={styles.MailVeryfity}>{"Почта подтверждена"}</div>
                 ) : (
                     <div className={styles.MailVeryfity}>
                         {"Подтвердите почту"}
                         <Button
-                            text={"Отправить повторно"}
                             onClick={() => {
                                 console.log("Отправить повторно");
                             }}
-                        />
+                        >
+                            {"Отправить повторно"}
+                        </Button>
                     </div>
                 )}
             </div>
         );
     };
     const Content = () => {
-        if (userInfo != undefined) {
+        if (userInfo) {
             return (
                 <div className={styles.Main}>
                     <div className={styles.Flesh}>

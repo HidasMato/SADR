@@ -18,7 +18,6 @@ class GameService {
         if (filter.time != undefined)
             if (isNaN(filter.time)) filter.time = undefined;
             else filter.time = Number(filter.time);
-        //TODO: реализовать фильт поиска
         return await GameRepository.getGameList({
             setting: setting,
             filter: filter,
@@ -32,7 +31,7 @@ class GameService {
             });
         const game = await GameRepository.getGameInfoById({ id: id });
         if (!game)
-            return ApiError.BadRequest({
+            throw ApiError.BadRequest({
                 status: 460,
                 message: "Нет такого id в базе",
             });
@@ -56,15 +55,8 @@ class GameService {
                 message: "Не удалось удалить",
             });
     }
-    async update({
-        id,
-        update,
-        image,
-    }: {
-        id: number;
-        update: GameUpdate;
-        image: UploadedFile | undefined;
-    }) {
+    async update({ id, update, image }: { id: number; update: GameUpdate; image: UploadedFile | undefined }) {
+        //TODO: Вставить проверку уникальности имени
         if (isNaN(id))
             throw ApiError.BadRequest({
                 status: 461,
@@ -95,25 +87,22 @@ class GameService {
         if (image)
             await FileService.saveFile({
                 file: image as UploadedFile,
-                fileName: "game_" + id + ".png",
+                fileName: id + "",
+                folder: "games",
             });
     }
-    async create({
-        createInf,
-        image,
-    }: {
-        createInf: GameUpdate;
-        image?: UploadedFile | undefined;
-    }) {
+    async create({ createInf, image }: { createInf: GameUpdate; image?: UploadedFile | undefined }) {
         if (!createInf.name)
             throw ApiError.BadRequest({
                 message: "Отсутствует обязательный параметр name",
             });
+        //TODO: Вставить проверку уникальности имени
         const newId = await GameRepository.createGame({ createInf: createInf });
         if (image)
             await FileService.saveFile({
                 file: image as UploadedFile,
-                fileName: "game_" + newId + ".png",
+                fileName: newId + "",
+                folder: "games",
             });
         return newId;
     }

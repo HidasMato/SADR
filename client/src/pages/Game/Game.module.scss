@@ -1,4 +1,59 @@
 .Main {
     width: 100%;
-    min-height: 100%;
+    height: 100%;
+    padding: 88px 60px;
+    .Flesh {
+        color: var(--SupportColor2);
+        border: 2px solid var(--BackgroundColor2);
+        width: 100%;
+        height: max-content;
+        display: flex;
+        padding: 30px;
+        input,
+        textarea,
+        select {
+            background-color: rgb(255, 210, 210);
+            text-align: center;
+        }
+        .PartImg {
+            font-size: 32px;
+            font-weight: 500;
+            margin-right: 30px;
+            img {
+                width: 360px;
+                aspect-ratio: 1/1;
+            }
+            .Name {
+                margin-top: 30px;
+                width: 100%;
+            }
+            .InputImg {
+                display: none;
+            }
+            label {
+                font-size: 24px;
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+        }
+        .PartDescription {
+            font-size: 16px;
+            width: inherit;
+            display: flex;
+            flex-direction: column;
+            .PlayNumAndTime {
+                margin: 20px 0;
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+            }
+            .Description {
+                margin: 20px 0;
+                width: 100%;
+                text-align: justify;
+                flex-grow: 1;
+            }
+        }
+    }
 }

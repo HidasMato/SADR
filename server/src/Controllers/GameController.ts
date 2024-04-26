@@ -52,7 +52,7 @@ class GameController {
                 await GameService.getGameList({
                     setting: setting,
                     filter: filter,
-                })
+                }),
             );
         } catch (error: any) {
             next(error);
@@ -101,10 +101,7 @@ class GameController {
          */
         try {
             const create: GameUpdate = req.body;
-            const image =
-                req.files?.image?.constructor === Array
-                    ? req.files?.image[0]
-                    : req.files?.image;
+            const image = req.files?.image?.constructor === Array ? req.files?.image[0] : req.files?.image;
             return res.json({
                 redirectionId: await GameService.create({
                     createInf: create,
@@ -135,10 +132,7 @@ class GameController {
             }  
          */
         try {
-            const image =
-                req.files?.image?.constructor === Array
-                    ? req.files?.image[0]
-                    : req.files?.image;
+            const image = req.files?.image?.constructor === Array ? req.files?.image[0] : req.files?.image;
             const id = Number(req.params.id);
             const update: GameUpdate = req.body;
             await GameService.update({

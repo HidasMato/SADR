@@ -1,7 +1,7 @@
-import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import config from "../config";
+import { createContext, useState, useEffect } from "react";
 import inMemoryJWT from "./inMemoryJWT";
+import config from "../config";
 
 export const API_URL = "http://localhost:2052";
 
@@ -15,23 +15,9 @@ export interface LoginResponse {
 }
 
 interface AuthContextValue {
-    login: ({
-        mail,
-        pass,
-    }: {
-        mail: string;
-        pass: string;
-    }) => Promise<returnAuth>;
+    login: ({ mail, pass }: { mail: string; pass: string }) => Promise<returnAuth>;
     logout: () => Promise<returnAuth>;
-    registration: ({
-        mail,
-        pass,
-        nickname,
-    }: {
-        mail: string;
-        pass: string;
-        nickname: string;
-    }) => Promise<returnAuth>;
+    registration: ({ mail, pass, nickname }: { mail: string; pass: string; nickname: string }) => Promise<returnAuth>;
     isAppReady: boolean;
     isUserLogged: boolean;
 }
@@ -41,21 +27,13 @@ interface returnAuth {
     message?: string;
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(
-    undefined
-);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const AuthProvider = ({ children }) => {
     const [isAppReady, setIsAppReady] = useState(false);
     const [isUserLogged, setIsUserLogged] = useState(false);
 
-    const login = async ({
-        mail,
-        pass,
-    }: {
-        mail: string;
-        pass: string;
-    }): Promise<returnAuth> => {
+    const login = async ({ mail, pass }: { mail: string; pass: string }): Promise<returnAuth> => {
         try {
             const responce = await AuthAPI.post<LoginResponse>("/user/login", {
                 mail,
@@ -81,10 +59,7 @@ const AuthProvider = ({ children }) => {
         nickname: string;
     }): Promise<returnAuth> => {
         try {
-            const responce = await AuthAPI.post<LoginResponse>(
-                "/user/registration",
-                { mail, pass, nickname }
-            );
+            const responce = await AuthAPI.post<LoginResponse>("/user/registration", { mail, pass, nickname });
             inMemoryJWT.setToken(responce.data.accessToken);
             setIsUserLogged(true);
             return { status: 200 };
@@ -97,7 +72,7 @@ const AuthProvider = ({ children }) => {
     };
     const logout = async (): Promise<returnAuth> => {
         try {
-            const responce = await AuthAPI.post<LoginResponse>("/user/logout");
+            await AuthAPI.post<LoginResponse>("/user/logout");
             setIsUserLogged(false);
             inMemoryJWT.deleteToken();
             return { status: 200 };
@@ -152,11 +127,7 @@ const AuthProvider = ({ children }) => {
             },
             async (error) => {
                 const originalReqquest = error.config;
-                if (
-                    error.response.status == 401 &&
-                    error.config &&
-                    originalReqquest._isRetry
-                ) {
+                if (error.response.status === 401 && error.config && originalReqquest._isRetry) {
                     originalReqquest._isRetry = false;
                     try {
                         refresh();
@@ -166,7 +137,7 @@ const AuthProvider = ({ children }) => {
                     }
                 }
                 throw error;
-            }
+            },
         );
     }, []);
 
@@ -178,7 +149,8 @@ const AuthProvider = ({ children }) => {
                 registration,
                 isAppReady,
                 isUserLogged,
-            }}>
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

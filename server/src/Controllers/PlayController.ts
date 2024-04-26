@@ -30,10 +30,7 @@ class PlayController {
         try {
             const id = Number(req.params.id);
             const response = await PlayService.getPlayInfoById({ id });
-            if (!response)
-                return res
-                    .status(461)
-                    .json({ message: "Нет такого id в базе" });
+            if (!response) return res.status(461).json({ message: "Нет такого id в базе" });
             return res.json(response);
         } catch (error: any) {
             next(error);
@@ -74,28 +71,29 @@ class PlayController {
          */
         try {
             const query = req.query as object as {
-                start: number;
-                count: number;
-                minplayer: number;
-                maxplayer: number;
+                page: number;
+                datestart: number;
+                dateend: number;
+                masterid: number;
+                freeplace: number;
+                findname: string;
             };
             const setting = {
-                start: Number(query.start),
-                count: Number(query.count),
+                page: Number(query.page),
             };
             const filter = {
-                minplayer: Number(query.minplayer),
-                maxplayer: Number(query.maxplayer),
+                datestart: new Date(query.datestart),
+                dateend: new Date(query.dateend),
+                masterid: Number(query.masterid),
+                freeplace: Number(query.freeplace),
+                findname: query.findname,
             };
-            const arrPlay = await PlayService.getPlayList({
-                setting: setting,
-                filter: filter,
-            });
-            if (arrPlay.length == 0)
-                return res
-                    .status(460)
-                    .json({ message: "В базе данных больше нет игротек" });
-            return res.json(arrPlay);
+            return res.json(
+                await PlayService.getPlayList({
+                    setting: setting,
+                    filter: filter,
+                }),
+            );
         } catch (error: any) {
             next(error);
         }
@@ -128,8 +126,7 @@ class PlayController {
                 createInf: create,
                 image: image as UploadedFile,
             });
-            if (typeof result == "number")
-                return res.json({ redirectionId: result });
+            if (typeof result == "number") return res.json({ redirectionId: result });
             else
                 return res.status(462).json({
                     message: "Не существует игр",
@@ -183,9 +180,7 @@ class PlayController {
                     image: image as UploadedFile | undefined,
                 }))
             )
-                return res
-                    .status(460)
-                    .json({ message: "Пустой массив изменений" });
+                return res.status(460).json({ message: "Пустой массив изменений" });
             else return res.json({ message: "Изменения совершены" });
         } catch (error: any) {
             next(error);
@@ -212,15 +207,11 @@ class PlayController {
             }  
          */
         try {
-            if (!RigthsService.onlyForAdmin({ roles: req.body.roles as Roles }))
-                throw ApiError.Teapot();
+            if (!RigthsService.onlyForAdmin({ roles: req.body.roles as Roles })) throw ApiError.Teapot();
             const id = Number(req.params.id);
             const result = await PlayService.deletePlay({ id });
             if (result) return res.json({ message: "Удаление успешно" });
-            else
-                return res
-                    .status(401)
-                    .json({ message: "Удаление не произошло" });
+            else return res.status(401).json({ message: "Удаление не произошло" });
         } catch (error: any) {
             next(error);
         }

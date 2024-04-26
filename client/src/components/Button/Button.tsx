@@ -1,14 +1,14 @@
 import styles from "./Button.module.scss";
 
 type ButtonObject = {
-    text: string;
-    onClick: () => void;
+    onClick?: () => void;
+    children: JSX.Element | string;
 };
 
-const Button = ({ text, onClick }: ButtonObject): JSX.Element => {
+const Button = ({ children, onClick }: ButtonObject): JSX.Element => {
     return (
         <button className={styles.Main} onClick={onClick}>
-            {text}
+            {children}
         </button>
     );
 };

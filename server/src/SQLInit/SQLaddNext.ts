@@ -18,6 +18,23 @@ const SQLaddNext = async () => {
                 })
                 .join("),\n(")})
             ;`);
+        const gamesOnPlay = [
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [2, 1],
+            [2, 2],
+            [3, 1],
+        ];
+        await pool.query(`INSERT INTO gamesofplay(playid, gameid)
+            VALUES 
+            (${gamesOnPlay
+                .map((val) => {
+                    return val.join(", ");
+                })
+                .join("),\n(")})
+            ;`);
+
         console.log("Допки добавлены");
     } catch (error) {
         const er = error as NoticeMessage;

@@ -112,18 +112,23 @@ class UserController {
                 start: Number(query.start),
                 count: Number(query.count),
             };
-            // const filter = { minPlayer: Number(query.minPlayer), maxPlayer: Number(query.maxPlayer) };
             const filter = {};
             const arrUser = await UserService.getUserList({
                 setting: setting,
                 filter: filter,
                 MODE: "forAll",
             });
-            if (arrUser.length == 0)
-                return res
-                    .status(403)
-                    .json({ message: "В базе данных больше нет игроков" });
+            if (arrUser.length == 0) return res.status(403).json({ message: "В базе данных больше нет игроков" });
             return res.json(arrUser);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async getAllMasters(req: Request, res: Response, next: NextFunction) {
+        try {
+            return res.json({
+                masters: await UserService.getAllMasters(),
+            });
         } catch (error: any) {
             next(error);
         }
@@ -143,14 +148,8 @@ class UserController {
             } 
          */
         try {
-            if (
-                req.body.id != undefined &&
-                !RigthsService.onlyForAdmin({ roles: req.body.roles as Roles })
-            )
-                throw ApiError.Teapot();
-            const id = Number(
-                req.body.id == undefined ? req.body.uid : req.body.id
-            );
+            if (req.body.id != undefined && !RigthsService.onlyForAdmin({ roles: req.body.roles as Roles })) throw ApiError.Teapot();
+            const id = Number(req.body.id || req.body.uid);
             const image = req.files?.image;
             const changeDate: {
                 mail: string;
@@ -174,7 +173,8 @@ class UserController {
             else if (image) {
                 await FileService.saveFile({
                     file: image as UploadedFile,
-                    fileName: "user_" + id + ".png",
+                    fileName: id + "",
+                    folder: "users",
                 });
             } else if (changeDate.role)
                 await UserService.changeRole({
@@ -188,8 +188,7 @@ class UserController {
                     description: changeDate.description,
                     id: id,
                 });
-            else
-                await UserService.changeMail({ mail: changeDate.mail, id: id });
+            else await UserService.changeMail({ mail: changeDate.mail, id: id });
             return res.json("Sucsess");
         } catch (error: any) {
             next(error);
@@ -243,8 +242,7 @@ class UserController {
             } 
          */
         try {
-            const createDate: { mail: string; pass: string; nickname: string } =
-                req.body;
+            const createDate: { mail: string; pass: string; nickname: string } = req.body;
             const { hash } = req.body.fingerprint;
             const tokens = await UserService.registration({
                 mail: createDate.mail,
@@ -324,6 +322,25 @@ class UserController {
             await UserService.logout({ refreshToken: refreshToken });
             res.clearCookie("refreshToken");
             return res.json({ message: "Выход успешен" });
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async getRules(req: Request, res: Response, next: NextFunction) {
+        try {
+            const roleId = req.params.id;
+            const userId = req.body.uid;
+            switch (roleId) {
+                case "1":
+                    return res.json(userId == 1); // Иммитация проверки, что у админа есть плашка может создавать игры
+                case "2":
+                    return res.json(req.body.roles.admin);
+                case "3":
+                    return res.json(req.body.roles.admin);
+                default:
+                    break;
+            }
+            return res.json(false);
         } catch (error: any) {
             next(error);
         }

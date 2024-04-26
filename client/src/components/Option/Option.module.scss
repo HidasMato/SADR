@@ -1,10 +1,14 @@
 .Main {
     display: flex;
-
+    justify-content: center;
+    align-items: center;
     .Title {
-        width: 130px;
     }
-    option {
+    select {
+        background-color: var(--BackgroundColor1);
+        border: 1px solid var(--BackgroundColor2);
+        height: 32px;
+        margin-left: 10px;
         text-align: center;
     }
 }

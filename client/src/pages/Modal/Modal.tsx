@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Modal.module.scss";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -9,6 +10,7 @@ type ModalObject = {
 
 const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
     const { login, registration } = useContext(AuthContext);
+    const navigate = useNavigate();
     const [mailLogin, setMailLogin] = useState("");
     const [passLogin, setPassLogin] = useState("");
     const SbrosLogin = () => {
@@ -37,8 +39,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
         }
     };
     useEffect(() => {
-        if (showLogin)
-            document.addEventListener("mousedown", checkIfClickedOutside);
+        if (showLogin) document.addEventListener("mousedown", checkIfClickedOutside);
     }, [showLogin]);
     const CheckMail = (mail: string) => {
         return true;
@@ -53,9 +54,10 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
         CheckMail(mailLogin);
         CheckPass(passLogin);
         login({ mail: mailLogin, pass: passLogin }).then((a) => {
-            if (a.status == 200) {
+            if (a.status === 200) {
                 setShowLogin(false);
                 SbrosLogin();
+                navigate(0);
             } else {
                 //TODO: Это заменить на визуальные показания неверности хуйни
                 alert(a.message);
@@ -63,17 +65,19 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
         });
     };
     const Registration = () => {
+        if (pass1Registration !== pass2Registration) return 1; // Ошибка
         CheckMail(mailRegistration);
         CheckPass(pass1Registration);
-        CheckPass(nameRegistration);
+        CheckName(nameRegistration);
         registration({
             mail: mailRegistration,
             pass: pass1Registration,
             nickname: nameRegistration,
         }).then((a) => {
-            if (a.status == 200) {
+            if (a.status === 200) {
                 setShowLogin(false);
                 SbrosReg();
+                navigate(0);
             } else {
                 //TODO: Это заменить на визуальные показания неверности хуйни
                 alert(a.message);
@@ -108,16 +112,15 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                         onChange={(e) => setPassLogin(e.target.value)}
                     />
                 </div>
-                <button
-                    onClick={Vhod}
-                    className={styles.Active + " " + styles.Vhod}>
+                <button onClick={Vhod} className={styles.Active + " " + styles.Vhod}>
                     Вход
                 </button>
                 <button
                     onClick={() => {
                         setIsLogin(false);
                         SbrosLogin();
-                    }}>
+                    }}
+                >
                     Зарегестрироваться
                 </button>
             </div>
@@ -183,7 +186,8 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                     onClick={() => {
                         setIsLogin(true);
                         SbrosReg();
-                    }}>
+                    }}
+                >
                     Вход
                 </button>
             </div>
@@ -200,28 +204,32 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                                 onClick={() => {
                                     setMailLogin("mySun@mail.ru");
                                     setPassLogin("1234567890");
-                                }}>
+                                }}
+                            >
                                 Солнышко
                             </button>
                             <button
                                 onClick={() => {
                                     setMailLogin("blue_kitty@mail.ru");
                                     setPassLogin("qwertyuiop");
-                                }}>
+                                }}
+                            >
                                 Синий KUT
                             </button>
                             <button
                                 onClick={() => {
                                     setMailLogin("alex10821@mail.ru");
                                     setPassLogin("SupForMe");
-                                }}>
+                                }}
+                            >
                                 Противная сирена
                             </button>
                             <button
                                 onClick={() => {
                                     setMailLogin("loloporow@mail.ru");
                                     setPassLogin("AbraKedabra");
-                                }}>
+                                }}
+                            >
                                 Капелька
                             </button>
                         </div>

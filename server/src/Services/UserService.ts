@@ -9,39 +9,22 @@ import { UserToCookie } from "../Types/UserToCookie";
 class UserService {
     static createDateAsUTC() {
         const date = new Date();
-        return new Date(
-            Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate(),
-                date.getHours(),
-                date.getMinutes(),
-                date.getSeconds()
-            )
-        );
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
     }
     static async getCache(pass: string) {
         return await bcrypt.hash(pass, 3);
     }
     //FIXME: Нормальная проверка почты
     static getTrueMail(mail: string): void {
-        if (mail.length == 0)
-            throw ApiError.BadRequest({ message: "Пустое поле почты" });
-        if (mail.indexOf("@") <= 0 || mail.indexOf("@") === mail.length - 1)
-            throw ApiError.BadRequest({ message: "Неверный формат почты" });
+        if (mail.length == 0) throw ApiError.BadRequest({ message: "Пустое поле почты" });
+        if (mail.indexOf("@") <= 0 || mail.indexOf("@") === mail.length - 1) throw ApiError.BadRequest({ message: "Неверный формат почты" });
     }
     //FIXME: Нормальная проверка пароля
     static getTruePass(pass: string): void {
-        if (pass.length < 8 || pass.length > 40)
-            throw ApiError.BadRequest({ message: "Неверная длина пароля" });
+        if (pass.length < 8 || pass.length > 40) throw ApiError.BadRequest({ message: "Неверная длина пароля" });
         for (let symbol of pass.split("")) {
             //Спецсимволы
-            if (
-                "_@#$$%^&?.,".indexOf(symbol) == -1 &&
-                (symbol < "a" || symbol > "z") &&
-                (symbol < "A" || symbol > "Z") &&
-                (symbol < "0" || symbol > "9")
-            )
+            if ("_@#$$%^&?.,".indexOf(symbol) == -1 && (symbol < "a" || symbol > "z") && (symbol < "A" || symbol > "Z") && (symbol < "0" || symbol > "9"))
                 throw ApiError.BadRequest({
                     message: "Неверные символы в пароле",
                 });
@@ -49,15 +32,10 @@ class UserService {
     }
     //FIXME: Нормальная проверка ника
     static getTrueNickName(nickname: string): void {
-        if (nickname.length < 4 || nickname.length > 40)
-            throw ApiError.BadRequest({ message: "Неверная длина никнема" });
+        if (nickname.length < 4 || nickname.length > 40) throw ApiError.BadRequest({ message: "Неверная длина никнема" });
         for (let symbol of nickname.split("")) {
             //Спецсимволы
-            if (
-                "_@#$$%^&?.,".indexOf(symbol) == -1 &&
-                (symbol < "0" || symbol > "9") &&
-                symbol.toLowerCase() == symbol.toUpperCase()
-            )
+            if ("_@#$$%^&?.,".indexOf(symbol) == -1 && (symbol < "0" || symbol > "9") && symbol.toLowerCase() == symbol.toUpperCase())
                 throw ApiError.BadRequest({
                     message: "Неверные символы в никнейме",
                 });
@@ -71,23 +49,13 @@ class UserService {
         };
         if (await UserRepository.isUserUser({ id: id })) {
             role.gamer = true;
-            if (
-                (await UserRepository.isUserMaster({ id: id })) &&
-                (await UserRepository.getMasterActive({ id: id }))
-            )
-                role.master = true;
+            if ((await UserRepository.isUserMaster({ id: id })) && (await UserRepository.getMasterActive({ id: id }))) role.master = true;
             if (await UserRepository.isUserAdmin({ id: id })) role.admin = true;
             return role;
         }
         return role;
     }
-    async getUserInfoById({
-        id,
-        MODE,
-    }: {
-        id: number;
-        MODE: "sequrity" | "forAll";
-    }) {
+    async getUserInfoById({ id, MODE }: { id: number; MODE: "sequrity" | "forAll" }) {
         if (isNaN(id)) throw ApiError.UnavtorisationError();
         const userInfo = await UserRepository.getUserInfoById({
             id: id,
@@ -103,22 +71,15 @@ class UserService {
     }
     async getUserList({ setting, filter, MODE }: UserSetting) {
         if (isNaN(setting.start) || setting.start < 0) setting.start = 0;
-        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
-            setting.count = 20;
+        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20) setting.count = 20;
         //TODO: реализовать фильт поиска
         return await UserRepository.getUserList({ setting, filter, MODE });
     }
-    async changePass({
-        id,
-        mail,
-        pass,
-    }: {
-        id: number;
-        mail: string;
-        pass: string;
-    }) {
-        if (isNaN(id))
-            throw ApiError.BadRequest({ message: "Неправильное значение id" });
+    async getAllMasters() {
+        return await UserRepository.getAllMasters();
+    }
+    async changePass({ id, mail, pass }: { id: number; mail: string; pass: string }) {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         UserService.getTruePass(pass);
         if (
@@ -137,17 +98,8 @@ class UserService {
             mail: mail,
         });
     }
-    async changeNickName({
-        id,
-        mail,
-        nickname,
-    }: {
-        id: number;
-        mail: string;
-        nickname: string;
-    }) {
-        if (isNaN(id))
-            throw ApiError.BadRequest({ message: "Неправильное значение id" });
+    async changeNickName({ id, mail, nickname }: { id: number; mail: string; nickname: string }) {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         UserService.getTrueNickName(nickname);
         if (
@@ -163,17 +115,8 @@ class UserService {
             });
         SendMessage.notification({ text: "Никнейм был изменен", mail: mail });
     }
-    async changeRole({
-        id,
-        role,
-        mail,
-    }: {
-        mail: string;
-        id: number;
-        role: string;
-    }) {
-        if (isNaN(id))
-            throw ApiError.BadRequest({ message: "Неправильное значение id" });
+    async changeRole({ id, role, mail }: { mail: string; id: number; role: string }) {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         if (!(await UserRepository.isUserExists({ id: id })))
             throw ApiError.BadRequest({
@@ -225,17 +168,8 @@ class UserService {
             }
         }
     }
-    async changeDescription({
-        id,
-        description,
-        mail,
-    }: {
-        mail: string;
-        id: number;
-        description: string;
-    }) {
-        if (isNaN(id))
-            throw ApiError.BadRequest({ message: "Неправильное значение id" });
+    async changeDescription({ id, description, mail }: { mail: string; id: number; description: string }) {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         if (
             await UserRepository.changeDescription({
@@ -249,8 +183,7 @@ class UserService {
             });
     }
     async changeMail({ id, mail }: { id: number; mail: string }) {
-        if (isNaN(id))
-            throw ApiError.BadRequest({ message: "Неправильное значение id" });
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         if (await UserRepository.changeMail({ id: id, mail: mail }))
             throw ApiError.BadRequest({
@@ -281,23 +214,11 @@ class UserService {
             value: true,
         });
     }
-    async registration({
-        mail,
-        nickname,
-        pass,
-        hash,
-    }: {
-        mail: string;
-        nickname: string;
-        pass: string;
-        hash: string;
-    }) {
+    async registration({ mail, nickname, pass, hash }: { mail: string; nickname: string; pass: string; hash: string }) {
         UserService.getTrueMail(mail);
-        if (await UserRepository.isMailExists({ mail: mail }))
-            throw ApiError.BadRequest({ message: "Почта уже использована" });
+        if (await UserRepository.isMailExists({ mail: mail })) throw ApiError.BadRequest({ message: "Почта уже использована" });
         UserService.getTrueNickName(nickname);
-        if (await UserRepository.isNameExists({ nickname: nickname }))
-            throw ApiError.BadRequest({ message: "Никнейм уже использована" });
+        if (await UserRepository.isNameExists({ nickname: nickname })) throw ApiError.BadRequest({ message: "Никнейм уже использована" });
         UserService.getTruePass(pass);
         const id = await UserRepository.addUser({
             mail: mail,
@@ -311,34 +232,18 @@ class UserService {
         });
         return await this.getNewToken({ id: id, hash: hash });
     }
-    async login({
-        mail,
-        pass,
-        hash,
-    }: {
-        mail: string;
-        pass: string;
-        hash: string;
-    }) {
+    async login({ mail, pass, hash }: { mail: string; pass: string; hash: string }) {
         UserService.getTrueMail(mail);
         UserService.getTruePass(pass);
         const user = await UserRepository.findUserMail({ mail: mail });
-        if (!user)
-            throw ApiError.BadRequest({ message: "Почты не существует" });
-        if (!(await bcrypt.compare(pass, user.passcache)))
-            throw ApiError.BadRequest({ message: "Неверный пароль" });
+        if (!user) throw ApiError.BadRequest({ message: "Почты не существует" });
+        if (!(await bcrypt.compare(pass, user.passcache))) throw ApiError.BadRequest({ message: "Неверный пароль" });
         return await this.getNewToken({ id: user.id, hash: hash });
     }
     async logout({ refreshToken }: { refreshToken: string }) {
         await TokenService.removeToken({ refreshToken });
     }
-    async refresh({
-        oldRefreshToken,
-        hash,
-    }: {
-        oldRefreshToken: string;
-        hash: string;
-    }) {
+    async refresh({ oldRefreshToken, hash }: { oldRefreshToken: string; hash: string }) {
         if (!oldRefreshToken) {
             await TokenService.removeToken({ refreshToken: oldRefreshToken });
             throw ApiError.UnavtorisationError();
@@ -360,10 +265,10 @@ class UserService {
         return await this.getNewToken({ id: user.id, hash: hash });
     }
     async getNewToken({ id, hash }: { id: number; hash: string }) {
-        const newUser = (await new UserService().getUserInfoById({
+        const newUser = await new UserService().getUserInfoById({
             id: id,
             MODE: "sequrity",
-        })) as UserToCookie;
+        });
         const tokens = await TokenService.generateToken({
             payload: {
                 id: newUser.id,
@@ -371,6 +276,7 @@ class UserService {
                 nickname: newUser.nickname,
             },
         });
+        await TokenService.deleteFingerprint({ hash: hash });
         await TokenService.saveToken({
             userId: newUser.id,
             refreshToken: tokens.refreshToken,

@@ -6,15 +6,7 @@ const SQLaddGame = async () => {
     try {
         const values = [];
         for (let i of game) {
-            values.push([
-                "'" + [i.name] + "'",
-                [i.minplayers],
-                [i.maxplayers],
-                [i.mintimeplay],
-                [i.maxtimeplay],
-                [i.hardless],
-                "'" + [i.description] + "'",
-            ]);
+            values.push(["'" + [i.name] + "'", [i.minplayers], [i.maxplayers], [i.mintimeplay], [i.maxtimeplay], [i.hardless], "'" + [i.description] + "'"]);
         }
         await pool.query(`INSERT INTO games(
             name, minplayers, maxplayers, mintimeplay, maxtimeplay, hardless, description)

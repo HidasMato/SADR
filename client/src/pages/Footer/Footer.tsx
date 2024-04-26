@@ -1,7 +1,5 @@
 import styles from "./Footer.module.scss";
 
-type GamesObject = {};
-
 const Footer = (): JSX.Element => {
     return (
         <footer className={styles.Main}>

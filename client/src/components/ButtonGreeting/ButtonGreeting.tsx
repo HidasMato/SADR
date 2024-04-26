@@ -1,6 +1,6 @@
+import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import styles from "./ButtonGreeting.module.scss";
-import { ReactNode } from "react";
 
 type ButtonGreetingObject = {
     text: ReactNode;

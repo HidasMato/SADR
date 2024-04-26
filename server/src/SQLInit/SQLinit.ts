@@ -38,9 +38,8 @@ const SQLinit = async () => {
         (
             id SERIAL,
             userid int,
-            refreshtoken varchar(1000) NOT NULL,
-            fingerprint VARCHAR(100) NOT NULL,
-            UNIQUE(fingerprint, userid)
+            refreshtoken varchar(1000) NOT NULL UNIQUE,
+            fingerprint VARCHAR(100) NOT NULL UNIQUE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS masters 
         (

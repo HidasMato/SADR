@@ -1,11 +1,11 @@
-import styles from "./Header.module.scss";
-import { Link } from "react-router-dom";
-import { ReactComponent as LogoIcon } from "../../images/logo.svg";
-import { ReactComponent as ProfileIcon } from "../../images/account_circle.svg";
-import { ReactComponent as PlaysIcon } from "../../images/stactic.svg";
-import { ReactComponent as GamesIcon } from "../../images/casino.svg";
 import { useContext } from "react";
+import { Link } from "react-router-dom";
+import styles from "./Header.module.scss";
 import { AuthContext } from "../../context/AuthContext";
+import { ReactComponent as ProfileIcon } from "../../images/account_circle.svg";
+import { ReactComponent as GamesIcon } from "../../images/casino.svg";
+import { ReactComponent as LogoIcon } from "../../images/logo.svg";
+import { ReactComponent as PlaysIcon } from "../../images/stactic.svg";
 
 type HeaderObject = {
     showLogin: boolean;
@@ -35,14 +35,15 @@ const Header = ({ showLogin, setShowLogin }: HeaderObject): JSX.Element => {
                             <div className={styles.Text}>Профиль</div>
                         </Link>
                     ) : (
-                        <div
+                        <button
                             className={styles.Link}
                             onClick={() => {
                                 setShowLogin(!showLogin);
-                            }}>
+                            }}
+                        >
                             <ProfileIcon className={styles.Icon} />
                             <div className={styles.Text}>Вход</div>
-                        </div>
+                        </button>
                     )}
                 </nav>
             </header>

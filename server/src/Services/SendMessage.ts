@@ -5,15 +5,7 @@ import MessagesPattern from "./MessagesPattern";
 import UserRepository from "../Repositiories/UserRepository";
 
 class SendMessage {
-    async mail({
-        to,
-        message,
-        title,
-    }: {
-        to: string;
-        message: string;
-        title: string;
-    }) {
+    async mail({ to, message, title }: { to: string; message: string; title: string }) {
         const transporter = nodemailer.createTransport({
             host: MAIL_DATA.HOST,
             port: MAIL_DATA.PORT,
@@ -31,15 +23,7 @@ class SendMessage {
             html: message,
         });
     }
-    async sendMailAccess({
-        mail,
-        userid,
-        type,
-    }: {
-        mail: string;
-        userid: number;
-        type: "registration" | "changemail";
-    }) {
+    async sendMailAccess({ mail, userid, type }: { mail: string; userid: number; type: "registration" | "changemail" }) {
         const activationLink = uuid.v4();
         await UserRepository.addLinkActivate({
             mail: mail,

@@ -1,11 +1,9 @@
-import { API_URL } from "../../context/AuthContext";
 import styles from "./GameCard.module.scss";
+import { IGameData } from "../../api/Games.api";
+import { API_URL } from "../../context/AuthContext";
 
 type GameCardObject = {
-    game: {
-        name: string;
-        id: number;
-    };
+    game: IGameData;
 };
 
 const GameCard = ({ game }: GameCardObject): JSX.Element => {
@@ -17,6 +15,7 @@ const GameCard = ({ game }: GameCardObject): JSX.Element => {
                     onError={(e) => {
                         e.currentTarget.src = `${API_URL}/image.png`;
                     }}
+                    alt="Аватака"
                 />
             ) : null}
             {game ? game.name : null}

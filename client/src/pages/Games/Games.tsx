@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import GameCard from "../../components/GameCard/GameCard";
-import styles from "./Games.module.scss";
-import GameAPI, { IGameData } from "../../api/Games.api";
 import { Link } from "react-router-dom";
+import styles from "./Games.module.scss";
+import GamesAPI, { IGameData } from "../../api/Games.api";
+import Button from "../../components/Button/Button";
+import GameCard from "../../components/GameCard/GameCard";
 import Option from "../../components/Option/Option";
 import { ReactComponent as BackPage } from "../../images/BackPage.svg";
 
 const Games = (): JSX.Element => {
     const [pageCount, setPageCount] = useState<number>(1);
+    const [canIAddGame, setCanIAddGame] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const [games, setGames] = useState<IGameData[] | undefined>(undefined);
     const [findName, setFindName] = useState<string>("");
@@ -15,8 +17,8 @@ const Games = (): JSX.Element => {
     const [time, setTime] = useState<string | undefined>(undefined);
     const [hardless, setHardless] = useState<string | undefined>(undefined);
     const findGames = () => {
-        GameAPI.getGames({
-            page: page ? page : undefined,
+        GamesAPI.getGames({
+            page: page || undefined,
             filter: {
                 findname: findName?.length > 0 ? findName : undefined,
                 player: player,
@@ -29,51 +31,46 @@ const Games = (): JSX.Element => {
         });
     };
     useEffect(() => {
+        GamesAPI.canIAddGame().then((a) => {
+            if (a) setCanIAddGame(true);
+        });
+    }, []);
+    useEffect(() => {
         findGames();
-        document
-            .getElementsByTagName("header")[0]
-            .scrollIntoView({ behavior: "smooth" });
+        document.getElementsByTagName("header")[0].scrollIntoView({ behavior: "smooth" });
     }, [page]);
     useEffect(() => {
         setPage(1);
         findGames();
-        document
-            .getElementsByTagName("header")[0]
-            .scrollIntoView({ behavior: "smooth" });
+        document.getElementsByTagName("header")[0].scrollIntoView({ behavior: "smooth" });
     }, [findName, player, time, hardless]);
     const getGames = () => {
         return (
             <div className={styles.Games}>
-                {Array.from(Array(Math.ceil(games.length / 4)).keys()).map(
-                    (num) => {
-                        return (
-                            <div className={styles.Line} key={"line" + num}>
-                                {Array.from(Array(4).keys()).map((ind) => {
-                                    return (
-                                        <Link
-                                            to={
-                                                "/game/" +
-                                                games[num * 4 + ind]?.id
-                                            }
-                                            className={styles.Item}
-                                            key={num * 4 + ind}>
-                                            <GameCard
-                                                game={games[num * 4 + ind]}
-                                            />
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        );
-                    }
-                )}
+                {Array.from(Array(Math.ceil(games.length / 4)).keys()).map((num) => {
+                    return (
+                        <div className={styles.Line} key={"line" + num}>
+                            {Array.from(Array(4).keys()).map((ind) => {
+                                return (
+                                    <Link
+                                        to={"/game/" + games[num * 4 + ind]?.id}
+                                        className={styles.Item}
+                                        key={num * 4 + ind}
+                                    >
+                                        <GameCard game={games[num * 4 + ind]} />
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
             </div>
         );
     };
     const getSearch = () => {
         return (
             <div className={styles.Search}>
-                <div>Поиск</div>
+                <div className={styles.Title}>Поиск</div>
                 <input
                     type="text"
                     value={findName}
@@ -81,6 +78,11 @@ const Games = (): JSX.Element => {
                         setFindName(e.target.value);
                     }}
                 />
+                {canIAddGame && (
+                    <Link to={"/game/new"}>
+                        <Button>Добавить игру</Button>
+                    </Link>
+                )}
             </div>
         );
     };
@@ -91,52 +93,23 @@ const Games = (): JSX.Element => {
                     name={"Кол-во игроков"}
                     setValue={setPlayer}
                     value={player}
-                    values={[
-                        "1",
-                        "2",
-                        "3",
-                        "4",
-                        "5",
-                        "6",
-                        "7",
-                        "8",
-                        "9",
-                        "10",
-                        "11",
-                        "12",
-                    ]}
+                    values={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
                 />
                 <Option
                     strAdd="мин"
                     name={"Время партии"}
                     setValue={setTime}
                     value={time}
-                    values={[
-                        "10",
-                        "20",
-                        "30",
-                        "40",
-                        "50",
-                        "60",
-                        "70",
-                        "80",
-                        "90",
-                    ]}
+                    values={["10", "20", "30", "40", "50", "60", "70", "80", "90"]}
                 />
-                <Option
-                    name={"Сложность"}
-                    setValue={setHardless}
-                    value={hardless}
-                    values={["1", "2", "3", "4", "5"]}
-                />
+                <Option name={"Сложность"} setValue={setHardless} value={hardless} values={["1", "2", "3", "4", "5"]} />
             </div>
         );
     };
     const getPageRouter = () => {
         const masPages = [page];
         for (let a = page - 1; a > 0 && a >= page - 5; a--) masPages.unshift(a);
-        for (let a = page + 1; a <= pageCount && a <= page + 5; a++)
-            masPages.push(a);
+        for (let a = page + 1; a <= pageCount && a <= page + 5; a++) masPages.push(a);
         const toPage = (newPage: number) => {
             if (newPage > pageCount) newPage = pageCount;
             else if (newPage < 1) newPage = 1;
@@ -147,35 +120,37 @@ const Games = (): JSX.Element => {
                 <BackPage
                     className={styles.Svg}
                     onClick={() => {
-                        if (page != 1) toPage(page - 1);
+                        if (page !== 1) toPage(page - 1);
                     }}
                 />
                 {masPages.map((a) => {
-                    if (a == page)
+                    if (a === page)
                         return (
-                            <div
+                            <button
                                 key={"page" + a}
                                 className={styles.ThisPage}
                                 onClick={() => {
                                     toPage(a);
-                                }}>
+                                }}
+                            >
                                 {a}
-                            </div>
+                            </button>
                         );
                     return (
-                        <div
+                        <button
                             key={"page" + a}
                             onClick={() => {
                                 toPage(a);
-                            }}>
+                            }}
+                        >
                             {a}
-                        </div>
+                        </button>
                     );
                 })}
                 <BackPage
                     className={styles.Next + " " + styles.Svg}
                     onClick={() => {
-                        if (page != pageCount) toPage(page + 1);
+                        if (page !== pageCount) toPage(page + 1);
                     }}
                 />
             </div>

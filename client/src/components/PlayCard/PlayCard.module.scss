@@ -1,16 +1,33 @@
 .Main {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     width: 100%;
-    padding: 20px;
-    font-size: 24px;
-    border-radius: 25px;
-    border: 1px solid var(--SupportColor1);
-    padding: 20px;
+    align-items: center;
+    font-size: 20px;
+    height: 80px;
+    padding: 0 60px;
+    grid-template-columns: 1fr 2fr 2fr 2fr 2fr 2fr;
+    grid-template-areas: "img name start end place master";
 
     img {
-        width: 100%;
+        padding: 5px;
+        height: 80px;
         aspect-ratio: 1/1;
+        grid-area: img;
+    }
+    .Name {
+        grid-area: name;
+    }
+    .Start {
+        grid-area: start;
+    }
+    .End {
+        grid-area: end;
+    }
+    .Place {
+        grid-area: place;
+    }
+    .Mater {
+        grid-area: master;
     }
 }
 

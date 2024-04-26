@@ -3,10 +3,12 @@ export type PlaySetting = {
     filter: PlayFilter;
 };
 export type PlaySelection = {
-    start: number;
-    count: number;
+    page: number | undefined;
 };
 export type PlayFilter = {
-    minplayer: number;
-    maxplayer: number;
+    datestart: Date;
+    dateend: Date;
+    masterid: number | undefined;
+    freeplace: number | undefined;
+    findname: string | undefined;
 };

@@ -1,15 +1,15 @@
-import styles from "./Page.module.scss";
+import { useContext } from "react";
 import { Route, Routes } from "react-router-dom";
-import MainPage from "../../pages/Main/Main";
+import styles from "./Page.module.scss";
+import { AuthContext } from "../../context/AuthContext";
 import Games from "../../pages/Games/Games";
+import MainPage from "../../pages/Main/Main";
 import Plays from "../../pages/Plays/Plays";
 import Profile from "../../pages/Profile/Profile";
+import ErrorPage from "../ErrorPage/ErrorPage";
+import Game from "../Game/Game";
 import Modal from "../Modal/Modal";
 import Play from "../Play/Play";
-import Game from "../Game/Game";
-import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
-import ErrorPage from "../ErrorPage/ErrorPage";
 
 type PageObject = {
     showLogin: boolean;
@@ -21,9 +21,7 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     const Page = () => {
         return (
             <Routes>
-                {isUserLogged ? (
-                    <Route path="/profile" element={<Profile />} />
-                ) : null}
+                {isUserLogged ? <Route path="/profile" element={<Profile />} /> : null}
                 <Route path="/" element={<MainPage />} />
                 <Route path="/games/" element={<Games />} />
                 <Route path="/game/:id" element={<Game />} />
@@ -35,10 +33,7 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     };
     const Modals = () => {
         return (
-            <div
-                className={
-                    styles.UnModal + " " + (showLogin ? styles.Modal : "")
-                }>
+            <div className={styles.UnModal + " " + (showLogin ? styles.Modal : "")}>
                 <Modal showLogin={showLogin} setShowLogin={setShowLogin} />
             </div>
         );

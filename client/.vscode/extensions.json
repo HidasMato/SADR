@@ -1,0 +1,7 @@
+{
+    // Рекомендованные расширения
+    "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "gruntfuggly.todo-tree"],
+
+    // Нежелательные расширения
+    "unwantedRecommendations": []
+}

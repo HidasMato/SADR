@@ -14,8 +14,7 @@ class PlayService {
                 status: 461,
                 message: "Неправильное значение id",
             });
-        const masterId = (await PlayRepository.getPlayInfoById({ id: playId }))
-            ?.masterid;
+        const masterId = (await PlayRepository.getPlayInfoById({ id: playId }))?.masterid;
         if (!masterId)
             throw ApiError.BadRequest({
                 status: 460,
@@ -35,17 +34,72 @@ class PlayService {
                 status: 460,
                 message: "Игры не существует",
             });
-        return play;
+        const gamersCount = await PlayRepository.getGamersOnPlay({
+            playId: Number(play.id),
+        });
+        const games = await PlayRepository.getGamesOnPlay({ playId: id });
+        return {
+            id: play.id,
+            name: play.name,
+            master: { id: play.masterid, name: play.mastername },
+            description: play.description,
+            players: {
+                count: gamersCount.length,
+                min: play.minplayers,
+                max: play.maxplayers,
+            },
+            games: games,
+            status: {
+                status: play.status,
+                dateStart: play.datestart,
+                dateEnd: play.dateend,
+            },
+        };
     }
     async getPlayList({ setting, filter }: PlaySetting) {
-        if (isNaN(setting.start) || setting.start < 0) setting.start = 0;
-        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20)
-            setting.count = 20;
-        //TODO: реализовать фильт поиска
-        return await PlayRepository.getPlayList({
+        if (setting.page == undefined) setting.page = 1;
+        else if (isNaN(setting.page) || setting.page < 1) setting.page = 1;
+        if (filter.masterid != undefined)
+            if (isNaN(filter.masterid)) filter.masterid = undefined;
+            else filter.masterid = Number(filter.masterid);
+        if (filter.freeplace != undefined)
+            if (isNaN(filter.freeplace)) filter.freeplace = undefined;
+            else filter.freeplace = Number(filter.freeplace);
+        const plays = await PlayRepository.getPlayList({
             setting: setting,
             filter: filter,
         });
+        return {
+            plays: await Promise.all(
+                plays.plays.map(async (play) => {
+                    const masterName = (
+                        await UserRepository.getUserInfoById({
+                            id: play.masterid,
+                            MODE: "forAll",
+                        })
+                    ).nickname;
+                    const gamersCount = await PlayRepository.getGamersOnPlay({
+                        playId: Number(play.id),
+                    });
+                    return {
+                        id: play.id,
+                        name: play.name,
+                        master: { id: play.masterid, name: masterName },
+                        players: {
+                            count: gamersCount.length,
+                            min: play.minplayers,
+                            max: play.maxplayers,
+                        },
+                        status: {
+                            status: play.status,
+                            dateStart: play.datestart,
+                            dateEnd: play.dateend,
+                        },
+                    };
+                }),
+            ),
+            count: plays.count,
+        };
     }
     async deletePlay({ id }: { id: number }): Promise<boolean> {
         if (isNaN(id))
@@ -55,14 +109,8 @@ class PlayService {
             });
         return PlayRepository.deletePlay({ id: id });
     }
-    async changeGamesOnPlay({
-        playId,
-        games,
-    }: {
-        playId: number;
-        games: number[];
-    }): Promise<boolean> {
-        const gamesOnPlay = await PlayRepository.getGamesOnPlay({
+    async changeGamesOnPlay({ playId, games }: { playId: number; games: number[] }): Promise<boolean> {
+        const gamesOnPlay = await PlayRepository.getGamesIdOnPlay({
             playId: playId,
         });
         let isChanges = false;
@@ -86,17 +134,8 @@ class PlayService {
         }
         return isChanges;
     }
-    async updatePlay({
-        id,
-        update,
-        image,
-    }: {
-        id: number;
-        update: PlayUpdate;
-        image?: UploadedFile | undefined;
-    }): Promise<boolean> {
-        if (isNaN(id))
-            throw ApiError.BadRequest({ message: "Неправильное значение id" });
+    async updatePlay({ id, update, image }: { id: number; update: PlayUpdate; image?: UploadedFile | undefined }): Promise<boolean> {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         if (!(await PlayRepository.isPlayExists({ id: id })))
             throw ApiError.BadRequest({
                 status: 471,
@@ -104,16 +143,7 @@ class PlayService {
             });
         let maybeOne = false,
             meybeGame = false;
-        const updateParametrs = [
-            "name",
-            "masterId",
-            "minplayers",
-            "maxplayers",
-            "description",
-            "status",
-            "datestart",
-            "dateend",
-        ];
+        const updateParametrs = ["name", "masterId", "minplayers", "maxplayers", "description", "status", "datestart", "dateend"];
         for (let per of updateParametrs)
             if (update[per as keyof PlayUpdate]) {
                 maybeOne = true;
@@ -126,24 +156,18 @@ class PlayService {
                 games: update.games,
             });
         //Обновляем инфу
-        if (maybeOne)
-            await PlayRepository.updatePlay({ id: id, update: update });
+        if (maybeOne) await PlayRepository.updatePlay({ id: id, update: update });
         //Обновляем картинку
         if (image)
             await FileService.saveFile({
                 file: image as UploadedFile,
-                fileName: "play_" + id + ".png",
+                fileName: id + "",
+                folder: "plays",
             });
         if (!maybeOne && meybeGame) return false;
         else return true;
     }
-    async createPlay({
-        createInf,
-        image,
-    }: {
-        createInf: PlayUpdate;
-        image?: UploadedFile | undefined;
-    }): Promise<number | boolean[]> {
+    async createPlay({ createInf, image }: { createInf: PlayUpdate; image?: UploadedFile | undefined }): Promise<number | boolean[]> {
         if (!createInf.name)
             throw ApiError.BadRequest({
                 message: "Отсутствует обязательный параметр name",
@@ -157,7 +181,7 @@ class PlayService {
                     });
                     if (!bool) thr = true;
                     return bool;
-                })
+                }),
             );
             if (thr) return isGamesExists;
         }
@@ -175,17 +199,12 @@ class PlayService {
         if (image)
             await FileService.saveFile({
                 file: image as UploadedFile,
-                fileName: "play_" + newId + ".png",
+                fileName: newId + "",
+                folder: "plays",
             });
         return newId;
     }
-    async registrUserToPlay({
-        playId,
-        userId,
-    }: {
-        playId: number;
-        userId: number;
-    }): Promise<boolean> {
+    async registrUserToPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
         if (isNaN(playId))
             throw ApiError.BadRequest({
                 status: 460,
@@ -215,20 +234,13 @@ class PlayService {
             throw ApiError.BadRequest({
                 message: "Пользователь уже записан на игротеку",
             });
-        if (await PlayRepository.isPlayMax({ playId: playId }))
-            throw ApiError.BadRequest({ message: "Мест нет" });
+        if (await PlayRepository.isPlayMax({ playId: playId })) throw ApiError.BadRequest({ message: "Мест нет" });
         return await PlayRepository.addGamerToPlay({
             playId: playId,
             userId: userId,
         });
     }
-    async unRegistrUserToPlay({
-        playId,
-        userId,
-    }: {
-        playId: number;
-        userId: number;
-    }): Promise<boolean> {
+    async unRegistrUserToPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
         if (isNaN(playId))
             throw ApiError.BadRequest({
                 status: 460,
@@ -286,7 +298,7 @@ class PlayService {
                         MODE: "forAll",
                     })
                 ).nickname;
-                const gamersCount = await PlayRepository.getGamesOnPlay({
+                const gamersCount = await PlayRepository.getGamersOnPlay({
                     playId: id,
                 });
                 return {
@@ -298,7 +310,7 @@ class PlayService {
                         name: masterName,
                     },
                     players: {
-                        count: gamersCount,
+                        count: gamersCount.length,
                         min: playInfo.minplayers,
                         max: playInfo.maxplayers,
                     },
@@ -308,7 +320,7 @@ class PlayService {
                         dateEnd: playInfo.dateend,
                     },
                 };
-            })
+            }),
         );
         return plays;
     }
@@ -347,7 +359,7 @@ class PlayService {
                         dateEnd: inf.dateend,
                     },
                 };
-            })
+            }),
         );
         return plays;
     }

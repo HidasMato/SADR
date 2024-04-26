@@ -4,11 +4,11 @@ export interface IGameData {
     name: string;
     id: number;
 }
-export interface IGameQuery {
+export interface IGamesQuery {
     games: IGameData[];
     count: number;
 }
-export interface IGameFilter {
+export interface IGamesFilter {
     page?: number;
     filter?: {
         findname?: string;
@@ -17,15 +17,18 @@ export interface IGameFilter {
         hardless?: string;
     };
 }
-export default class GameAPI {
-    static async getGames(filter: IGameFilter): Promise<IGameQuery> {
+export default class GamesAPI {
+    static async getGames(filter: IGamesFilter): Promise<IGamesQuery> {
         return (
-            await AuthAPI.get<IGameQuery>(`/game/all`, {
+            await AuthAPI.get<IGamesQuery>(`/game/all`, {
                 params: {
                     ...filter.filter,
                     page: filter.page,
                 },
             })
         ).data;
+    }
+    static async canIAddGame(): Promise<boolean> {
+        return (await AuthAPI.get<boolean>(`/user/rules/1`)).data;
     }
 }

@@ -1,30 +1,16 @@
 import { Roles } from "../Types/Roles";
 
 class RigthsService {
-    isHaveAccessOr({
-        roles,
-        accessArray,
-    }: {
-        roles: Roles;
-        accessArray: ("gamer" | "master" | "admin")[];
-    }): boolean {
+    isHaveAccessOr({ roles, accessArray }: { roles: Roles; accessArray: ("gamer" | "master" | "admin")[] }): boolean {
         //Кто имеет доступ
         //Должна быть хотя бы одна роль в accessArray, которая есть в roles
-        for (let role of accessArray)
-            if (roles[role as keyof Roles]) return true;
+        for (let role of accessArray) if (roles[role as keyof Roles]) return true;
         return false;
     }
-    isHaveAccessAnd({
-        roles,
-        accessArray,
-    }: {
-        roles: Roles;
-        accessArray: ("gamer" | "master" | "admin")[];
-    }): boolean {
+    isHaveAccessAnd({ roles, accessArray }: { roles: Roles; accessArray: ("gamer" | "master" | "admin")[] }): boolean {
         //Кто имеет доступ
         //Должны быть все роли в accessArray, которые есть в roles
-        for (let role of accessArray)
-            if (!roles[role as keyof Roles]) return false;
+        for (let role of accessArray) if (!roles[role as keyof Roles]) return false;
         return true;
     }
     onlyForAdmin({ roles }: { roles: Roles }): boolean {

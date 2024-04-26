@@ -3,19 +3,19 @@ import styles from "./Option.module.scss";
 
 type OptionObject = {
     name: string;
-    values: string[];
-    value: string | undefined;
-    setValue: Dispatch<SetStateAction<string | undefined>>;
+    values:
+        | string[]
+        | number[]
+        | {
+              id: number;
+              value: string;
+          }[];
+    value: string | number | undefined;
+    setValue: Dispatch<SetStateAction<string | number | undefined>>;
     strAdd?: string;
 };
 
-const Option = ({
-    value,
-    setValue,
-    name,
-    values,
-    strAdd,
-}: OptionObject): JSX.Element => {
+const Option = ({ value, setValue, name, values, strAdd }: OptionObject): JSX.Element => {
     return (
         <div className={styles.Main}>
             <div className={styles.Title}>{name}</div>
@@ -23,19 +23,34 @@ const Option = ({
                 name="player"
                 value={value}
                 onChange={(e) => {
-                    setValue(e.target.value);
+                    if (e.target.value === "--") setValue(undefined);
+                    else setValue(e.target.value);
                 }}
-                id="player">
-                <option key={name + "--"} value={undefined}>
+                id="player"
+            >
+                <option key={name + "--"} value={"--"}>
                     {"--"}
                 </option>
-                {values.map((val) => {
-                    return (
-                        <option key={name + val} value={val}>
-                            {val + (strAdd ?? "")}
-                        </option>
-                    );
-                })}
+                {values.map(
+                    (
+                        val:
+                            | string
+                            | number
+                            | {
+                                  id: number;
+                                  value: string;
+                              },
+                    ) => {
+                        return (
+                            <option
+                                key={name + (typeof val === "object" ? val?.id : val)}
+                                value={typeof val === "object" ? val?.id : val}
+                            >
+                                {typeof val === "object" ? val?.value : val + (strAdd ?? "")}
+                            </option>
+                        );
+                    },
+                )}
             </select>
         </div>
     );

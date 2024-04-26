@@ -1,6 +1,6 @@
 {
     "watch": ["src"],
     "ext": ".ts,.js",
-    "ignore": [],
+    "ignore": ["src/SQLInit"],
     "exec": "node ./src/Swagger/swagger.js & npx ts-node ./src/index.ts"
 }
