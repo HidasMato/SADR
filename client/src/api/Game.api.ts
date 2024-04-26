@@ -24,15 +24,14 @@ export default class GameAPI {
     static async getGame(id: string) {
         try {
             const response = await AuthAPI.get<IGameQuery>(`/game/${id}`);
-            console.log(999, response);
             return {
                 status: response.status,
                 data: response.data,
             };
         } catch (error) {
             return {
-                status: error.response.status,
-                message: error.response.data.message,
+                status: error?.response?.status,
+                message: error?.response?.data?.message,
             };
         }
     }

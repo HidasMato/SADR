@@ -41,8 +41,8 @@ npm i</code>
         "USER_MAIL": "lubiteli.nastolok@yandex.ru",
         "USER_PASSWORD": "sxdfxpwbdmkqqypt"
     },
-    "SERVER_URL": "http://5.144.98.35:2052",
-    "CLIENT_URL": "http://5.144.98.35:2051",
+    "SERVER_URL": "http://localhost:2052",
+    "CLIENT_URL": "http://localhost:2051",
     "MAX_SESSIONS": 2
 }
 </pre>

@@ -1,5 +1,4 @@
 node_modules
 build
 tokens.json
-images/*
-!/images/image.png
+images/**\/**

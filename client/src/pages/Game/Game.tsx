@@ -15,12 +15,9 @@ const Game = (): JSX.Element => {
     useEffect(() => {
         if (id !== "new")
             GameAPI.getGame(id).then((a) => {
-                console.log(123, a);
                 if (a.status === 200) {
-                    console.log(1, a);
                     setGameInfo(a.data);
                 } else {
-                    console.log(2, a);
                     console.log(a.message);
                 }
                 setStatus(true);
