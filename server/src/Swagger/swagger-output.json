@@ -196,7 +196,7 @@
     "createUser": {
       "type": "object",
       "properties": {
-        "nickname": {
+        "name": {
           "type": "string",
           "example": "Никнейм"
         },
@@ -217,7 +217,7 @@
           "type": "number",
           "example": 1
         },
-        "nickname": {
+        "name": {
           "type": "string",
           "example": "Никнейм"
         },
@@ -242,7 +242,7 @@
           "type": "number",
           "example": 1
         },
-        "nickname": {
+        "name": {
           "type": "string",
           "example": "Никнейм"
         },

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
-import styles from "./Option.module.scss";
+import styles from "./OptionSelector.module.scss";
 
-type OptionObject = {
+type OptionSelectorObject = {
     name: string;
     values:
         | string[]
@@ -13,13 +13,22 @@ type OptionObject = {
     value: string | number | undefined;
     setValue: Dispatch<SetStateAction<string | number | undefined>>;
     strAdd?: string;
+    block?: boolean;
 };
 
-const Option = ({ value, setValue, name, values, strAdd }: OptionObject): JSX.Element => {
+const OptionSelector = ({
+    value,
+    setValue,
+    name,
+    values,
+    strAdd,
+    block = false,
+}: OptionSelectorObject): JSX.Element => {
     return (
         <div className={styles.Main}>
             <div className={styles.Title}>{name}</div>
             <select
+                disabled={block}
                 name="player"
                 value={value}
                 onChange={(e) => {
@@ -56,4 +65,4 @@ const Option = ({ value, setValue, name, values, strAdd }: OptionObject): JSX.El
     );
 };
 
-export default Option;
+export default OptionSelector;

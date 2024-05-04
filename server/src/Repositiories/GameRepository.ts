@@ -18,6 +18,9 @@ const Variable = {
 };
 
 class GameRepository {
+    async getAllGame() {
+        return (await pool.query(`SELECT id, name FROM games;`)).rows as GameQuery[];
+    }
     async getGameList({ setting, filter }: GameSetting) {
         const limit = 20;
         const filterVar: any[] = [];

@@ -25,6 +25,7 @@ class SendMessage {
     }
     async sendMailAccess({ mail, userid, type }: { mail: string; userid: number; type: "registration" | "changemail" }) {
         const activationLink = uuid.v4();
+        await UserRepository.deleteMyLink({ userid: userid });
         await UserRepository.addLinkActivate({
             mail: mail,
             userid: userid,

@@ -5,7 +5,7 @@ import PlayRepository from "../Repositiories/PlayRepository";
 import GameRepository from "../Repositiories/GameRepository";
 import UserRepository from "../Repositiories/UserRepository";
 import { PlaySetting } from "../Types/PlaySetting";
-import { PlayUpdate } from "../Types/PlayUpdate";
+import { PlayCreate } from "../Types/PlayCreate";
 
 class PlayService {
     async getMasterId({ playId }: { playId: number }) {
@@ -77,7 +77,7 @@ class PlayService {
                             id: play.masterid,
                             MODE: "forAll",
                         })
-                    ).nickname;
+                    ).name;
                     const gamersCount = await PlayRepository.getGamersOnPlay({
                         playId: Number(play.id),
                     });
@@ -109,100 +109,48 @@ class PlayService {
             });
         return PlayRepository.deletePlay({ id: id });
     }
-    async changeGamesOnPlay({ playId, games }: { playId: number; games: number[] }): Promise<boolean> {
-        const gamesOnPlay = await PlayRepository.getGamesIdOnPlay({
-            playId: playId,
-        });
-        let isChanges = false;
-        for (let game of gamesOnPlay) {
-            if (!games.includes(game)) {
-                isChanges = true;
-                await PlayRepository.deleteGameOfPlay({
-                    playId: playId,
-                    gameId: game,
-                });
-            }
-        }
-        for (let game of games) {
-            if (!gamesOnPlay.includes(game)) {
-                isChanges = true;
-                await PlayRepository.addGameOfPlay({
-                    playId: playId,
-                    gameId: game,
-                });
-            }
-        }
-        return isChanges;
+    async changeGamesOnPlay({ playId, games }: { playId: number; games: number[] }) {
+        const gamesOnPlay = await PlayRepository.getGamesIdOnPlay({ playId: playId });
+        for (let game of gamesOnPlay) if (!games.includes(game)) await PlayRepository.deleteGameOfPlay({ playId: playId, gameId: game });
+        for (let game of games) if (!gamesOnPlay.includes(game)) await PlayRepository.addGameOfPlay({ playId: playId, gameId: game });
     }
-    async updatePlay({ id, update, image }: { id: number; update: PlayUpdate; image?: UploadedFile | undefined }): Promise<boolean> {
-        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
-        if (!(await PlayRepository.isPlayExists({ id: id })))
-            throw ApiError.BadRequest({
-                status: 471,
-                message: "Игротеки не существует",
-            });
-        let maybeOne = false,
-            meybeGame = false;
-        const updateParametrs = ["name", "masterId", "minplayers", "maxplayers", "description", "status", "datestart", "dateend"];
-        for (let per of updateParametrs)
-            if (update[per as keyof PlayUpdate]) {
-                maybeOne = true;
-                break;
-            }
-        //Обновляем игры
-        if (update.games)
-            meybeGame = await new PlayService().changeGamesOnPlay({
-                playId: id,
-                games: update.games,
-            });
-        //Обновляем инфу
-        if (maybeOne) await PlayRepository.updatePlay({ id: id, update: update });
-        //Обновляем картинку
-        if (image)
-            await FileService.saveFile({
-                file: image as UploadedFile,
-                fileName: id + "",
-                folder: "plays",
-            });
-        if (!maybeOne && meybeGame) return false;
-        else return true;
-    }
-    async createPlay({ createInf, image }: { createInf: PlayUpdate; image?: UploadedFile | undefined }): Promise<number | boolean[]> {
-        if (!createInf.name)
-            throw ApiError.BadRequest({
-                message: "Отсутствует обязательный параметр name",
-            });
-        if (createInf.games && createInf.games.length > 0) {
+    async changeCreatePlay({ id, inf, image }: { id?: number; inf: PlayCreate; image?: UploadedFile | undefined }): Promise<number | boolean[]> {
+        if (id !== undefined) {
+            if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
+            if (!(await PlayRepository.isPlayExists({ id: id }))) throw ApiError.BadRequest({ status: 471, message: "Игротеки не существует" });
+        }
+        if (inf.name === undefined || inf.name === "") throw ApiError.BadRequest({ message: "Отсутствует обязательный параметр name" });
+        //Проверить, что имя уникально?
+        if (isNaN(inf.masterId)) throw ApiError.BadRequest({ message: "Мастер не выбран" });
+        if (isNaN(inf.minplayers)) throw ApiError.BadRequest({ message: "Минимальное количество игроков не определено" });
+        if (isNaN(inf.maxplayers)) throw ApiError.BadRequest({ message: "Максимальное количество игроков не определено" });
+        if (inf.minplayers >= inf.maxplayers) throw ApiError.BadRequest({ message: "Неверно указано количество игроков" });
+        if (inf.datestart == undefined) throw ApiError.BadRequest({ message: "Дата начала не определена" });
+        if (inf.dateend == undefined) throw ApiError.BadRequest({ message: "Дата окончания не определена" });
+        if (inf.dateend.valueOf() - inf.datestart.valueOf() < 1000 * 60 * 60 * 1) throw ApiError.BadRequest({ message: "Длительность игротеки меньше часа" });
+        if (inf.dateend.valueOf() - inf.datestart.valueOf() > 1000 * 60 * 60 * 24) throw ApiError.BadRequest({ message: "Длительность игротеки больше дня" });
+        if (inf.description == undefined) throw ApiError.BadRequest({ message: "Описание неверно" });
+        if (inf.status == undefined) throw ApiError.BadRequest({ message: "Беда со статусом" });
+        if (inf.games.length > 0) {
             let thr = false;
             const isGamesExists = await Promise.all(
-                createInf.games.map(async (gameId) => {
-                    const bool = await GameRepository.isGameExists({
-                        id: gameId,
-                    });
+                inf.games.map(async (gameId) => {
+                    const bool = await GameRepository.isGameExists({ id: gameId });
                     if (!bool) thr = true;
-                    return bool;
+                    return { exists: bool, id: gameId };
                 }),
             );
-            if (thr) return isGamesExists;
+            if (thr) throw ApiError.BadRequest({ status: 462, message: "Игры не найдены", errors: isGamesExists });
         }
-        const newId = await PlayRepository.createPlay({ createInf: createInf });
-        if (!newId)
-            throw ApiError.BadRequest({
-                status: 460,
-                message: "Не удалось создать игру",
-            });
-        if (createInf.games && createInf.games?.length > 0)
-            new PlayService().updatePlay({
-                id: newId,
-                update: { games: createInf.games } as PlayUpdate,
-            });
-        if (image)
-            await FileService.saveFile({
-                file: image as UploadedFile,
-                fileName: newId + "",
-                folder: "plays",
-            });
-        return newId;
+        if (id == undefined) {
+            id = await PlayRepository.createPlay({ create: inf });
+            if (!id) throw ApiError.BadRequest({ status: 460, message: "Не удалось создать игру" });
+        } else {
+            if (!(await PlayRepository.updatePlay({ id: id, update: inf }))) throw ApiError.BadRequest({ status: 460, message: "Не удалось изменить игру" });
+        }
+        await this.changeGamesOnPlay({ playId: id, games: inf.games });
+        if (image) await FileService.saveFile({ file: image as UploadedFile, fileName: id + "", folder: "plays" });
+        return id;
     }
     async registrUserToPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
         if (isNaN(playId))
@@ -297,7 +245,7 @@ class PlayService {
                         id: playInfo.masterid,
                         MODE: "forAll",
                     })
-                ).nickname;
+                ).name;
                 const gamersCount = await PlayRepository.getGamersOnPlay({
                     playId: id,
                 });
@@ -362,6 +310,19 @@ class PlayService {
             }),
         );
         return plays;
+    }
+    async isPlaysMasterPlay({ playId, masterId }: { playId: number; masterId: number }) {
+        if (isNaN(playId))
+            throw ApiError.BadRequest({
+                status: 461,
+                message: "Неправильное значение id",
+            });
+        if (isNaN(masterId))
+            throw ApiError.BadRequest({
+                status: 461,
+                message: "Неправильное значение id",
+            });
+        return await PlayRepository.isPlaysMasterPlay({ playId, masterId });
     }
 }
 

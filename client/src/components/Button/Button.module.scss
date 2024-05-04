@@ -7,4 +7,12 @@
     padding: 5px;
     border-radius: 50px;
     border: 1px solid var(--SupportColor1);
+    white-space: pre;
+    height: fit-content;
+}
+.Red {
+    background-color: red;
+}
+.Kvadr {
+    aspect-ratio: 1/1;
 }

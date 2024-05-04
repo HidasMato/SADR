@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Games.module.scss";
-import GamesAPI, { IGameData } from "../../api/Games.api";
+import GameAPI, { IGameData } from "../../api/Game.api";
 import Button from "../../components/Button/Button";
 import GameCard from "../../components/GameCard/GameCard";
-import Option from "../../components/Option/Option";
+import Option from "../../components/OptionSelector/OptionSelector";
 import { ReactComponent as BackPage } from "../../images/BackPage.svg";
 
 const Games = (): JSX.Element => {
     const [pageCount, setPageCount] = useState<number>(1);
-    const [canIAddGame, setCanIAddGame] = useState<boolean>(false);
+    const [canICreateGame, setCanIAddGame] = useState<boolean>(false);
     const [page, setPage] = useState<number>(1);
     const [games, setGames] = useState<IGameData[] | undefined>(undefined);
     const [findName, setFindName] = useState<string>("");
@@ -17,7 +17,8 @@ const Games = (): JSX.Element => {
     const [time, setTime] = useState<string | undefined>(undefined);
     const [hardless, setHardless] = useState<string | undefined>(undefined);
     const findGames = () => {
-        GamesAPI.getGames({
+        // setGames(undefined);
+        GameAPI.getGames({
             page: page || undefined,
             filter: {
                 findname: findName?.length > 0 ? findName : undefined,
@@ -26,13 +27,13 @@ const Games = (): JSX.Element => {
                 hardless: hardless,
             },
         }).then((a) => {
-            setPageCount(a.count);
-            setGames(a.games);
+            setPageCount(a.data.count);
+            setGames(a.data.games);
         });
     };
     useEffect(() => {
-        GamesAPI.canIAddGame().then((a) => {
-            if (a) setCanIAddGame(true);
+        GameAPI.canICreateGame().then((a) => {
+            if (a.status === 200 && a.access) setCanIAddGame(true);
         });
     }, []);
     useEffect(() => {
@@ -78,8 +79,8 @@ const Games = (): JSX.Element => {
                         setFindName(e.target.value);
                     }}
                 />
-                {canIAddGame && (
-                    <Link to={"/game/new"}>
+                {canICreateGame && (
+                    <Link className={styles.Right} to={"/game/new"}>
                         <Button>Добавить игру</Button>
                     </Link>
                 )}

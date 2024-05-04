@@ -23,6 +23,9 @@ class GameService {
             filter: filter,
         });
     }
+    async getAllGames() {
+        return await GameRepository.getAllGame();
+    }
     async getGameInfoById({ id }: { id: number }) {
         if (isNaN(id))
             throw ApiError.BadRequest({
@@ -43,12 +46,12 @@ class GameService {
                 status: 461,
                 message: "Неправильное значение id",
             });
-        if (await GameRepository.isGameExists({ id: id }))
+        if (!(await GameRepository.isGameExists({ id: id })))
             throw ApiError.BadRequest({
                 status: 462,
                 message: "Игры не существует",
             });
-        const isTrue = GameRepository.deleteGame({ id: id });
+        const isTrue = await GameRepository.deleteGame({ id: id });
         if (!isTrue)
             throw ApiError.BadRequest({
                 status: 460,
@@ -62,7 +65,7 @@ class GameService {
                 status: 461,
                 message: "Неправильное значение id",
             });
-        if (await GameRepository.isGameExists({ id: id }))
+        if (!(await GameRepository.isGameExists({ id: id })))
             throw ApiError.BadRequest({
                 status: 462,
                 message: "Игры не существует",

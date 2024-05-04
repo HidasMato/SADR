@@ -55,20 +55,20 @@ const doc = {
         },
         listOfPlays: [{ $ref: "#/definitions/onPlay" }],
         createUser: {
-            nickname: "Никнейм",
+            name: "Никнейм",
             mail: "mail@mail.mail",
             pass: "Secretno",
         },
         oneUser: {
             id: 1,
-            nickname: "Никнейм",
+            name: "Никнейм",
             mail: "mail@mail.mail",
             mailVeryfity: true,
             role: "Мастер",
         },
         changeUser: {
             id: 1,
-            nickname: "Никнейм",
+            name: "Никнейм",
             mail: "mail@mail.mail",
             mailVeryfity: true,
             role: "мастер",

@@ -8,8 +8,10 @@ import Plays from "../../pages/Plays/Plays";
 import Profile from "../../pages/Profile/Profile";
 import ErrorPage from "../ErrorPage/ErrorPage";
 import Game from "../Game/Game";
+import GameCreator from "../GameCreator/GameCreator";
 import Modal from "../Modal/Modal";
 import Play from "../Play/Play";
+import PlayCreator from "../PlayCreator/PlayCreator";
 
 type PageObject = {
     showLogin: boolean;
@@ -24,8 +26,12 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
                 {isUserLogged ? <Route path="/profile" element={<Profile />} /> : null}
                 <Route path="/" element={<MainPage />} />
                 <Route path="/games/" element={<Games />} />
+                <Route path="/game/new" element={<GameCreator mode={"create"} />} />
+                <Route path="/game/change/:id" element={<GameCreator mode={"change"} />} />
                 <Route path="/game/:id" element={<Game />} />
                 <Route path="/plays" element={<Plays />} />
+                <Route path="/play/new" element={<PlayCreator mode="create" />} />
+                <Route path="/play/change/:id" element={<PlayCreator mode="change" />} />
                 <Route path="/play/:id" element={<Play />} />
                 <Route path="/*" element={<ErrorPage />} />
             </Routes>

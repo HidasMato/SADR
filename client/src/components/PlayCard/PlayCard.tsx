@@ -1,5 +1,5 @@
 import styles from "./PlayCard.module.scss";
-import { IPlayData } from "../../api/Plays.api";
+import { IPlayData } from "../../api/Play.api";
 import { API_URL } from "../../context/AuthContext";
 
 type PlayCardObject = {

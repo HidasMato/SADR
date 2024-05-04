@@ -4,6 +4,7 @@ import ApiError from "../Exeptions/ApiError";
 
 class FileService {
     async saveFile({ file, fileName, folder = "unknown" }: { file: UploadedFile; fileName: string; folder?: string }) {
+        //TODO: Сделать проверку на принятие только картинок
         try {
             const filePath = path.resolve(`images/${folder}`, fileName + ".png");
             file.mv(filePath);

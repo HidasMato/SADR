@@ -31,11 +31,11 @@ class UserService {
         }
     }
     //FIXME: Нормальная проверка ника
-    static getTrueNickName(nickname: string): void {
-        if (nickname.length < 4 || nickname.length > 40) throw ApiError.BadRequest({ message: "Неверная длина никнема" });
-        for (let symbol of nickname.split("")) {
+    static getTrueName(name: string): void {
+        if (name.length < 4 || name.length > 40) throw ApiError.BadRequest({ message: "Неверная длина никнема" });
+        for (let symbol of name.split("")) {
             //Спецсимволы
-            if ("_@#$$%^&?.,".indexOf(symbol) == -1 && (symbol < "0" || symbol > "9") && symbol.toLowerCase() == symbol.toUpperCase())
+            if ("_@#$$%^&?.".indexOf(symbol) == -1 && (symbol < "0" || symbol > "9") && symbol.toLowerCase() == symbol.toUpperCase())
                 throw ApiError.BadRequest({
                     message: "Неверные символы в никнейме",
                 });
@@ -78,10 +78,13 @@ class UserService {
     async getAllMasters() {
         return await UserRepository.getAllMasters();
     }
-    async changePass({ id, mail, pass }: { id: number; mail: string; pass: string }) {
+    async changePass({ id, mail, pass, oldPass }: { id: number; mail: string; pass: string; oldPass: string }) {
         if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         UserService.getTruePass(pass);
+        const passcache = (await UserRepository.findUserMail({ mail: mail }))?.passcache;
+        if (!passcache) throw ApiError.BadRequest({ message: "Почты не существует" });
+        if (!(await bcrypt.compare(oldPass, passcache))) throw ApiError.BadRequest({ message: "Неверный пароль" });
         if (
             !(await UserRepository.changePass({
                 cache: await UserService.getCache(pass),
@@ -98,14 +101,14 @@ class UserService {
             mail: mail,
         });
     }
-    async changeNickName({ id, mail, nickname }: { id: number; mail: string; nickname: string }) {
+    async changename({ id, mail, name }: { id: number; mail: string; name: string }) {
         if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
-        UserService.getTrueNickName(nickname);
+        UserService.getTrueName(name);
         if (
-            !(await UserRepository.changeNickName({
+            !(await UserRepository.changename({
                 id: id,
-                nickname: nickname,
+                name: name,
                 mail: mail,
             }))
         )
@@ -185,7 +188,7 @@ class UserService {
     async changeMail({ id, mail }: { id: number; mail: string }) {
         if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
-        if (await UserRepository.changeMail({ id: id, mail: mail }))
+        if (!(await UserRepository.changeMail({ id: id, mail: mail })))
             throw ApiError.BadRequest({
                 status: 470,
                 message: "Пользователя не существует",
@@ -214,16 +217,16 @@ class UserService {
             value: true,
         });
     }
-    async registration({ mail, nickname, pass, hash }: { mail: string; nickname: string; pass: string; hash: string }) {
+    async registration({ mail, name, pass, hash }: { mail: string; name: string; pass: string; hash: string }) {
         UserService.getTrueMail(mail);
         if (await UserRepository.isMailExists({ mail: mail })) throw ApiError.BadRequest({ message: "Почта уже использована" });
-        UserService.getTrueNickName(nickname);
-        if (await UserRepository.isNameExists({ nickname: nickname })) throw ApiError.BadRequest({ message: "Никнейм уже использована" });
+        UserService.getTrueName(name);
+        if (await UserRepository.isNameExists({ name: name })) throw ApiError.BadRequest({ message: "Никнейм уже использована" });
         UserService.getTruePass(pass);
         const id = await UserRepository.addUser({
             mail: mail,
             cache: await UserService.getCache(pass),
-            nickname: nickname,
+            name: name,
         });
         await SendMessage.sendMailAccess({
             type: "registration",
@@ -273,7 +276,7 @@ class UserService {
             payload: {
                 id: newUser.id,
                 mail: newUser.mail,
-                nickname: newUser.nickname,
+                name: newUser.name,
             },
         });
         await TokenService.deleteFingerprint({ hash: hash });

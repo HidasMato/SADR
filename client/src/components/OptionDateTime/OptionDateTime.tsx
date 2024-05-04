@@ -23,7 +23,7 @@ const OptionDateTime = ({ value, setValue, name }: OptionDateTimeObject): JSX.El
             else if (dayWeekStart === j) Days[j] = 1;
             else Days[j] = Days[j - 1] + 1;
         }
-        for (let i = 7; i < endMounth.getDate(); i += 7) {
+        for (let i = Days[6]; i <= endMounth.getDate(); i += 7) {
             for (let j = 0; j < 7; j++) {
                 if (Days[j + weeks * 7 - 1] < endMounth.getDate()) Days[j + weeks * 7] = Days[j + weeks * 7 - 1] + 1;
                 else Days[j + weeks * 7] = undefined;
@@ -127,6 +127,47 @@ const OptionDateTime = ({ value, setValue, name }: OptionDateTimeObject): JSX.El
             </div>
         );
     };
+    const getTime = () => {
+        const getHourMin = (hour: number, minute: number) => {
+            if (hour < 0) hour += 24;
+            if (hour > 23) hour -= 24;
+            return (
+                <div>
+                    {hour > 9 ? hour : "0" + hour}:{minute > 9 ? minute : "0" + minute}
+                </div>
+            );
+        };
+        return (
+            <div className={styles.Time}>
+                <button
+                    className={styles.Svg}
+                    onClick={() => {
+                        const a = new Date(value);
+                        a.setHours(a.getHours() - 1);
+                        setValue(a);
+                    }}
+                >
+                    <BackPage />
+                </button>
+                <div>{getHourMin(value.getHours() - 2, value.getMinutes())}</div>
+                <div>{getHourMin(value.getHours() - 1, value.getMinutes())}</div>
+                <div className={styles.Now}>{getHourMin(value.getHours(), value.getMinutes())}</div>
+                <div>{getHourMin(value.getHours() + 1, value.getMinutes())}</div>
+                <div>{getHourMin(value.getHours() + 2, value.getMinutes())}</div>
+
+                <button
+                    className={styles.Svg}
+                    onClick={() => {
+                        const a = new Date(value);
+                        a.setHours(a.getHours() + 1);
+                        setValue(a);
+                    }}
+                >
+                    <BackPage className={styles.Next} />
+                </button>
+            </div>
+        );
+    };
     useEffect(() => {
         const checkIfClickedOutside = (e: any) => {
             if (ref.current && !ref.current.contains(e.target)) {
@@ -150,7 +191,8 @@ const OptionDateTime = ({ value, setValue, name }: OptionDateTimeObject): JSX.El
                 >
                     {value.getFullYear()}.
                     {value.getMonth() + 1 > 9 ? value.getMonth() + 1 : "0" + (value.getMonth() + 1)}.
-                    {value.getDate() > 9 ? value.getDate() : "0" + value.getDate()} {value.getHours()}:
+                    {value.getDate() > 9 ? value.getDate() : "0" + value.getDate()}{" "}
+                    {value.getHours() > 9 ? value.getHours() : "0" + value.getHours()}:
                     {value.getMinutes() > 9 ? value.getMinutes() : "0" + value.getMinutes()}
                     <BackPage className={styles.Svg} />
                 </button>
@@ -158,7 +200,7 @@ const OptionDateTime = ({ value, setValue, name }: OptionDateTimeObject): JSX.El
             {showCalendar && (
                 <div className={styles.Choise}>
                     {getCalendar()}
-                    {/* Время */}
+                    {getTime()}
                 </div>
             )}
         </div>

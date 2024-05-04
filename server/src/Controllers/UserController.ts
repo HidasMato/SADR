@@ -6,6 +6,7 @@ import { CLIENT_URL } from "../../tokens.json";
 import ApiError from "../Exeptions/ApiError";
 import RigthsService from "../Services/RigthsService";
 import { Roles } from "../Types/Roles";
+import RuleService from "../Services/RuleService";
 
 class UserController {
     async getUserInfo(req: Request, res: Response, next: NextFunction) {
@@ -148,38 +149,28 @@ class UserController {
             } 
          */
         try {
-            if (req.body.id != undefined && !RigthsService.onlyForAdmin({ roles: req.body.roles as Roles })) throw ApiError.Teapot();
+            if (req.body.id != undefined && !RigthsService.forAdmin({ roles: req.body.roles as Roles })) throw ApiError.Teapot();
             const id = Number(req.body.id || req.body.uid);
             const image = req.files?.image;
             const changeDate: {
                 mail: string;
+                oldpass: string;
                 pass: string;
-                nickname: string;
+                name: string;
                 role: string;
                 description: string;
             } = req.body;
             if (changeDate.pass)
                 await UserService.changePass({
                     mail: changeDate.mail,
+                    oldPass: changeDate.oldpass,
                     pass: changeDate.pass,
                     id: id,
                 });
-            else if (changeDate.nickname)
-                await UserService.changeNickName({
+            else if (changeDate.name)
+                await UserService.changename({
                     mail: changeDate.mail,
-                    nickname: changeDate.nickname,
-                    id: id,
-                });
-            else if (image) {
-                await FileService.saveFile({
-                    file: image as UploadedFile,
-                    fileName: id + "",
-                    folder: "users",
-                });
-            } else if (changeDate.role)
-                await UserService.changeRole({
-                    mail: changeDate.mail,
-                    role: changeDate.role,
+                    name: changeDate.name,
                     id: id,
                 });
             else if (changeDate.description)
@@ -188,8 +179,25 @@ class UserController {
                     description: changeDate.description,
                     id: id,
                 });
+            else if (changeDate.role)
+                await UserService.changeRole({
+                    mail: changeDate.mail,
+                    role: changeDate.role,
+                    id: id,
+                });
+            else if (image)
+                await FileService.saveFile({
+                    file: image as UploadedFile,
+                    fileName: id + "",
+                    folder: "users",
+                });
             else await UserService.changeMail({ mail: changeDate.mail, id: id });
-            return res.json("Sucsess");
+            //TODO: здесь проверка кто запрашивает инфу пока будет секьюрити
+            const user = await UserService.getUserInfoById({
+                id: id,
+                MODE: "sequrity",
+            });
+            return res.json(user);
         } catch (error: any) {
             next(error);
         }
@@ -229,7 +237,7 @@ class UserController {
                 schema:{
                     user: {
                         id: 'number',
-                        nickname: 'string',
+                        name: 'string',
                         mail: 'string',
                         mailVeryfity: 'boolean',
                         role: 'string'
@@ -242,12 +250,12 @@ class UserController {
             } 
          */
         try {
-            const createDate: { mail: string; pass: string; nickname: string } = req.body;
+            const createDate: { mail: string; pass: string; name: string } = req.body;
             const { hash } = req.body.fingerprint;
             const tokens = await UserService.registration({
                 mail: createDate.mail,
                 pass: createDate.pass,
-                nickname: createDate.nickname,
+                name: createDate.name,
                 hash: hash,
             });
             res.cookie("refreshToken", tokens.refreshToken, {
@@ -275,7 +283,7 @@ class UserController {
                 schema:{
                     user: {
                         id: 'number',
-                        nickname: 'string',
+                        name: 'string',
                         mail: 'string',
                         mailVeryfity: 'boolean',
                         role: 'string'
@@ -328,17 +336,24 @@ class UserController {
     }
     async getRules(req: Request, res: Response, next: NextFunction) {
         try {
-            const roleId = req.params.id;
-            const userId = req.body.uid;
-            switch (roleId) {
-                case "1":
-                    return res.json(userId == 1); // Иммитация проверки, что у админа есть плашка может создавать игры
-                case "2":
-                    return res.json(req.body.roles.admin);
-                case "3":
-                    return res.json(req.body.roles.admin);
-                default:
+            const userId = Number(req.body.uid);
+            if (isNaN(userId)) return res.json(false);
+            switch (req.query.rule) {
+                case "creategame":
+                    return res.json(await RuleService.canICreateGame({ userId: userId, roles: req.body.roles }));
+                case "changegame":
+                    return res.json(await RuleService.canIChangeGame({ userId: userId, roles: req.body.roles }));
+                case "deletegame":
+                    return res.json(await RuleService.canIDeleteGame({ userId: userId, roles: req.body.roles }));
+                case "createplay":
+                    return res.json(await RuleService.canICreatePlay({ userId: userId, roles: req.body.roles }));
+                case "changeplay":
+                    return res.json(await RuleService.canIChangePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                case "deleteplay":
+                    return res.json(await RuleService.canIDeletePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                default: {
                     break;
+                }
             }
             return res.json(false);
         } catch (error: any) {
@@ -356,7 +371,7 @@ class UserController {
                 schema:{
                     user: {
                         id: 'number',
-                        nickname: 'string',
+                        name: 'string',
                         mail: 'string',
                         mailVeryfity: 'boolean',
                         role: 'string'
@@ -376,7 +391,6 @@ class UserController {
                 hash: hash,
             });
             res.cookie("refreshToken", tokens.refreshToken, {
-                maxAge: 24 * 60 * 60 * 1000,
                 httpOnly: true,
             });
             return res.json({

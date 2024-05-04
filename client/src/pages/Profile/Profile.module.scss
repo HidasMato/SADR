@@ -12,15 +12,12 @@
             width: 100%;
             border: 2px solid var(--BackgroundColor2);
             display: block;
-            justify-content: space-between;
             display: flex;
+            justify-content: space-between;
             padding: 30px;
 
-            .Button {
-            }
-
             .Part2 {
-                width: 520px;
+                width: inherit;
                 margin-left: 60px;
                 display: flex;
                 flex-direction: column;
@@ -29,7 +26,7 @@
                 .Buttons {
                     width: 100%;
                     display: flex;
-                    justify-content: space-around;
+                    justify-content: space-between;
                 }
 
                 .PlaysContainer {
@@ -52,6 +49,49 @@
                                 width: 50%;
                                 border: 1px solid var(--BackgroundColor2);
                             }
+                        }
+                    }
+                }
+
+                .Label {
+                    width: 100%;
+                    text-align: start;
+                    display: block;
+                    padding-top: 5px;
+                    padding-bottom: 5px;
+                }
+
+                .InputContainer {
+                    display: flex;
+                    justify-content: start;
+                    align-items: end;
+                    width: 100%;
+                    margin-bottom: 20px;
+                    .InputBlock {
+                        margin-right: 10px;
+                        .Input {
+                            display: block;
+                            border: 1px solid var(--SupportColor2);
+                            border-radius: 10px;
+                            padding: 4px;
+                            text-align: center;
+                            width: 250px;
+                        }
+
+                        .AddImg {
+                            display: flex;
+                            align-items: center;
+                            padding: 10px;
+                            height: 28px;
+                            width: 250px;
+                            background-color: var(--BackgroundColor2);
+                            border: 1px solid var(--SupportColor2);
+                            border-radius: 10px;
+                            overflow: hidden;
+                        }
+
+                        .DN {
+                            display: none;
                         }
                     }
                 }
@@ -117,6 +157,8 @@
 
                 .MailVeryfity {
                     display: flex;
+                    width: 100%;
+                    align-items: center;
                     justify-content: space-between;
                     margin: 10px 0;
                 }

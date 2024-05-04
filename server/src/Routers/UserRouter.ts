@@ -12,7 +12,7 @@ UserRouter.get("/info", UserController.getUserInfo);
 UserRouter.get("/:id/playsgamer", PlayController.getPlaysGamer);
 UserRouter.get("/:id/playsmaster", PlayController.getPlaysMaster);
 // UserRouter.get('/:id', UserController.getUserInfoById);
-UserRouter.get("/rules/:id", UserController.getRules);
+UserRouter.get("/getrule", UserController.getRules);
 
 UserRouter.put("/update", UserController.change);
 

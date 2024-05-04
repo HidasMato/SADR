@@ -72,7 +72,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
         registration({
             mail: mailRegistration,
             pass: pass1Registration,
-            nickname: nameRegistration,
+            name: nameRegistration,
         }).then((a) => {
             if (a.status === 200) {
                 setShowLogin(false);
@@ -93,7 +93,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                         <label htmlFor="mail">Ваше величество</label>
                     </div>
                     <input
-                        type="text"
+                        type="email"
                         name="mail"
                         id="mail"
                         value={mailLogin}
@@ -147,7 +147,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                         <label htmlFor="mail">Куда слать письма?</label>
                     </div>
                     <input
-                        type="text"
+                        type="email"
                         name="mail"
                         id="mail"
                         value={mailRegistration}

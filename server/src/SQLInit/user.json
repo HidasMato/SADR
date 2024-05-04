@@ -1,24 +1,24 @@
 [
     {
-        "nickname": "Солнышко",
+        "name": "Солнышко",
         "mail": "mySun@mail.ru",
         "mailVeryfity": true,
         "pass": "1234567890"
     },
     {
-        "nickname": "Синий KUT",
+        "name": "Синий KUT",
         "mail": "blue_kitty@mail.ru",
         "mailVeryfity": true,
         "pass": "qwertyuiop"
     },
     {
-        "nickname": "Противная сирена",
+        "name": "Противная сирена",
         "mail": "alex10821@mail.ru",
         "mailVeryfity": false,
         "pass": "SupForMe"
     },
     {
-        "nickname": "Капелька",
+        "name": "Капелька",
         "mail": "loloporow@mail.ru",
         "mailVeryfity": false,
         "pass": "AbraKedabra"

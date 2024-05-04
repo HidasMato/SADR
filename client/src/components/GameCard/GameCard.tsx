@@ -1,5 +1,5 @@
 import styles from "./GameCard.module.scss";
-import { IGameData } from "../../api/Games.api";
+import { IGameData } from "../../api/Game.api";
 import { API_URL } from "../../context/AuthContext";
 
 type GameCardObject = {

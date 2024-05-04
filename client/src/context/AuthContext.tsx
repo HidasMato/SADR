@@ -17,7 +17,7 @@ export interface LoginResponse {
 interface AuthContextValue {
     login: ({ mail, pass }: { mail: string; pass: string }) => Promise<returnAuth>;
     logout: () => Promise<returnAuth>;
-    registration: ({ mail, pass, nickname }: { mail: string; pass: string; nickname: string }) => Promise<returnAuth>;
+    registration: ({ mail, pass, name }: { mail: string; pass: string; name: string }) => Promise<returnAuth>;
     isAppReady: boolean;
     isUserLogged: boolean;
 }
@@ -52,14 +52,14 @@ const AuthProvider = ({ children }) => {
     const registration = async ({
         mail,
         pass,
-        nickname,
+        name,
     }: {
         mail: string;
         pass: string;
-        nickname: string;
+        name: string;
     }): Promise<returnAuth> => {
         try {
-            const responce = await AuthAPI.post<LoginResponse>("/user/registration", { mail, pass, nickname });
+            const responce = await AuthAPI.post<LoginResponse>("/user/registration", { mail, pass, name });
             inMemoryJWT.setToken(responce.data.accessToken);
             setIsUserLogged(true);
             return { status: 200 };
@@ -83,21 +83,19 @@ const AuthProvider = ({ children }) => {
             };
         }
     };
-    const refresh = () => {
-        axios
-            .get<LoginResponse>(`${API_URL}/api/user/refresh`, {
+    const refresh = async () => {
+        setIsAppReady(false);
+        try {
+            const responce = await axios.get<LoginResponse>(`${API_URL}/api/user/refresh`, {
                 withCredentials: true,
-            })
-            .then((responce) => {
-                inMemoryJWT.setToken(responce.data.accessToken);
-                setIsUserLogged(true);
-            })
-            .catch(() => {
-                setIsUserLogged(false);
-            })
-            .finally(() => {
-                setIsAppReady(true);
             });
+            inMemoryJWT.setToken(responce.data.accessToken);
+            setIsUserLogged(true);
+        } catch {
+            setIsUserLogged(false);
+        } finally {
+            setIsAppReady(true);
+        }
     };
     useEffect(() => {
         refresh();
@@ -127,11 +125,11 @@ const AuthProvider = ({ children }) => {
             },
             async (error) => {
                 const originalReqquest = error.config;
-                if (error.response.status === 401 && error.config && originalReqquest._isRetry) {
-                    originalReqquest._isRetry = false;
+                if (error.response.status === 418 && error.config && !originalReqquest._isRetry) {
+                    originalReqquest._isRetry = true;
                     try {
-                        refresh();
-                        return AuthAPI.request(originalReqquest);
+                        await refresh();
+                        return await AuthAPI.request(originalReqquest);
                     } catch (error) {
                         console.log("Не авторизован");
                     }

@@ -9,6 +9,12 @@
         height: max-content;
         display: flex;
         padding: 30px;
+        input,
+        textarea,
+        select {
+            background-color: rgb(255, 210, 210);
+            text-align: center;
+        }
         .PartImg {
             font-size: 32px;
             font-weight: 500;
@@ -20,6 +26,15 @@
             .Name {
                 margin-top: 30px;
                 width: 100%;
+            }
+            .InputImg {
+                display: none;
+            }
+            label {
+                font-size: 24px;
+                &:hover {
+                    cursor: pointer;
+                }
             }
         }
         .PartDescription {
@@ -34,14 +49,6 @@
                 display: flex;
                 width: 100%;
                 justify-content: space-between;
-                div {
-                    display: flex;
-                    justify-content: start;
-                    align-items: center;
-                    button {
-                        margin-left: 10px;
-                    }
-                }
             }
             .Description {
                 width: 100%;
@@ -50,9 +57,9 @@
             }
             .Games {
                 display: flex;
-                flex-wrap: wrap;
                 align-items: center;
                 position: relative;
+                flex-wrap: wrap;
                 .OneGame {
                     display: flex;
                     justify-content: center;
@@ -63,6 +70,34 @@
                         border: 1px solid var(--SecondaryColor);
                         padding: 2px 5px;
                         margin: 2px;
+                    }
+                }
+                .AddGame {
+                    margin-left: 3px;
+                    text-align: center;
+                    border-radius: 50%;
+                    width: 30px;
+                    aspect-ratio: 1/1;
+                    background-color: var(--SupportColor4);
+                    color: var(--SupportColor1);
+                    border: 1px solid var(--SupportColor1);
+                }
+                .AddGameList {
+                    position: absolute;
+                    top: 120%;
+                    max-height: 200px;
+                    min-height: 20px;
+                    min-width: 100px;
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid var(--SupportColor1);
+                    overflow-y: scroll;
+                    background-color: var(--SupportColor4);
+                    button {
+                        padding: 5px 10px;
+                        &:hover {
+                            background-color: var(--SecondaryColor);
+                        }
                     }
                 }
             }

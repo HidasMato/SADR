@@ -6,10 +6,10 @@ const SQLaddUsers = async () => {
     try {
         const values = [];
         for (let i of user) {
-            values.push(["'" + [i.nickname] + "'", "'" + [i.mail] + "'", [i.mailVeryfity], "'" + [await hash(i.pass, 3)] + "'"]);
+            values.push(["'" + [i.name] + "'", "'" + [i.mail] + "'", [i.mailVeryfity], "'" + [await hash(i.pass, 3)] + "'"]);
         }
         const res = await pool.query(
-            `INSERT INTO users(nickname, mail, mailVeryfity, passcache) VALUES (${values
+            `INSERT INTO users(name, mail, mailVeryfity, passcache) VALUES (${values
                 .map((val) => {
                     return val.join(", ");
                 })

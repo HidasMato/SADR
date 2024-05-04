@@ -2,7 +2,7 @@ import { Roles } from "./Roles";
 
 export type UserToCookie = {
     mail: string;
-    nickname: string;
+    name: string;
     id: number;
     mailveryfity: boolean;
     roles: Roles;

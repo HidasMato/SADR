@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import GameService from "../Services/GameService";
 import { UploadedFile } from "express-fileupload";
 import { GameUpdate } from "../Types/GameUpdate";
-
+ 
 class GameController {
     async getList(req: Request, res: Response, next: NextFunction) {
         /* 

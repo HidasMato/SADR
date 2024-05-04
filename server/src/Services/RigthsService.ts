@@ -13,62 +13,38 @@ class RigthsService {
         for (let role of accessArray) if (!roles[role as keyof Roles]) return false;
         return true;
     }
-    onlyForAdmin({ roles }: { roles: Roles }): boolean {
+    forAdmin({ roles }: { roles: Roles }): boolean {
         return this.isHaveAccessOr({ roles: roles, accessArray: ["admin"] });
     }
-    onlyForMaster({ roles }: { roles: Roles }): boolean {
+    forMaster({ roles }: { roles: Roles }): boolean {
         return this.isHaveAccessOr({ roles: roles, accessArray: ["master"] });
     }
-    onlyForGamer({ roles }: { roles: Roles }): boolean {
+    forGamer({ roles }: { roles: Roles }): boolean {
         return this.isHaveAccessOr({ roles: roles, accessArray: ["gamer"] });
     }
     forGamerOrMaster({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessOr({
-            roles: roles,
-            accessArray: ["gamer", "master"],
-        });
+        return this.isHaveAccessOr({ roles: roles, accessArray: ["gamer", "master"] });
     }
     forGamerOrAdmin({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessOr({
-            roles: roles,
-            accessArray: ["gamer", "admin"],
-        });
+        return this.isHaveAccessOr({ roles: roles, accessArray: ["gamer", "admin"] });
     }
     forMasterOrAdmin({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessOr({
-            roles: roles,
-            accessArray: ["master", "admin"],
-        });
+        return this.isHaveAccessOr({ roles: roles, accessArray: ["master", "admin"] });
     }
     forGamerOrMasterOrAdmin({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessOr({
-            roles: roles,
-            accessArray: ["gamer", "master", "admin"],
-        });
+        return this.isHaveAccessOr({ roles: roles, accessArray: ["gamer", "master", "admin"] });
     }
     forGamerAndMaster({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessAnd({
-            roles: roles,
-            accessArray: ["gamer", "master"],
-        });
+        return this.isHaveAccessAnd({ roles: roles, accessArray: ["gamer", "master"] });
     }
     forGamerAndAdmin({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessAnd({
-            roles: roles,
-            accessArray: ["gamer", "admin"],
-        });
+        return this.isHaveAccessAnd({ roles: roles, accessArray: ["gamer", "admin"] });
     }
     forMasterAndAdmin({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessAnd({
-            roles: roles,
-            accessArray: ["master", "admin"],
-        });
+        return this.isHaveAccessAnd({ roles: roles, accessArray: ["master", "admin"] });
     }
     forGamerAndMasterAndAdmin({ roles }: { roles: Roles }): boolean {
-        return this.isHaveAccessAnd({
-            roles: roles,
-            accessArray: ["gamer", "master", "admin"],
-        });
+        return this.isHaveAccessAnd({ roles: roles, accessArray: ["gamer", "master", "admin"] });
     }
 }
 

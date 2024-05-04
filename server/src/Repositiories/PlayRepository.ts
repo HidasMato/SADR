@@ -1,6 +1,6 @@
+import { PlayCreate } from "../Types/PlayCreate";
 import { PlayQuery } from "../Types/PlayQuery";
 import { PlayFilter, PlaySetting } from "../Types/PlaySetting";
-import { PlayUpdate } from "../Types/PlayUpdate";
 import { pool } from "./_getPool";
 
 type PlayFilterVar = {
@@ -12,7 +12,7 @@ type PlayFilterVar = {
 
 class PlayRepository {
     async getPlayInfoById({ id }: { id: number }): Promise<PlayQuery> {
-        return (await pool.query(`SELECT *, (SELECT nickname FROM users WHERE id = masterid) as mastername FROM plays WHERE id = $1`, [id]))?.rows?.[0];
+        return (await pool.query(`SELECT *, (SELECT name FROM users WHERE id = masterid) as mastername FROM plays WHERE id = $1`, [id]))?.rows?.[0];
     }
     async getPlayList({ setting, filter }: PlaySetting) {
         const limit = 20;
@@ -65,25 +65,25 @@ class PlayRepository {
     async deletePlay({ id }: { id: number }): Promise<boolean> {
         return ((await pool.query(`DELETE FROM plays WHERE id = $1;`, [id])).rowCount as number) > 0;
     }
-    async updatePlay({ id, update }: { id: number; update: PlayUpdate }): Promise<boolean> {
+    async updatePlay({ id, update }: { id: number; update: PlayCreate }): Promise<boolean> {
         let str1 = "",
             mas: any[] = [id];
         for (let add of ["name", "masterId", "minplayers", "maxplayers", "description", "status", "datestart", "dateend"]) {
-            if (update[add as keyof PlayUpdate] != undefined) {
-                mas.push(update[add as keyof PlayUpdate]);
+            if (update[add as keyof PlayCreate] != undefined) {
+                mas.push(update[add as keyof PlayCreate]);
                 str1 += (str1 == "" ? "" : ", ") + `${add} = $${mas.length}`;
             }
         }
         return ((await pool.query(`UPDATE plays SET ${str1} WHERE id = $1;`, mas)).rowCount as number) > 0;
     }
-    async createPlay({ createInf }: { createInf: PlayUpdate }): Promise<number | undefined> {
+    async createPlay({ create }: { create: PlayCreate }): Promise<number | undefined> {
         let str1 = "name",
             str2 = "$1",
-            mas: any[] = [createInf.name];
+            mas: any[] = [create.name];
         for (let add of ["masterId", "minplayers", "maxplayers", "description", "status", "datestart", "dateend"]) {
-            if (createInf[add as keyof PlayUpdate]) {
+            if (create[add as keyof PlayCreate]) {
                 str1 += ", " + add;
-                mas.push(createInf[add as keyof PlayUpdate]);
+                mas.push(create[add as keyof PlayCreate]);
                 str2 += ", $" + mas.length;
             }
         }
@@ -106,14 +106,13 @@ class PlayRepository {
         return ((await pool.query(`DELETE FROM gamesofplay WHERE playid = $1 AND gameId = $2`, [playId, gameId]))?.rowCount as number) > 0 || false;
     }
     async addGameOfPlay({ playId, gameId }: { playId: number; gameId: number }): Promise<boolean> {
-        return ((await pool.query(`INSERT INTO gamesofplay( gamesid, playid ) VALUES ($1, $2)`, [gameId, playId]))?.rowCount as number) > 0 || false;
+        return ((await pool.query(`INSERT INTO gamesofplay( gameid, playid ) VALUES ($1, $2)`, [gameId, playId]))?.rowCount as number) > 0 || false;
     }
     async isUserOnPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
         return (await pool.query(`SELECT(SELECT count(id) FROM usersofplay WHERE userid = $1 AND playid = $2) > 0 as bol`, [userId, playId])).rows[0].bol;
     }
     async isPlayMax({ playId }: { playId: number }): Promise<boolean> {
-        return (await pool.query(`SELECT((SELECT count(id) FROM usersofplay WHERE playid = $1) >= (SELECT maxplayers FROM plays WHERE id = $1 LIMIT 1)) as bol`, [playId])).rows[0]
-            .bol;
+        return (await pool.query(`SELECT((SELECT count(id) FROM usersofplay WHERE playid = $1) >= (SELECT maxplayers FROM plays WHERE id = $1 LIMIT 1)) as bol`, [playId])).rows[0].bol;
     }
     async addGamerToPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
         return ((await pool.query(`INSERT INTO usersofplay( userid, playid ) VALUES ($1,$2)`, [userId, playId])).rowCount as number) > 0;
@@ -131,11 +130,14 @@ class PlayRepository {
             return val.id;
         });
     }
-    async getAllGamersInfoOnPlays({ playId }: { playId: number }): Promise<{ id: number; nickname: string }[]> {
-        return (await pool.query(`SELECT id, nickname FROM users WHERE id IN (SELECT userid FROM usersofplay WHERE playid = $1)`, [playId])).rows as {
+    async getAllGamersInfoOnPlays({ playId }: { playId: number }): Promise<{ id: number; name: string }[]> {
+        return (await pool.query(`SELECT id, name FROM users WHERE id IN (SELECT userid FROM usersofplay WHERE playid = $1)`, [playId])).rows as {
             id: number;
-            nickname: string;
+            name: string;
         }[];
+    }
+    async isPlaysMasterPlay({ playId, masterId }: { playId: number; masterId: number }): Promise<boolean> {
+        return (await pool.query(`SELECT (SELECT count(*) FROM plays WHERE masterid = $1 AND id = $2) = 1 as bol; `, [masterId, playId])).rows[0];
     }
 }
 

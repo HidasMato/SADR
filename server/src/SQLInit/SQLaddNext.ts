@@ -34,7 +34,6 @@ const SQLaddNext = async () => {
                 })
                 .join("),\n(")})
             ;`);
-
         console.log("Допки добавлены");
     } catch (error) {
         const er = error as NoticeMessage;

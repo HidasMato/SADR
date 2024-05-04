@@ -19,7 +19,7 @@ const SQLinit = async () => {
         await pool.query(`CREATE TABLE IF NOT EXISTS users 
         (
             id SERIAL,
-            nickname varchar(100) unique NOT NULL,
+            name varchar(100) unique NOT NULL,
             mail varchar(100) unique NOT NULL,
             mailVeryfity boolean NOT NULL default(False),
             passcache varchar(1000) NOT NULL ,
@@ -32,14 +32,15 @@ const SQLinit = async () => {
             link varchar(100) unique NOT NULL,
             dateend timestamp with time zone NOT NULL,
             PRIMARY KEY(userid),
-            FOREIGN KEY (userid) REFERENCES users(id)
+            FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS refreshtokens 
         (
             id SERIAL,
             userid int,
             refreshtoken varchar(1000) NOT NULL UNIQUE,
-            fingerprint VARCHAR(100) NOT NULL UNIQUE
+            fingerprint VARCHAR(100) NOT NULL UNIQUE,
+            PRIMARY KEY(id)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS masters 
         (
@@ -47,12 +48,12 @@ const SQLinit = async () => {
             description varchar(1500) default('Прилетела корова и слизала описа...'),
             active boolean NOT NULL default(True),
             PRIMARY KEY(id),
-            FOREIGN KEY (id) REFERENCES users(id)
+            FOREIGN KEY (id) REFERENCES users(id)  ON DELETE CASCADE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS admins 
         (
             id int PRIMARY KEY,
-            FOREIGN KEY (id) REFERENCES users(id)
+            FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS plays 
         (
@@ -66,7 +67,7 @@ const SQLinit = async () => {
             datestart timestamp with time zone NOT NULL,
             dateend timestamp with time zone NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY (masterid) REFERENCES masters(id)
+            FOREIGN KEY (masterid) REFERENCES masters(id) ON DELETE CASCADE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS usersofplay 
         (
@@ -74,8 +75,8 @@ const SQLinit = async () => {
             userid int NOT NULL,
             playid int NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY (userid) REFERENCES users(id),
-            FOREIGN KEY (playid) REFERENCES plays(id),
+            FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (playid) REFERENCES plays(id) ON DELETE CASCADE,
             UNIQUE(userid, playid)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS gamesofplay 
@@ -84,8 +85,8 @@ const SQLinit = async () => {
             gameid int NOT NULL,
             playid int NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY (gameid) REFERENCES games(id),
-            FOREIGN KEY (playid) REFERENCES plays(id),
+            FOREIGN KEY (gameid) REFERENCES games(id) ON DELETE CASCADE,
+            FOREIGN KEY (playid) REFERENCES plays(id) ON DELETE CASCADE,
             UNIQUE(gameid, playid)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS reviewstoplay 
@@ -97,8 +98,8 @@ const SQLinit = async () => {
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
-            FOREIGN KEY (playid) REFERENCES plays(id),
-            FOREIGN KEY (userid) REFERENCES users(id),
+            FOREIGN KEY (playid) REFERENCES plays(id) ON DELETE CASCADE,
+            FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE(userid, playid)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS reviewstoGame 
@@ -110,8 +111,8 @@ const SQLinit = async () => {
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
-            FOREIGN KEY (gameid) REFERENCES games(id),
-            FOREIGN KEY (userid) REFERENCES users(id),
+            FOREIGN KEY (gameid) REFERENCES games(id) ON DELETE CASCADE,
+            FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE(userid, gameid)
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS reviewstomaster 
@@ -123,8 +124,8 @@ const SQLinit = async () => {
             stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
-            FOREIGN KEY (masterid) REFERENCES masters(id),
-            FOREIGN KEY (userid) REFERENCES users(id),
+            FOREIGN KEY (masterid) REFERENCES masters(id) ON DELETE CASCADE,
+            FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE(userid, masterid)
         );`);
         console.log("База данных проинициализирована!");

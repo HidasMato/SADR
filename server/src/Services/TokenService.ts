@@ -5,7 +5,7 @@ import ApiError from "../Exeptions/ApiError";
 import { MAX_SESSIONS } from "../../tokens.json";
 import TokenRepository from "../Repositiories/TokenRepository";
 class TokenService {
-    async generateToken({ payload }: { payload: { id: number; mail: string; nickname: string } }) {
+    async generateToken({ payload }: { payload: { id: number; mail: string; name: string } }) {
         try {
             const accessToken = jwt.sign(payload, TOKENS_KEYS.SECRET_ACCESS_KEY, { expiresIn: "30m" });
             const refreshToken = jwt.sign(payload, TOKENS_KEYS.SECRET_REFRESH_KEY, { expiresIn: "30d" });
@@ -74,7 +74,7 @@ class TokenService {
         try {
             return jwt.verify(token, TOKENS_KEYS.SECRET_ACCESS_KEY, {}) as {
                 mail: string;
-                nickname: string;
+                name: string;
                 id: number;
             };
         } catch (error) {
@@ -85,7 +85,7 @@ class TokenService {
         try {
             return jwt.verify(token, TOKENS_KEYS.SECRET_REFRESH_KEY, {}) as {
                 mail: string;
-                nickname: string;
+                name: string;
                 id: number;
             };
         } catch (error) {

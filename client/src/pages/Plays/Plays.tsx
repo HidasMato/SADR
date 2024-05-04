@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Plays.module.scss";
-import PlaysAPI, { IMasterData, IPlayData } from "../../api/Plays.api";
-import Option from "../../components/Option/Option";
+import PlayAPI, { IMasterData, IPlayData } from "../../api/Play.api";
+import Button from "../../components/Button/Button";
 import OptionDateTime from "../../components/OptionDateTime/OptionDateTime";
+import Option from "../../components/OptionSelector/OptionSelector";
 import PlayCard from "../../components/PlayCard/PlayCard";
 import { ReactComponent as BackPage } from "../../images/BackPage.svg";
 
 const Plays = (): JSX.Element => {
     const [pageCount, setPageCount] = useState<number>(1);
     const [page, setPage] = useState<number>(1);
+    const [canIAddPlay, setCanIAddPlay] = useState<boolean>(false);
     const [plays, setPlays] = useState<IPlayData[] | undefined>(undefined);
     const [findName, setFindName] = useState<string>("");
     const [datetimeStart, setDatetimeStart] = useState<Date>(new Date("2023.10.10"));
@@ -18,7 +20,7 @@ const Plays = (): JSX.Element => {
     const [haveFree, setHaveFree] = useState<number | undefined>(undefined);
     const [mastersList, setMastersList] = useState<IMasterData[] | undefined>(undefined);
     const findGames = () => {
-        PlaysAPI.getPlays({
+        PlayAPI.getPlays({
             page: page || undefined,
             filter: {
                 datestart: datetimeStart,
@@ -28,10 +30,17 @@ const Plays = (): JSX.Element => {
                 findname: findName?.length > 0 ? findName : undefined,
             },
         }).then((a) => {
-            setPageCount(a.count);
-            setPlays(a.plays);
+            if (a.status === 200) {
+                setPageCount(a.count);
+                setPlays(a.plays);
+            }
         });
     };
+    useEffect(() => {
+        PlayAPI.canICreatePlay().then((a) => {
+            if (a.status === 200 && a.access) setCanIAddPlay(true);
+        });
+    }, []);
     useEffect(() => {
         findGames();
         document.getElementsByTagName("header")[0].scrollIntoView({ behavior: "smooth" });
@@ -43,8 +52,8 @@ const Plays = (): JSX.Element => {
         a = new Date(datetimeStart);
         a.setMinutes(0, 0, 0);
         setDatetimeStart(a);
-        PlaysAPI.getMasters().then((a) => {
-            setMastersList(a.masters);
+        PlayAPI.getMasters().then((a) => {
+            if (a.status === 200) setMastersList(a.masters);
         });
     }, []);
     useEffect(() => {
@@ -68,7 +77,7 @@ const Plays = (): JSX.Element => {
     const getSearch = () => {
         return (
             <div className={styles.Search}>
-                <div>Поиск</div>
+                <div className={styles.Title}>Поиск</div>
                 <input
                     type="text"
                     value={findName}
@@ -76,6 +85,11 @@ const Plays = (): JSX.Element => {
                         setFindName(e.target.value);
                     }}
                 />
+                {canIAddPlay && (
+                    <Link className={styles.Right} to={"/play/new"}>
+                        <Button>Добавить игротеку</Button>
+                    </Link>
+                )}
             </div>
         );
     };
@@ -90,7 +104,7 @@ const Plays = (): JSX.Element => {
                         value={gameMaster}
                         setValue={setGameMaster}
                         values={mastersList?.map((master) => {
-                            return { id: master.id, value: master.nickname };
+                            return { id: master.id, value: master.name };
                         })}
                     />
                 ) : null}

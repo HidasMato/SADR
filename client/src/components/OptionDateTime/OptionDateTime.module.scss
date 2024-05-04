@@ -1,13 +1,11 @@
 .Main {
     display: flex;
     position: relative;
-
     .Title {
         width: max-content;
         display: flex;
         justify-content: center;
         align-items: center;
-        margin: 0px 10px;
         button {
             margin-left: 10px;
             background-color: var(--BackgroundColor1);
@@ -23,8 +21,39 @@
     }
     .Choise {
         position: absolute;
-        right: 0;
+        display: flex;
+        top: 130%;
+        left: 0;
         z-index: 99;
+        .Time {
+            margin-left: 1px;
+            background-color: var(--SecondaryColor);
+            color: var(--AccentColor3);
+            border: 2px solid var(--SupportColor3);
+            border-radius: 10px;
+            font-weight: 700;
+            justify-content: space-between;
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            flex-direction: column;
+            .Svg {
+                transform: rotate(90deg);
+                &:hover {
+                    cursor: pointer;
+                }
+                height: 15px;
+            }
+            .Next {
+                transform: rotate(180deg);
+            }
+            .Now {
+                color: var(--SupportColor3);
+            }
+            div {
+                padding: 3px;
+            }
+        }
         .Calendar {
             color: var(--AccentColor3);
             font-weight: 700;
