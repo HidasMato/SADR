@@ -27,7 +27,6 @@
                     width: 100%;
                     display: flex;
                     justify-content: space-between;
-                    margin-bottom: 10px;
                 }
 
                 .PlaysContainer {
@@ -79,6 +78,11 @@
                             width: 250px;
                         }
 
+                        .Textarea {
+                            height: 100px;
+                            text-align: justify;
+                            resize: none;
+                        }
                         .AddImg {
                             display: flex;
                             align-items: center;

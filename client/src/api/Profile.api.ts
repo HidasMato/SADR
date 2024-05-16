@@ -11,52 +11,52 @@ export interface IUserData {
         admin: boolean;
     };
 }
-export interface IGamerPlaysData {
-    plays: {
+export interface IGamerPlay {
+    id: number;
+    name: string;
+    description: string;
+    master: {
         id: number;
         name: string;
-        description: string;
-        master: {
-            id: number;
-            name: string;
-        };
-        players: {
-            count: number;
-            min: number;
-            max: number;
-        };
-        status: {
-            status: boolean;
-            dateStart: Date;
-            dateEnd: Date;
-        };
-    }[];
+    };
+    players: {
+        count: number;
+        min: number;
+        max: number;
+    };
+    status: {
+        status: boolean;
+        dateStart: Date;
+        dateEnd: Date;
+    };
 }
-export interface IMasterPlaysData {
-    plays: {
-        id: number;
-        name: string;
-        description: string;
-        players: {
-            list: { id: number; name: string }[];
-            min: number;
-            max: number;
-        };
-        status: {
-            status: boolean;
-            dateStart: Date;
-            dateEnd: Date;
-        };
-    }[];
+export interface IMasterPlay {
+    id: number;
+    name: string;
+    description: string;
+    players: {
+        list: { id: number; name: string }[];
+        min: number;
+        max: number;
+    };
+    status: {
+        status: boolean;
+        dateStart: Date;
+        dateEnd: Date;
+    };
 }
 
 export default class ProfileAPI {
-    static async getGamerPlays(id: number) {
+    static async getGamerPlays(id?: number) {
         try {
-            const response = await AuthAPI.get<IGamerPlaysData>(`/user/${id}/playsgamer`);
+            const response = await AuthAPI.get<IGamerPlay[]>(`/user/playsgamer`, {
+                params: {
+                    id: id,
+                },
+            });
             return {
                 status: 200,
-                plays: response.data.plays,
+                plays: response.data,
             };
         } catch (error) {
             return {
@@ -65,12 +65,16 @@ export default class ProfileAPI {
             };
         }
     }
-    static async getMasterPlays(id: number | undefined) {
+    static async getMasterPlays(id?: number | undefined) {
         try {
-            const response = await AuthAPI.get<IMasterPlaysData>(`/user/${id}/playsmaster`);
+            const response = await AuthAPI.get<IMasterPlay[]>(`/user/playsmaster`, {
+                params: {
+                    id: id,
+                },
+            });
             return {
                 status: 200,
-                plays: response.data.plays,
+                plays: response.data,
             };
         } catch (error) {
             return {
@@ -110,7 +114,9 @@ export default class ProfileAPI {
     static async changePass({ mail, oldPass, newPass }: { mail: string; oldPass: string; newPass: string }) {
         try {
             const response = await AuthAPI.put<IUserData>(`/user/update`, {
-                params: { mail: mail, oldpass: oldPass, pass: newPass },
+                mail: mail,
+                oldpass: oldPass,
+                pass: newPass,
             });
             return {
                 status: 200,
@@ -125,7 +131,21 @@ export default class ProfileAPI {
     }
     static async changeMail({ mail }: { mail: string }) {
         try {
-            const response = await AuthAPI.put<IUserData>(`/user/update`, { params: { mail: mail } });
+            const response = await AuthAPI.put<IUserData>(`/user/update`, { mail: mail });
+            return {
+                status: 200,
+                user: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async changeDescription({ mail, description }: { mail: string; description: string }) {
+        try {
+            const response = await AuthAPI.put<IUserData>(`/user/update`, { mail: mail, description: description });
             return {
                 status: 200,
                 user: response.data,
@@ -148,6 +168,34 @@ export default class ProfileAPI {
             return {
                 status: 200,
                 user: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async haveIMasterPanel() {
+        try {
+            const response = await AuthAPI.get<boolean>(`/user/getrule`, { params: { rule: "haveIMasterPanel" } });
+            return {
+                status: response.status,
+                access: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async haveIAdminPanel() {
+        try {
+            const response = await AuthAPI.get<boolean>(`/user/getrule`, { params: { rule: "haveIAdminPanel" } });
+            return {
+                status: response.status,
+                access: response.data,
             };
         } catch (error) {
             return {

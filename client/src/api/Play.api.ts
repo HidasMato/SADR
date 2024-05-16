@@ -222,6 +222,25 @@ export default class PlayAPI {
             };
         }
     }
+    static async canIGoToPlay(id: string) {
+        try {
+            const response = await AuthAPI.get<number>(`/user/getrule`, {
+                params: {
+                    rule: "gotoplay",
+                    id: id,
+                },
+            });
+            return {
+                status: response.status,
+                access: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
     static async canIDeletePlay(id: string) {
         try {
             const response = await AuthAPI.get<boolean>(`/user/getrule`, {
@@ -248,6 +267,64 @@ export default class PlayAPI {
                 status: response.status,
                 masters: response.data.masters,
                 games: response.data.games,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async getNextPlays({ id }: { id: string }) {
+        try {
+            const response = await AuthAPI.get<IPlayData[]>(`play/playsgame/${id}`);
+            return {
+                status: response.status,
+                plays: response.data.map((play) => {
+                    return {
+                        id: Number(play.id),
+                        name: play.name,
+                        master: { id: Number(play.master.id), name: play.master.name },
+                        players: {
+                            count: Number(play.players.count),
+                            min: Number(play.players.min),
+                            max: Number(play.players.max),
+                        },
+                        status: {
+                            status: Boolean(play.status.status),
+                            dateStart: new Date(play.status.dateStart),
+                            dateEnd: new Date(play.status.dateEnd),
+                        },
+                    };
+                }),
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async addGamerToPlay({ id }: { id: number }) {
+        try {
+            const response = await AuthAPI.post<IPlayData[]>(`play/${id}/gamer`);
+            return {
+                status: response.status,
+                message: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async deleteGamerToPlay({ id }: { id: number }) {
+        try {
+            const response = await AuthAPI.delete<IPlayData[]>(`play/${id}/gamer`);
+            return {
+                status: response.status,
+                message: response.data,
             };
         } catch (error) {
             return {

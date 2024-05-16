@@ -6,12 +6,15 @@ import Games from "../../pages/Games/Games";
 import MainPage from "../../pages/Main/Main";
 import Plays from "../../pages/Plays/Plays";
 import Profile from "../../pages/Profile/Profile";
+import AdminPanele from "../AdminPanele/AdminPanele";
 import ErrorPage from "../ErrorPage/ErrorPage";
 import Game from "../Game/Game";
 import GameCreator from "../GameCreator/GameCreator";
+import MasterPanele from "../MasterPanele/MasterPanele";
 import Modal from "../Modal/Modal";
 import Play from "../Play/Play";
 import PlayCreator from "../PlayCreator/PlayCreator";
+import ProfileRedact from "../ProfileRedact/ProfileRedact";
 
 type PageObject = {
     showLogin: boolean;
@@ -23,8 +26,8 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
     const Page = () => {
         return (
             <Routes>
+                {isUserLogged ? <Route path="/profile/redact" element={<ProfileRedact />} /> : null}
                 {isUserLogged ? <Route path="/profile" element={<Profile />} /> : null}
-                <Route path="/" element={<MainPage />} />
                 <Route path="/games/" element={<Games />} />
                 <Route path="/game/new" element={<GameCreator mode={"create"} />} />
                 <Route path="/game/change/:id" element={<GameCreator mode={"change"} />} />
@@ -33,6 +36,9 @@ const Page = ({ showLogin, setShowLogin }: PageObject): JSX.Element => {
                 <Route path="/play/new" element={<PlayCreator mode="create" />} />
                 <Route path="/play/change/:id" element={<PlayCreator mode="change" />} />
                 <Route path="/play/:id" element={<Play />} />
+                <Route path="/masterpanele" element={<MasterPanele />} />
+                <Route path="/adminpanele" element={<AdminPanele />} />
+                <Route path="/" element={<MainPage />} />
                 <Route path="/*" element={<ErrorPage />} />
             </Routes>
         );

@@ -69,7 +69,7 @@ const OptionDateTime = ({ value, setValue, name }: OptionDateTimeObject): JSX.El
                             setViewDate(nv);
                         }}
                     />
-                    {viewDate.getFullYear()} {getMounthName(viewDate.getMonth())}
+                    {getMounthName(viewDate.getMonth())} {viewDate.getFullYear()}
                     <BackPage
                         className={styles.Next + " " + styles.Svg}
                         onClick={() => {

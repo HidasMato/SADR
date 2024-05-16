@@ -90,12 +90,13 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                 <div className={styles.Title}>Вход</div>
                 <div className={styles.Parametr}>
                     <div>
-                        <label htmlFor="mail">Ваше величество</label>
+                        <label htmlFor="mmail">Ваше величество</label>
                     </div>
                     <input
+                        autoComplete="email"
                         type="email"
-                        name="mail"
-                        id="mail"
+                        name="mmail"
+                        id="mmail"
                         value={mailLogin}
                         onChange={(e) => setMailLogin(e.target.value)}
                     />

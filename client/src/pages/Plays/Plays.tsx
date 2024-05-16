@@ -146,6 +146,18 @@ const Plays = (): JSX.Element => {
             </div>
         );
     };
+    const getColumnsName = () => {
+        return (
+            <div className={styles.ColumnsName}>
+                <div></div>
+                <div>{"Как нас запомнят"}</div>
+                <div>{"Начинаем"}</div>
+                <div>{"Расходимся"}</div>
+                <div>{"Стул есть?"}</div>
+                <div>{"Воевода"}</div>
+            </div>
+        );
+    };
     const getPageRouter = () => {
         const masPages = [page];
         for (let a = page - 1; a > 0 && a >= page - 5; a--) masPages.unshift(a);
@@ -202,6 +214,7 @@ const Plays = (): JSX.Element => {
                 <div className={styles.Main}>
                     {getSearch()}
                     {getFilter()}
+                    {getColumnsName()}
                     {getPlays()}
                     {getPageRouter()}
                 </div>

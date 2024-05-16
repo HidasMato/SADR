@@ -62,6 +62,15 @@
         justify-content: space-around;
         align-items: center;
     }
+    .ColumnsName {
+        border-bottom: 1px solid var(--BackgroundColor2);
+        height: 40px;
+        width: 100%;
+        padding: 0px 50px;
+        align-items: center;
+        display: grid;
+        grid-template-columns: 1fr 2fr 2fr 2fr 2fr 2fr;
+    }
 
     .PageRouter {
         width: 100%;

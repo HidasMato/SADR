@@ -1,0 +1,23 @@
+.Main {
+    min-height: 800px;
+    height: 100%;
+    width: 100%;
+
+    .Flesh {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        padding: 80px 60px;
+
+        .ProfileFlesh {
+            height: 100%;
+            width: 100%;
+            border: 2px solid var(--BackgroundColor2);
+            display: block;
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+        }
+    }
+}

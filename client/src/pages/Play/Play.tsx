@@ -11,6 +11,7 @@ const Play = (): JSX.Element => {
     const [playInfo, setPlayInfo] = useState<IPlayQuery | undefined>(undefined);
     const [status, setStatus] = useState<boolean>(false);
     const [canIChangeAddPlay, setCanIChangeAddPlay] = useState<boolean>(false);
+    const [canIGoToPlay, setCanIGoToPlay] = useState<number>(0);
     useEffect(() => {
         PlayAPI.getPlay(id).then((a) => {
             if (a.status === 200) {
@@ -19,7 +20,10 @@ const Play = (): JSX.Element => {
             setStatus(true);
         });
         PlayAPI.canIChangePlay(id).then((a) => {
-            if (a) setCanIChangeAddPlay(true);
+            if (a.status === 200) setCanIChangeAddPlay(a.access);
+        });
+        PlayAPI.canIGoToPlay(id).then((a) => {
+            if (a.status === 200) setCanIGoToPlay(a.access);
         });
     }, []);
     const getPlay = () => {
@@ -48,8 +52,41 @@ const Play = (): JSX.Element => {
                             {`Участники: ${playInfo.players.count} / ${playInfo.players.max}  `}
                             {playInfo.players.count >= playInfo.players.max ? (
                                 "(Мест нет)"
+                            ) : canIGoToPlay === 1 ? (
+                                <Button
+                                    onClick={() => {
+                                        PlayAPI.addGamerToPlay({ id: playInfo.id }).then((a) => {
+                                            if (a.status === 200) {
+                                                setCanIGoToPlay(2);
+                                                const r = structuredClone(playInfo);
+                                                r.players.count += 1;
+                                                setPlayInfo(r);
+                                                alert(a.message);
+                                            } else alert(a.message);
+                                        });
+                                    }}
+                                >
+                                    {"Записаться"}
+                                </Button>
                             ) : (
-                                <Button>{"Записаться"}</Button>
+                                canIGoToPlay === 2 && (
+                                    <Button
+                                        type="red"
+                                        onClick={() => {
+                                            PlayAPI.deleteGamerToPlay({ id: playInfo.id }).then((a) => {
+                                                if (a.status === 200) {
+                                                    setCanIGoToPlay(1);
+                                                    const r = structuredClone(playInfo);
+                                                    r.players.count -= 1;
+                                                    setPlayInfo(r);
+                                                    alert(a.message);
+                                                } else alert(a.message);
+                                            });
+                                        }}
+                                    >
+                                        {"Отписаться"}
+                                    </Button>
+                                )
                             )}
                         </div>
                         <div>{`Мастер: ${playInfo.master.name}`}</div>

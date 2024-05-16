@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Profile.module.scss";
-import ProfileAPI, { IGamerPlaysData, IMasterPlaysData, IUserData } from "../../api/Profile.api";
+import ProfileAPI, { IGamerPlay, IMasterPlay, IUserData } from "../../api/Profile.api";
 import Button from "../../components/Button/Button";
 import { API_URL, AuthContext } from "../../context/AuthContext";
 
@@ -10,194 +10,44 @@ const Profile = (): JSX.Element => {
     const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState<undefined | IUserData>(undefined);
     const [status, setStatus] = useState<boolean>(false);
-    const [showRedactor, setShowRedactor] = useState<boolean>(false);
-    const [gamerPlays, setGamerPlays] = useState<undefined | IGamerPlaysData["plays"]>(undefined);
-    const [masterPlays, setMasterPlays] = useState<undefined | IMasterPlaysData["plays"]>(undefined);
+    const [gamerPlays, setGamerPlays] = useState<undefined | IGamerPlay[]>(undefined);
+    const [masterPlays, setMasterPlays] = useState<undefined | IMasterPlay[]>(undefined);
+    const [isHaveIMasterPanele, setIsHaveIMasterPanele] = useState<boolean>(false);
+    const [isHaveIAdminPanele, setIsHaveIAdminPanele] = useState<boolean>(false);
     useEffect(() => {
         const getUserInfo = async () => {
             const resultUser = await ProfileAPI.getUserInfo();
             if (resultUser.status === 200) {
-                if (resultUser.user) {
-                    const plays = await ProfileAPI.getGamerPlays(resultUser.user.id);
-                    if (plays.status === 200) {
-                        setGamerPlays(plays.plays);
-                    }
-                }
-                if (resultUser.user) {
-                    const plays = await ProfileAPI.getMasterPlays(resultUser.user.id);
-                    if (plays.status === 200) {
-                        setMasterPlays(plays.plays);
-                    }
-                }
+                const getGamerPlays = async () => {
+                    ProfileAPI.getGamerPlays(resultUser.user.id).then((plays) => {
+                        if (plays.status === 200) setGamerPlays(plays.plays);
+                    });
+                };
+                const getMasterPlays = async () => {
+                    ProfileAPI.getMasterPlays(resultUser.user.id).then((plays) => {
+                        if (plays.status === 200) setMasterPlays(plays.plays);
+                    });
+                };
+                const masterPanel = async () => {
+                    ProfileAPI.haveIMasterPanel().then((a) => {
+                        if (a.status === 200) setIsHaveIMasterPanele(a.access);
+                    });
+                };
+                const adminPanel = async () => {
+                    ProfileAPI.haveIAdminPanel().then((a) => {
+                        if (a.status === 200) setIsHaveIAdminPanele(a.access);
+                    });
+                };
+                masterPanel();
+                adminPanel();
+                getGamerPlays();
+                getMasterPlays();
                 setUserInfo(resultUser.user);
                 setStatus(true);
             }
         };
         getUserInfo();
     }, []);
-    const getProfileChanger = () => {
-        return (
-            <div className={styles.Part2}>
-                <div className={styles.Buttons}>
-                    <div></div>
-                    <Button
-                        onClick={() => {
-                            setShowRedactor(false);
-                        }}
-                    >
-                        {"Назад"}
-                    </Button>
-                </div>
-                <label className={styles.Label} htmlFor="name">
-                    {"Смена аватара"}
-                </label>
-                <div className={styles.InputContainer}>
-                    <div className={styles.InputBlock}>
-                        <label className={styles.AddImg} htmlFor="Img" id="loadImg">
-                            {"Загрузить изображение"}
-                        </label>
-                        <input
-                            className={styles.DN}
-                            type="file"
-                            name="Img"
-                            id="Img"
-                            onInput={(e) => {
-                                try {
-                                    const lablText = document.getElementById("loadImg") as HTMLInputElement;
-                                    if (lablText) {
-                                        lablText.textContent = e.currentTarget.files[0].name;
-                                    }
-                                } catch (error) {
-                                    console.log(error);
-                                }
-                            }}
-                        />
-                    </div>
-                    <Button
-                        onClick={async () => {
-                            const inp = document.getElementById("Img") as HTMLInputElement;
-                            if (inp?.value) {
-                                const resultUser = await ProfileAPI.changeImg({
-                                    mail: userInfo.mail,
-                                    image: inp.files[0],
-                                });
-                                if (resultUser.status === 200) {
-                                    console.log(resultUser);
-                                    setUserInfo(resultUser.user);
-                                    const avatar = document.getElementById("avatar") as HTMLImageElement;
-                                    if (avatar) avatar.src = URL.createObjectURL(inp.files[0]);
-                                    inp.files = undefined;
-                                    alert("Аватарка изменена");
-                                } else alert(resultUser.message);
-                            }
-                        }}
-                    >
-                        {"Изменить"}
-                    </Button>
-                </div>
-                <label className={styles.Label} htmlFor="name">
-                    {"Смена имени"}
-                </label>
-                <div className={styles.InputContainer}>
-                    <div className={styles.InputBlock}>
-                        <input className={styles.Input} type="text" name="name" id="name" placeholder={userInfo.name} />
-                    </div>
-                    <Button
-                        onClick={async () => {
-                            const inp = document.getElementById("name") as HTMLInputElement;
-                            if (inp?.value) {
-                                const resultUser = await ProfileAPI.changeName({
-                                    mail: userInfo.mail,
-                                    newName: inp.value,
-                                });
-                                if (resultUser.status === 200) {
-                                    setUserInfo(resultUser.user);
-                                    inp.value = "";
-                                    alert("Имя изменено");
-                                } else alert(resultUser.message);
-                            }
-                        }}
-                    >
-                        {"Изменить"}
-                    </Button>
-                </div>
-                <label className={styles.Label} htmlFor="oldPass">
-                    {"Смена пароля"}
-                </label>
-                <div className={styles.InputContainer}>
-                    <div className={styles.InputBlock}>
-                        <label className={styles.Label} htmlFor="oldPass">
-                            {"Старый пароль"}
-                        </label>
-                        <input className={styles.Input} type="password" name="oldPass" id="oldPass" />
-                        <label className={styles.Label} htmlFor="newPass1">
-                            {"Новый пароль"}
-                        </label>
-                        <input className={styles.Input} type="password" name="newPass1" id="newPass1" />
-                        <label className={styles.Label} htmlFor="newPass2">
-                            {"Повторить пароль"}
-                        </label>
-                        <input className={styles.Input} type="password" name="newPass2" id="newPass2" />
-                    </div>
-                    <Button
-                        onClick={async () => {
-                            const oldPass = document.getElementById("oldPass") as HTMLInputElement;
-                            const newPass1 = document.getElementById("newPass1") as HTMLInputElement;
-                            const newPass2 = document.getElementById("newPass2") as HTMLInputElement;
-                            if (oldPass?.value && newPass1.value && newPass2.value) {
-                                if (newPass1.value === newPass2.value) {
-                                    const resultUser = await ProfileAPI.changePass({
-                                        mail: userInfo.mail,
-                                        oldPass: oldPass.value,
-                                        newPass: newPass1.value,
-                                    });
-                                    if (resultUser.status === 200) {
-                                        setUserInfo(resultUser.user);
-                                        oldPass.value = "";
-                                        newPass1.value = "";
-                                        newPass2.value = "";
-                                    } else alert(resultUser.message);
-                                } else alert("Пароли не совпадают");
-                            }
-                        }}
-                    >
-                        {"Изменить"}
-                    </Button>
-                </div>
-                <label className={styles.Label} htmlFor="mmail">
-                    Смена почты
-                </label>
-                <div className={styles.InputContainer}>
-                    <div className={styles.InputBlock}>
-                        <input
-                            className={styles.Input}
-                            type="email"
-                            name="mmail"
-                            id="mmail"
-                            placeholder={userInfo.mail}
-                        />
-                    </div>
-                    <Button
-                        onClick={async () => {
-                            const inp = document.getElementById("mmail") as HTMLInputElement;
-                            if (inp?.value) {
-                                const resultUser = await ProfileAPI.changeMail({
-                                    mail: inp.value,
-                                });
-                                if (resultUser.status === 200) {
-                                    setUserInfo(resultUser.user);
-                                    inp.value = "";
-                                    alert("Почта изменена");
-                                } else alert(resultUser.message);
-                            }
-                        }}
-                    >
-                        {"Изменить"}
-                    </Button>
-                </div>
-            </div>
-        );
-    };
     const getProfile = () => {
         const getOnePlay = (play: any, ind: number) => {
             return (
@@ -267,11 +117,31 @@ const Profile = (): JSX.Element => {
                     </Button>
                     <Button
                         onClick={() => {
-                            setShowRedactor(true);
+                            navigate("/profile/redact");
                         }}
                     >
                         {"Редактировать аккаунт"}
                     </Button>
+                </div>
+                <div className={styles.Buttons}>
+                    {isHaveIMasterPanele && (
+                        <Button
+                            onClick={async () => {
+                                navigate("/masterpanele");
+                            }}
+                        >
+                            {"Панель мастера"}
+                        </Button>
+                    )}
+                    {isHaveIAdminPanele && (
+                        <Button
+                            onClick={() => {
+                                navigate("/adminpanele");
+                            }}
+                        >
+                            {"Панель администратора"}
+                        </Button>
+                    )}
                 </div>
                 {getGamerPlays()}
                 {masterPlays ? getMasterPlays() : null}
@@ -302,9 +172,9 @@ const Profile = (): JSX.Element => {
                                         {":"}
                                     </div>
                                     <div className={styles.Roles}>
-                                        {userInfo.roles.gamer ? <div className={styles.Gamer}>{"Игрок"}</div> : ""}
-                                        {userInfo.roles.master ? <div className={styles.Master}>{"Мастер"}</div> : ""}
-                                        {userInfo.roles.admin ? <div className={styles.Admin}>{"Админ"}</div> : ""}
+                                        {userInfo.roles.gamer && <div className={styles.Gamer}>{"Игрок"}</div>}
+                                        {userInfo.roles.master && <div className={styles.Master}>{"Мастер"}</div>}
+                                        {userInfo.roles.admin && <div className={styles.Admin}>{"Админ"}</div>}
                                     </div>
                                 </div>
                                 {userInfo.mailveryfity ? (
@@ -325,7 +195,7 @@ const Profile = (): JSX.Element => {
                                     </div>
                                 )}
                             </div>
-                            {showRedactor ? getProfileChanger() : getProfile()}
+                            {getProfile()}
                         </div>
                     </div>
                 </div>

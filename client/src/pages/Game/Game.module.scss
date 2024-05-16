@@ -5,55 +5,60 @@
     .Flesh {
         color: var(--SupportColor2);
         border: 2px solid var(--BackgroundColor2);
-        width: 100%;
         height: max-content;
-        display: flex;
+        width: 100%;
         padding: 30px;
-        input,
-        textarea,
-        select {
-            background-color: rgb(255, 210, 210);
-            text-align: center;
-        }
-        .PartImg {
-            font-size: 32px;
-            font-weight: 500;
-            margin-right: 30px;
-            img {
-                width: 360px;
-                aspect-ratio: 1/1;
+        .GameAbout {
+            height: max-content;
+            width: 100%;
+            display: flex;
+            .PartImg {
+                font-size: 32px;
+                font-weight: 500;
+                margin-right: 30px;
+                img {
+                    width: 360px;
+                    aspect-ratio: 1/1;
+                }
+                .Name {
+                    margin-top: 30px;
+                    width: 100%;
+                }
             }
-            .Name {
-                margin-top: 30px;
-                width: 100%;
-            }
-            .InputImg {
-                display: none;
-            }
-            label {
-                font-size: 24px;
-                &:hover {
-                    cursor: pointer;
+            .PartDescription {
+                font-size: 16px;
+                width: inherit;
+                display: flex;
+                flex-direction: column;
+                & > * {
+                    margin-top: 20px;
+                }
+                .PlayNumAndTime {
+                    display: flex;
+                    width: 100%;
+                    justify-content: space-between;
+                }
+                .Description {
+                    width: 100%;
+                    text-align: justify;
+                    flex-grow: 1;
                 }
             }
         }
-        .PartDescription {
-            font-size: 16px;
-            width: inherit;
+        .NextPlays {
             display: flex;
             flex-direction: column;
-            & > * {
-                margin-top: 20px;
-            }
-            .PlayNumAndTime {
+            align-items: center;
+            div {
                 display: flex;
-                width: 100%;
-                justify-content: space-between;
-            }
-            .Description {
-                width: 100%;
-                text-align: justify;
-                flex-grow: 1;
+                margin-top: 20px;
+                .Play {
+                    display: block;
+                    padding: 10px;
+                    font-size: 22px;
+                    border: 1px solid var(--BackgroundColor2);
+                    overflow: hidden;
+                }
             }
         }
     }
