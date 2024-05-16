@@ -1,6 +1,4 @@
 export type UserSetting = {
-    setting: UserSelection;
-    filter: UserFilter;
     MODE: MODE;
 };
 export type UserSelection = {

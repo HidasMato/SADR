@@ -324,6 +324,30 @@ class PlayService {
             });
         return await PlayRepository.isPlaysMasterPlay({ playId, masterId });
     }
+    async getPlaysGame({ id }: { id: number }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({
+                status: 461,
+                message: "Неправильное значение id",
+            });
+        return (await PlayRepository.getPlaysGame({ id })).map((play: any) => {
+            return {
+                id: play.id,
+                name: play.name,
+                master: { id: play.masterid, name: play.mastername },
+                players: {
+                    count: play.playerscount,
+                    min: play.minplayers,
+                    max: play.maxplayers,
+                },
+                status: {
+                    status: play.status,
+                    dateStart: play.datestart,
+                    dateEnd: play.dateend,
+                },
+            };
+        });
+    }
 }
 
 export default new PlayService();

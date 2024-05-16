@@ -69,11 +69,8 @@ class UserService {
         userInfo.roles = await this.getUserRole({ id: userInfo.id });
         return userInfo;
     }
-    async getUserList({ setting, filter, MODE }: UserSetting) {
-        if (isNaN(setting.start) || setting.start < 0) setting.start = 0;
-        if (isNaN(setting.count) || setting.count < 0 || setting.count > 20) setting.count = 20;
-        //TODO: реализовать фильт поиска
-        return await UserRepository.getUserList({ setting, filter, MODE });
+    async getUserList({MODE }: UserSetting) {
+        return await UserRepository.getUserList({ MODE });
     }
     async getAllMasters() {
         return await UserRepository.getAllMasters();
@@ -96,6 +93,7 @@ class UserService {
                 status: 470,
                 message: "Пользователя не существует",
             });
+        console.log(2);
         await SendMessage.notification({
             text: "Пароль был изменен",
             mail: mail,
@@ -175,10 +173,10 @@ class UserService {
         if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
         if (
-            await UserRepository.changeDescription({
+            !(await UserRepository.changeDescription({
                 id: id,
                 description: description,
-            })
+            }))
         )
             throw ApiError.BadRequest({
                 status: 473,
@@ -188,6 +186,11 @@ class UserService {
     async changeMail({ id, mail }: { id: number; mail: string }) {
         if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
         UserService.getTrueMail(mail);
+        if (await UserRepository.isMailExists({ mail: mail }))
+            throw ApiError.BadRequest({
+                status: 470,
+                message: "Почта уже занята",
+            });
         if (!(await UserRepository.changeMail({ id: id, mail: mail })))
             throw ApiError.BadRequest({
                 status: 470,

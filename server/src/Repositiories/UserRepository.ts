@@ -41,21 +41,8 @@ class UserService {
     async returnMaster({ id }: { id: number }): Promise<boolean | undefined> {
         return ((await pool.query(`UPDATE masters SET active = True WHERE id = $1 ;`, [id]))?.rowCount as number) > 0;
     }
-    async getUserList({ setting, filter, MODE }: UserSetting) {
-        let filterStr = "";
-        //TODO: реализовать строку фильтра
-        for (let add of Object.keys(filter)) {
-            if (filterStr.length == 0) filterStr = "WHERE ";
-            else filterStr += "AND ";
-            switch (add) {
-                case "maxplayers":
-                    // filterStr += 'maxplayers = ' + filterStr.maxplayers
-                    break;
-                default:
-                    break;
-            }
-        }
-        return (await pool.query(`SELECT * FROM users LIMIT $1 OFFSET $2;`, [setting.count, setting.start])).rows as UserToCookie[];
+    async getUserList({ MODE }: UserSetting) {
+        return (await pool.query(`SELECT * FROM users`)).rows as UserToCookie[];
     }
     async getAllMasters() {
         return (await pool.query(`SELECT id, name FROM users WHERE id in (SELECT id FROM masters WHERE active = True);`)).rows as MasterQuery[];

@@ -105,18 +105,7 @@ class UserController {
                 })
             )
                 throw ApiError.Teapot();
-            const query = req.query as object as {
-                start: number;
-                count: number;
-            };
-            const setting = {
-                start: Number(query.start),
-                count: Number(query.count),
-            };
-            const filter = {};
             const arrUser = await UserService.getUserList({
-                setting: setting,
-                filter: filter,
                 MODE: "forAll",
             });
             if (arrUser.length == 0) return res.status(403).json({ message: "В базе данных больше нет игроков" });
@@ -345,12 +334,18 @@ class UserController {
                     return res.json(await RuleService.canIChangeGame({ userId: userId, roles: req.body.roles }));
                 case "deletegame":
                     return res.json(await RuleService.canIDeleteGame({ userId: userId, roles: req.body.roles }));
+                case "gotoplay":
+                    return res.json(await RuleService.canIGoToPlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
                 case "createplay":
                     return res.json(await RuleService.canICreatePlay({ userId: userId, roles: req.body.roles }));
                 case "changeplay":
                     return res.json(await RuleService.canIChangePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
                 case "deleteplay":
                     return res.json(await RuleService.canIDeletePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                case "haveIMasterPanel":
+                    return res.json(await RuleService.haveIMasterPanel({ userId: userId, roles: req.body.roles }));
+                case "haveIAdminPanel":
+                    return res.json(await RuleService.haveIAdminPanel({ userId: userId, roles: req.body.roles }));
                 default: {
                     break;
                 }

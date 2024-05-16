@@ -132,7 +132,7 @@ class PlayController {
             }
         };
     }
-    createPlay =  PlayController.changeCreatePlay("create");
+    createPlay = PlayController.changeCreatePlay("create");
     changePlay = PlayController.changeCreatePlay("change");
     async delete(req: Request, res: Response, next: NextFunction) {
         /* 
@@ -198,22 +198,10 @@ class PlayController {
          */
         try {
             const playId = Number(req.params.id);
-            const { userId }: { userId: number } = req.body;
-            if (
-                !RigthsService.forGamerOrAdmin({
-                    roles: req.body.roles as Roles,
-                }) ||
-                (RigthsService.forGamer({
-                    roles: req.body.roles as Roles,
-                }) &&
-                    userId == req.body.uid)
-            )
-                throw ApiError.Teapot();
-            await PlayService.registrUserToPlay({
-                playId: playId,
-                userId: userId,
-            });
-            return res.json({ message: "Пользователь добавлен" });
+            const userId = Number(req.body.userid || req.body.uid);
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) && RigthsService.forGamer({ roles: req.body.roles as Roles }) && userId != req.body.uid) throw ApiError.Teapot();
+            await PlayService.registrUserToPlay({ playId: playId, userId: userId });
+            return res.json("Пользователь добавлен");
         } catch (error: any) {
             next(error);
         }
@@ -252,22 +240,10 @@ class PlayController {
          */
         try {
             const playId = Number(req.params.id);
-            const { userId }: { userId: number } = req.body;
-            if (
-                !RigthsService.forGamerOrAdmin({
-                    roles: req.body.roles as Roles,
-                }) ||
-                (RigthsService.forGamer({
-                    roles: req.body.roles as Roles,
-                }) &&
-                    userId == req.body.uid)
-            )
-                throw ApiError.Teapot();
-            await PlayService.unRegistrUserToPlay({
-                playId: playId,
-                userId: userId,
-            });
-            return res.json({ message: "Пользователь удален" });
+            const userId = Number(req.body.userid || req.body.uid);
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) && RigthsService.forGamer({ roles: req.body.roles as Roles }) && userId != req.body.uid) throw ApiError.Teapot();
+            await PlayService.unRegistrUserToPlay({ playId: playId, userId: userId });
+            return res.json("Пользователь удален");
         } catch (error: any) {
             next(error);
         }
@@ -295,19 +271,10 @@ class PlayController {
             }
          */
         try {
-            const id = Number(req.params.id);
-            if (
-                !RigthsService.forGamerOrAdmin({
-                    roles: req.body.roles as Roles,
-                }) ||
-                (RigthsService.forGamer({
-                    roles: req.body.roles as Roles,
-                }) &&
-                    id != req.body.uid)
-            )
-                throw ApiError.Teapot();
+            const id = Number(req.query.id || req.body.uid);
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.forGamer({ roles: req.body.roles as Roles }) && id != req.body.uid)) throw ApiError.Teapot();
             const plays = await PlayService.getPlaysGamer({ id: id });
-            return res.json({ plays: plays });
+            return res.json(plays);
         } catch (error: any) {
             next(error);
         }
@@ -333,19 +300,10 @@ class PlayController {
             }
          */
         try {
-            const id = Number(req.params.id);
-            if (
-                !RigthsService.forGamerOrAdmin({
-                    roles: req.body.roles as Roles,
-                }) ||
-                (RigthsService.forGamer({
-                    roles: req.body.roles as Roles,
-                }) &&
-                    id != req.body.uid)
-            )
-                throw ApiError.Teapot();
+            const id = Number(req.query.id || req.body.uid);
+            if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.forMaster({ roles: req.body.roles as Roles }) && id != req.body.uid)) throw ApiError.Teapot();
             const plays = await PlayService.getPlaysMaster({ id: id });
-            return res.json({ plays: plays });
+            return res.json(plays);
         } catch (error: any) {
             next(error);
         }
@@ -362,6 +320,14 @@ class PlayController {
                 return res.json({ access: true, masters: masters, games: games });
             }
             throw ApiError.Teapot();
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async getPlaysGame(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.params.id);
+            return res.json(await PlayService.getPlaysGame({ id: id }));
         } catch (error: any) {
             next(error);
         }

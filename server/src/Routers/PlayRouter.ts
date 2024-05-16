@@ -6,6 +6,7 @@ const PlayRouter = Router();
 PlayRouter.get("/all", PlayController.getList);
 PlayRouter.get("/creatorinfo", PlayController.getCreatorInfo);
 PlayRouter.get("/:id", PlayController.getOneInfo);
+PlayRouter.get("/playsgame/:id", PlayController.getPlaysGame);
 
 PlayRouter.post("/new", PlayController.createPlay);
 PlayRouter.post("/:id/gamer", PlayController.plusGamer);

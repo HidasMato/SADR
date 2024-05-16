@@ -118,7 +118,7 @@ class PlayRepository {
         return ((await pool.query(`INSERT INTO usersofplay( userid, playid ) VALUES ($1,$2)`, [userId, playId])).rowCount as number) > 0;
     }
     async deleteGamerofPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
-        return ((await pool.query(`DELETE FROM usersofplay WHERE userid = $1 AND playid - $2 `, [userId, playId])).rowCount as number) > 0;
+        return ((await pool.query(`DELETE FROM usersofplay WHERE userid = $1 AND playid = $2 `, [userId, playId])).rowCount as number) > 0;
     }
     async getAllGamersPlays({ gamerId }: { gamerId: number }): Promise<number[]> {
         return (await pool.query(`SELECT playid FROM usersofplay WHERE userid = $1`, [gamerId])).rows.map((val) => {
@@ -138,6 +138,14 @@ class PlayRepository {
     }
     async isPlaysMasterPlay({ playId, masterId }: { playId: number; masterId: number }): Promise<boolean> {
         return (await pool.query(`SELECT (SELECT count(*) FROM plays WHERE masterid = $1 AND id = $2) = 1 as bol; `, [masterId, playId])).rows[0];
+    }
+    async getPlaysGame({ id }: { id: number }) {
+        return (
+            await pool.query(
+                `SELECT *, (SELECT name FROM users WHERE id = masterid) as mastername, (SELECT count(*) as playerscount from usersofplay WHERE plays.id = playid)from plays WHERE id in (SELECT DISTINCT playid FROM gamesofplay WHERE gameid = $1 LIMIT 3);`,
+                [id],
+            )
+        ).rows;
     }
 }
 
