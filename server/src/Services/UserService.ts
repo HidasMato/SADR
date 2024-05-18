@@ -6,6 +6,7 @@ import UserRepository from "../Repositiories/UserRepository";
 import { Roles } from "../Types/Roles";
 import { UserSetting } from "../Types/UserSetting";
 import { UserToCookie } from "../Types/UserToCookie";
+import UserController from "../Controllers/UserController";
 class UserService {
     static createDateAsUTC() {
         const date = new Date();
@@ -69,8 +70,8 @@ class UserService {
         userInfo.roles = await this.getUserRole({ id: userInfo.id });
         return userInfo;
     }
-    async getUserList({MODE }: UserSetting) {
-        return await UserRepository.getUserList({ MODE });
+    async getUserList() {
+        return await UserRepository.getUserList();
     }
     async getAllMasters() {
         return await UserRepository.getAllMasters();
@@ -167,6 +168,27 @@ class UserService {
                     });
                 break;
             }
+            case "admin": {
+                if(await UserRepository.getAdminRigths({id:id})) 
+                active = await UserRepository.getMasterActive({ id: id });
+                if (active == undefined) {
+                    await UserRepository.upgradeUserToMater({ id: id });
+                    SendMessage.notification({
+                        text: "Вам была дарована роль мастера",
+                        mail: mail,
+                    });
+                } else if (active == false) {
+                    await UserRepository.returnMaster({ id: id });
+                    SendMessage.notification({
+                        text: "Вам была возвращена роль мастера",
+                        mail: mail,
+                    });
+                } else
+                    throw ApiError.BadRequest({
+                        message: "Пользователь уже мастер",
+                    });
+                break;
+            }
         }
     }
     async changeDescription({ id, description, mail }: { mail: string; id: number; description: string }) {
@@ -201,6 +223,16 @@ class UserService {
             mail: mail,
             userid: id,
         });
+    }
+    async newLink({ id }: { id: number }) {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неправильное значение id" });
+        const user = await UserRepository.getUserInfoById({ id: id, MODE: "sequrity" });
+        await SendMessage.sendMailAccess({
+            type: "againMail",
+            mail: user.mail,
+            userid: user.id,
+        });
+        return true;
     }
     async activateLink({ link }: { link: string }) {
         const res = await UserRepository.getMyLinkActivate({ link: link });
@@ -289,6 +321,13 @@ class UserService {
             hash: hash,
         });
         return tokens;
+    }
+    async sendMail({ id, message, users }: { id: number; message: string; users: number[] }) {
+        for (let i = 0; i < users.length; i++) {
+            const user = await UserRepository.getUserInfoById({ id: users[i], MODE: "sequrity" });
+            if (user) SendMessage.senCustomMail({ mail: user.mail, text: message, title: "Сообщение от мастера" });
+        }
+        return true;
     }
 }
 

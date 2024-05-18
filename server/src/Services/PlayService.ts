@@ -168,10 +168,16 @@ class PlayService {
                 status: 471,
                 message: "Игротеки не существует",
             });
-        if (!(await UserRepository.isUserExists({ id: userId })))
+        const user = await UserRepository.getUserInfoById({ id: userId, MODE: "sequrity" });
+        if (!user)
             throw ApiError.BadRequest({
                 status: 470,
                 message: "Пользователя не существует",
+            });
+        if (!user.mailveryfity)
+            throw ApiError.BadRequest({
+                status: 470,
+                message: "Почта не подтвверждена",
             });
         if (
             await PlayRepository.isUserOnPlay({

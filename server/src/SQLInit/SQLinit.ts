@@ -53,6 +53,12 @@ const SQLinit = async () => {
         await pool.query(`CREATE TABLE IF NOT EXISTS admins 
         (
             id int PRIMARY KEY,
+            creategame boolean NOT NULL default(False),
+            changegame boolean NOT NULL default(False),
+            deletegame boolean NOT NULL default(False),
+            createplay boolean NOT NULL default(False),
+            changeplay boolean NOT NULL default(False),
+            deleteplay boolean NOT NULL default(False),
             FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS plays 

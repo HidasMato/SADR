@@ -1,26 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import styles from "./MasterPanele.module.scss";
 import ProfileAPI, { IMasterPlay } from "../../api/Profile.api";
-import UsersAPI, { IGamerData } from "../../api/Users.api";
+import UsersAPI from "../../api/Users.api";
 import Button from "../../components/Button/Button";
 
 const MasterPanele = (): JSX.Element => {
-    const navigate = useNavigate();
     const [status, setStatus] = useState<boolean>(false);
     const [isHaveIMasterPanele, setIsHaveIMasterPanele] = useState<boolean>(false);
     const [myPlays, setMyPlays] = useState<IMasterPlay[]>([]);
     const [chosenPlay, setChosenPlay] = useState<IMasterPlay>(undefined);
     const [chosen, setChosen] = useState<{ [key: number]: boolean }>({});
-    const [gamersList, setGamersList] = useState<
-        {
-            id: number;
-            name: string;
-            show: boolean;
-        }[]
-    >([]);
-    const [showAddGamers, setShowAddGamers] = useState<boolean>(false);
-    const ref = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const getUserInfo = async () => {
             const a = await ProfileAPI.haveIMasterPanel();
@@ -31,22 +20,7 @@ const MasterPanele = (): JSX.Element => {
                         if (a.status === 200) setMyPlays(a.plays);
                     });
                 };
-                const getGamersList = async () => {
-                    UsersAPI.getAllGamers().then((a) => {
-                        if (a.status === 200)
-                            setGamersList(
-                                a.gamers.map((gamer) => {
-                                    return {
-                                        id: gamer.id,
-                                        name: gamer.name,
-                                        show: false,
-                                    };
-                                }),
-                            );
-                    });
-                };
                 getMasterPlays();
-                getGamersList();
             }
             setStatus(true);
         };
@@ -68,18 +42,6 @@ const MasterPanele = (): JSX.Element => {
                                 });
                                 setChosen(r);
                                 setChosenPlay(newPlay);
-                                setGamersList(
-                                    gamersList.map((gamer) => {
-                                        return {
-                                            id: gamer.id,
-                                            name: gamer.name,
-                                            show:
-                                                newPlay.players.list.findIndex((val) => {
-                                                    return val.id === gamer.id;
-                                                }) !== -1,
-                                        };
-                                    }),
-                                );
                             }}
                         >
                             {play.name}
@@ -113,29 +75,6 @@ const MasterPanele = (): JSX.Element => {
                 </div>
             );
         };
-        const getAddGames = () => {
-            return (
-                <div className={styles.AddGameList}>
-                    {gamersList.map((gamer) => {
-                        if (!gamer.show) {
-                            return (
-                                <button
-                                    key={"igame_" + gamer.id}
-                                    onClick={() => {
-                                        gamer.show = true;
-                                        setGamersList([...gamersList]);
-                                        setShowAddGamers(false);
-                                    }}
-                                >
-                                    {gamer.name}
-                                </button>
-                            );
-                        }
-                        return null;
-                    })}
-                </div>
-            );
-        };
         return (
             <div className={styles.Main}>
                 <div className={styles.Flesh}>
@@ -152,22 +91,25 @@ const MasterPanele = (): JSX.Element => {
                                         {chosenPlay.players.max}
                                     </div>
                                     {getPlayers()}
-                                    <div className={styles.AddGamers}>
-                                        <div ref={ref}>
-                                            <Button
-                                                onClick={() => {
-                                                    setShowAddGamers(!showAddGamers);
-                                                }}
-                                            >
-                                                {"Добавить игрока"}
-                                            </Button>
-                                            {showAddGamers && getAddGames()}
-                                        </div>
-                                    </div>
                                     <label htmlFor="message">{"Отправить сообщение игрокам"}</label>
                                     <textarea className={styles.Message} name="message" id="message"></textarea>
                                     <div className={styles.Send}>
-                                        <Button>{"Отправить"}</Button>
+                                        <Button
+                                            onClick={() => {
+                                                UsersAPI.sendMail({
+                                                    message: (document.getElementById("message") as HTMLInputElement)
+                                                        .value,
+                                                    users: Object.keys(chosen).filter((num) => {
+                                                        return chosen[num];
+                                                    }),
+                                                }).then((a) => {
+                                                    if (a.status === 200) alert("Сообщение отправлено");
+                                                    else alert("Ошибка");
+                                                });
+                                            }}
+                                        >
+                                            {"Отправить"}
+                                        </Button>
                                     </div>
                                 </div>
                             )}

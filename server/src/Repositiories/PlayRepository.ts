@@ -137,7 +137,7 @@ class PlayRepository {
         }[];
     }
     async isPlaysMasterPlay({ playId, masterId }: { playId: number; masterId: number }): Promise<boolean> {
-        return (await pool.query(`SELECT (SELECT count(*) FROM plays WHERE masterid = $1 AND id = $2) = 1 as bol; `, [masterId, playId])).rows[0];
+        return (await pool.query(`SELECT (SELECT count(*) FROM plays WHERE masterid = $1 AND id = $2) = 1 as bol; `, [masterId, playId])).rows[0].bol;
     }
     async getPlaysGame({ id }: { id: number }) {
         return (

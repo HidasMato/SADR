@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "./ProfileRedact.module.scss";
 import ProfileAPI, { IUserData } from "../../api/Profile.api";
 import Button from "../../components/Button/Button";
@@ -79,31 +79,6 @@ const ProfileRedact = (): JSX.Element => {
                         {"Изменить"}
                     </Button>
                 </div>
-                <label className={styles.Label} htmlFor="mil">
-                    Смена почты
-                </label>
-                <div className={styles.InputContainer}>
-                    <div className={styles.InputBlock}>
-                        <input className={styles.Input} type="email" name="mil" id="mil" placeholder={userInfo.mail} />
-                    </div>
-                    <Button
-                        onClick={async () => {
-                            const inp = document.getElementById("mil") as HTMLInputElement;
-                            if (inp?.value) {
-                                const resultUser = await ProfileAPI.changeMail({
-                                    mail: inp.value,
-                                });
-                                if (resultUser.status === 200) {
-                                    setUserInfo(resultUser.user);
-                                    inp.value = "";
-                                    alert("Почта изменена");
-                                } else alert(resultUser.message);
-                            }
-                        }}
-                    >
-                        {"Изменить"}
-                    </Button>
-                </div>
                 <label className={styles.Label} htmlFor="nick">
                     {"Смена имени"}
                 </label>
@@ -124,6 +99,31 @@ const ProfileRedact = (): JSX.Element => {
                                     inp.value = "";
                                     alert("Имя изменено");
                                     navigate(0);
+                                } else alert(resultUser.message);
+                            }
+                        }}
+                    >
+                        {"Изменить"}
+                    </Button>
+                </div>
+                <label className={styles.Label} htmlFor="mil">
+                    Смена почты
+                </label>
+                <div className={styles.InputContainer}>
+                    <div className={styles.InputBlock}>
+                        <input className={styles.Input} type="email" name="mil" id="mil" placeholder={userInfo.mail} />
+                    </div>
+                    <Button
+                        onClick={async () => {
+                            const inp = document.getElementById("mil") as HTMLInputElement;
+                            if (inp?.value) {
+                                const resultUser = await ProfileAPI.changeMail({
+                                    mail: inp.value,
+                                });
+                                if (resultUser.status === 200) {
+                                    setUserInfo(resultUser.user);
+                                    inp.value = "";
+                                    alert("Почта изменена");
                                 } else alert(resultUser.message);
                             }
                         }}

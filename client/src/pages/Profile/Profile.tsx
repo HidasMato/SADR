@@ -24,8 +24,8 @@ const Profile = (): JSX.Element => {
                     });
                 };
                 const getMasterPlays = async () => {
-                    ProfileAPI.getMasterPlays(resultUser.user.id).then((plays) => {
-                        if (plays.status === 200) setMasterPlays(plays.plays);
+                    ProfileAPI.getMasterPlays(resultUser.user.id).then((a) => {
+                        if (a.status === 200) setMasterPlays(a.plays);
                     });
                 };
                 const masterPanel = async () => {
@@ -59,7 +59,7 @@ const Profile = (): JSX.Element => {
         const getGamerPlays = () => {
             return (
                 <div className={styles.PlaysContainer}>
-                    <div>Список игротек</div>
+                    <div>Список предстоящих игротек</div>
                     {gamerPlays && gamerPlays.length > 0 ? (
                         <div className={styles.Plays}>
                             {Array.from(Array(Math.ceil(gamerPlays.length / 2)).keys()).map((blockNum) => {
@@ -83,7 +83,7 @@ const Profile = (): JSX.Element => {
         const getMasterPlays = () => {
             return (
                 <div className={styles.PlaysContainer}>
-                    <div>Список игротек мастера</div>
+                    <div>Список предстоящих игротек мастера</div>
                     {masterPlays?.length ? (
                         <div className={styles.Plays}>
                             {Array.from(Array(Math.ceil(masterPlays.length / 2)).keys()).map((blockNum) => {
@@ -187,10 +187,13 @@ const Profile = (): JSX.Element => {
                                         <div>{userInfo.mail}</div>
                                         <Button
                                             onClick={() => {
-                                                console.log("Отправить повторно");
+                                                ProfileAPI.newLink().then((a) => {
+                                                    if (a.status === 200) alert("Отправили повторную ссылку");
+                                                    else alert("Что-то пошло не так");
+                                                });
                                             }}
                                         >
-                                            {"Подтвердить почту"}
+                                            {"Отправить новую ссылку"}
                                         </Button>
                                     </div>
                                 )}

@@ -2,6 +2,7 @@ import { pool } from "./_getPool";
 import { UserToCookie } from "../Types/UserToCookie";
 import { UserSetting } from "../Types/UserSetting";
 import { MasterQuery } from "../Types/MasterQuery";
+import { AdminRigths } from "../Types/AdminRights";
 class UserService {
     getMasMode(MODE: "sequrity" | "forAll") {
         let mas = ["id"];
@@ -41,8 +42,8 @@ class UserService {
     async returnMaster({ id }: { id: number }): Promise<boolean | undefined> {
         return ((await pool.query(`UPDATE masters SET active = True WHERE id = $1 ;`, [id]))?.rowCount as number) > 0;
     }
-    async getUserList({ MODE }: UserSetting) {
-        return (await pool.query(`SELECT * FROM users`)).rows as UserToCookie[];
+    async getUserList() {
+        return (await pool.query(`SELECT id, name, mail FROM users`)).rows as UserToCookie[];
     }
     async getAllMasters() {
         return (await pool.query(`SELECT id, name FROM users WHERE id in (SELECT id FROM masters WHERE active = True);`)).rows as MasterQuery[];
@@ -55,6 +56,11 @@ class UserService {
     }
     async changeDescription({ id, description }: { id: number; description: string }): Promise<boolean> {
         return ((await pool.query(`UPDATE masters SET description = $2 WHERE id = $1`, [id, description])).rowCount as number) > 0;
+    }
+    async getDescription({ id }: { id: number }) {
+        const rows = (await pool.query(`SELECT description from masters WHERE id = $1`, [id])).rows;
+        if(rows.length == 0) return undefined;
+        return rows[0].description;
     }
     async changeMail({ id, mail }: { id: number; mail: string }): Promise<boolean> {
         return ((await pool.query(`UPDATE users SET mail = $1, mailveryfity = $3 WHERE  id = $2;`, [mail, id, false])).rowCount as number) > 0;
@@ -91,6 +97,9 @@ class UserService {
     }
     async isNameExists({ name }: { name: string }): Promise<boolean> {
         return (await pool.query(`SELECT (SELECT count(id) as sum FROM users WHERE name = $1) > 0 as bol`, [name])).rows[0].bol;
+    }
+    async getAdminRigths({ id }: { id: number }): Promise<AdminRigths | undefined> {
+        return (await pool.query(`SELECT  creategame, changegame, deletegame, createplay, changeplay, deleteplay FROM admins WHERE id = $1`, [id])).rows[0].bol;
     }
 }
 

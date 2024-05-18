@@ -6,7 +6,7 @@ import { CLIENT_URL } from "../../tokens.json";
 import ApiError from "../Exeptions/ApiError";
 import RigthsService from "../Services/RigthsService";
 import { Roles } from "../Types/Roles";
-import RuleService from "../Services/RuleService";
+import UserRepository from "../Repositiories/UserRepository";
 
 class UserController {
     async getUserInfo(req: Request, res: Response, next: NextFunction) {
@@ -41,6 +41,26 @@ class UserController {
             next(error);
         }
     }
+    async sendMail(req: Request, res: Response, next: NextFunction) {
+        try {
+            if (
+                !RigthsService.forGamerOrMasterOrAdmin({
+                    roles: req.body.roles as Roles,
+                })
+            )
+                throw ApiError.Teapot();
+            const id = Number(req.body.uid);
+            const message = req.body.message;
+            const users = !req.body.users
+                ? []
+                : req.body.users.map((val: string) => {
+                      return Number(val);
+                  });
+            return res.json(await UserService.sendMail({ id: id, message: message, users: users }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
     async getUserInfoById(req: Request, res: Response, next: NextFunction) {
         /* 
             #swagger.summary = 'Другой игрок может получить только имя и роль'
@@ -58,18 +78,19 @@ class UserController {
          */
         try {
             if (
-                !RigthsService.forMasterOrAdmin({
+                !RigthsService.forAdmin({
                     roles: req.body.roles as Roles,
                 })
             )
                 throw ApiError.Teapot();
             const id = Number(req.params.id);
-            //TODO: здесь проверка кто запрашивает инфу пока будет секьюрити
             const user = await UserService.getUserInfoById({
                 id: id,
                 MODE: "sequrity",
             });
-            return res.json(user);
+            let description = undefined;
+            if (user.roles.master) description = await UserRepository.getDescription({ id: id });
+            return res.json({ ...user, description });
         } catch (error: any) {
             next(error);
         }
@@ -99,16 +120,8 @@ class UserController {
             }   
          */
         try {
-            if (
-                !RigthsService.forMasterOrAdmin({
-                    roles: req.body.roles as Roles,
-                })
-            )
-                throw ApiError.Teapot();
-            const arrUser = await UserService.getUserList({
-                MODE: "forAll",
-            });
-            if (arrUser.length == 0) return res.status(403).json({ message: "В базе данных больше нет игроков" });
+            if (!RigthsService.forAdmin({ roles: req.body.roles as Roles })) throw ApiError.Teapot();
+            const arrUser = await UserService.getUserList();
             return res.json(arrUser);
         } catch (error: any) {
             next(error);
@@ -211,6 +224,14 @@ class UserController {
             const link = req.params.link;
             await UserService.activateLink({ link: link });
             return res.redirect(CLIENT_URL);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async newLink(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.body.uid);
+            return res.json(await UserService.newLink({ id: id }));
         } catch (error: any) {
             next(error);
         }
@@ -329,23 +350,23 @@ class UserController {
             if (isNaN(userId)) return res.json(false);
             switch (req.query.rule) {
                 case "creategame":
-                    return res.json(await RuleService.canICreateGame({ userId: userId, roles: req.body.roles }));
+                    return res.json(await RigthsService.canICreateGame({ userId: userId, roles: req.body.roles }));
                 case "changegame":
-                    return res.json(await RuleService.canIChangeGame({ userId: userId, roles: req.body.roles }));
+                    return res.json(await RigthsService.canIChangeGame({ userId: userId, roles: req.body.roles }));
                 case "deletegame":
-                    return res.json(await RuleService.canIDeleteGame({ userId: userId, roles: req.body.roles }));
+                    return res.json(await RigthsService.canIDeleteGame({ userId: userId, roles: req.body.roles }));
                 case "gotoplay":
-                    return res.json(await RuleService.canIGoToPlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                    return res.json(await RigthsService.canIGoToPlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
                 case "createplay":
-                    return res.json(await RuleService.canICreatePlay({ userId: userId, roles: req.body.roles }));
+                    return res.json(await RigthsService.canICreatePlay({ userId: userId, roles: req.body.roles }));
                 case "changeplay":
-                    return res.json(await RuleService.canIChangePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                    return res.json(await RigthsService.canIChangePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
                 case "deleteplay":
-                    return res.json(await RuleService.canIDeletePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                    return res.json(await RigthsService.canIDeletePlay({ userId: userId, roles: req.body.roles }));
                 case "haveIMasterPanel":
-                    return res.json(await RuleService.haveIMasterPanel({ userId: userId, roles: req.body.roles }));
+                    return res.json(await RigthsService.haveIMasterPanel({ roles: req.body.roles }));
                 case "haveIAdminPanel":
-                    return res.json(await RuleService.haveIAdminPanel({ userId: userId, roles: req.body.roles }));
+                    return res.json(await RigthsService.haveIAdminPanel({ roles: req.body.roles }));
                 default: {
                     break;
                 }

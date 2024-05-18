@@ -17,7 +17,7 @@ const SQLaddUsers = async () => {
         );
         for (let i = 0; i < 2 && i < res.rows.length; i++)
             await pool.query(`INSERT INTO masters (id, description, active) VALUES ($1, $2, $3);`, [res.rows[i].id, `Мастер инициализации`, true]);
-        if (res.rows.length >= 1) await pool.query(`INSERT INTO admins (id) VALUES ($1);`, [res.rows[0].id]);
+        if (res.rows.length >= 1) await pool.query(`INSERT INTO admins (id, creategame, changegame, deletegame, createplay, changeplay, deleteplay) VALUES ($1, True, True, True, True, True, True);`, [res.rows[0].id]);
         if (res.rows.length >= 3) await pool.query(`INSERT INTO masters (id, description, active) VALUES ($1, $2, $3);`, [res.rows[2].id, `Мастер инициализации`, false]);
         console.log("Пользователи добавлены");
     } catch (error) {

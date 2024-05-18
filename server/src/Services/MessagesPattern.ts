@@ -21,6 +21,15 @@ class MessagesPattern {
         </div>
         `;
     }
+    againMail({ activationLink }: { activationLink: string }) {
+        return `
+        <div>
+        <h1>
+        Новая ссылка, пожалуйста: <a href="${SERVER_URL}/api/user/activate/${activationLink}">${SERVER_URL}/api/user/activate/${activationLink}</a>
+        </h1>
+        </div>
+        `;
+    }
 }
 
 export default new MessagesPattern();

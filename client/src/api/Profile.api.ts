@@ -204,4 +204,18 @@ export default class ProfileAPI {
             };
         }
     }
+    static async newLink() {
+        try {
+            const response = await AuthAPI.get<boolean>(`/user/newlink`);
+            return {
+                status: response.status,
+                access: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
 }

@@ -23,7 +23,7 @@ class SendMessage {
             html: message,
         });
     }
-    async sendMailAccess({ mail, userid, type }: { mail: string; userid: number; type: "registration" | "changemail" }) {
+    async sendMailAccess({ mail, userid, type }: { mail: string; userid: number; type: "registration" | "changemail" | "againMail" }) {
         const activationLink = uuid.v4();
         await UserRepository.deleteMyLink({ userid: userid });
         await UserRepository.addLinkActivate({
@@ -39,11 +39,19 @@ class SendMessage {
                     activationLink: activationLink,
                 }),
             });
+        else if (type== "changemail")
+            this.mail({
+                to: mail,
+                title: "Смена привязанной почты на сайте любителинастолок.рф",
+                message: MessagesPattern.changeMail({
+                    activationLink: activationLink,
+                }),
+            });
         else
             this.mail({
                 to: mail,
-                title: "Смена привяанной почты на сайте любителинастолок.рф",
-                message: MessagesPattern.changeMail({
+                title: "Подтверждение привязанной почты на сайте любителинастолок.рф",
+                message: MessagesPattern.againMail({
                     activationLink: activationLink,
                 }),
             });
@@ -53,6 +61,14 @@ class SendMessage {
         this.mail({
             to: mail,
             title: "Уведомление на сайте любителинастолок.рф",
+            message: text,
+        });
+    }
+
+    async senCustomMail({ mail, text, title }: { mail: string; text: string; title: string }) {
+        this.mail({
+            to: mail,
+            title: title,
             message: text,
         });
     }
