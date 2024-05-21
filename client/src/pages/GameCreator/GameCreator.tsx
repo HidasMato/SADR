@@ -77,7 +77,7 @@ const GameCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     navigate(`/game/${a.id}`);
                     navigate(0);
                 } else {
-                    //TODO: Это заменить на визуальные показания неверности хуйни
+                    //TODO: Это заменить на визуальные показания неверности
                     alert(a.message);
                 }
             });
@@ -96,7 +96,7 @@ const GameCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     navigate(`/game/${id}`);
                     navigate(0);
                 } else {
-                    //TODO: Это заменить на визуальные показания неверности хуйни
+                    //TODO: Это заменить на визуальные показания неверности
                     alert(a.message);
                 }
             });
@@ -107,7 +107,7 @@ const GameCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                 navigate(`/games`);
                 navigate(0);
             } else {
-                //TODO: Это заменить на визуальные показания неверности хуйни
+                //TODO: Это заменить на визуальные показания неверности
                 alert(a.message);
             }
         });

@@ -1,5 +1,8 @@
+import ApiError from "../Exeptions/ApiError";
+import GameRepository from "../Repositiories/GameRepository";
 import PlayRepository from "../Repositiories/PlayRepository";
 import UserRepository from "../Repositiories/UserRepository";
+import { AdminRigths } from "../Types/AdminRights";
 import { Roles } from "../Types/Roles";
 import PlayService from "./PlayService";
 
@@ -69,29 +72,66 @@ class RigthsService {
         //0 - я не могу взаимодействовать
         //1 - могу записаться
         //2 - могу отписаться
-        if (this.forMaster({ roles: roles }) && (await PlayService.isPlaysMasterPlay({ playId: playId, masterId: userId }))) return 0;
+        if ((this.forMaster({ roles: roles }) && (await PlayService.isPlaysMasterPlay({ playId: playId, masterId: userId }))) || (await PlayService.getPlayInfoById({ id: playId })).status.dateStart < new Date()) return 0;
         if (await PlayRepository.isUserOnPlay({ playId: playId, userId: userId })) return 2;
         else return 1;
     }
     async canIChangePlay({ userId, roles, playId }: { roles: Roles; userId: number; playId: number }): Promise<boolean> {
-        if ((this.forMaster({ roles: roles as Roles }) && (await PlayService.isPlaysMasterPlay({ playId: playId, masterId: userId }))) || (this.forAdmin({ roles: roles as Roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.changeplay))
-            // Иммитация, что у админа есть возможность редактировать игротеки и у мастера айди совпадает с игротекой
+        if ((this.forMaster({ roles: roles }) && (await PlayService.isPlaysMasterPlay({ playId: playId, masterId: userId }))) || (this.forAdmin({ roles: roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.changeplay))
             return true;
         return false;
     }
-    async canIDeletePlay({ userId, roles }: { roles: Roles; userId: number}): Promise<boolean> {
-        if (this.forAdmin({ roles: roles as Roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.deleteplay)
-            // Иммитация, что у админа есть возможность редактировать игротеки
-            return true;
+    async canIDeletePlay({ userId, roles }: { roles: Roles; userId: number }): Promise<boolean> {
+        if (this.forAdmin({ roles: roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.deleteplay) return true;
+        return false;
+    }
+    async canIDisactivePlay({ userId, roles }: { roles: Roles; userId: number }): Promise<boolean> {
+        if (this.forAdmin({ roles: roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.disactivplay) return true;
+        return false;
+    }
+    async canIGiveMasterRights({ userId, roles }: { roles: Roles; userId: number }): Promise<boolean> {
+        if (this.forAdmin({ roles: roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.masterrights) return true;
+        return false;
+    }
+    async IAmMainAdmin({ userId, roles }: { roles: Roles; userId: number }): Promise<boolean> {
+        if (this.forAdmin({ roles: roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.mainadmin) return true;
         return false;
     }
     async haveIMasterPanel({ roles }: { roles: Roles }): Promise<boolean> {
-        if (this.forMaster({ roles: roles as Roles })) return true;
+        if (this.forMaster({ roles: roles })) return true;
         return false;
     }
-    async haveIAdminPanel({ roles }: { roles: Roles }): Promise<boolean> {
-        if (this.forAdmin({ roles: roles as Roles }))
+    async getAllAdminsRigths({ id }: { id: number }): Promise<AdminRigths> {
+        if (isNaN(id)) throw ApiError.BadRequest({ message: "Неверное значение id пользователя" });
+        return UserRepository.getAdminRigths({ id: id });
+    }
+    async haveIAdminPanel({ roles, userId }: { roles: Roles; userId: number }): Promise<boolean> {
+        if (this.forAdmin({ roles: roles }) && (await UserRepository.getAdminRigths({ id: userId }))?.mainadmin) return true;
+        return false;
+    }
+    async canICommentPlay({ userId, playId }: { userId: number; playId: number }): Promise<boolean> {
+        const play = await PlayRepository.getPlayInfoById({ id: playId });
+        if (
+            (await PlayRepository.getGamersOnPlay({ playId: playId })).find((v) => {
+                return v == userId;
+            }) &&
+            play.dateend < new Date() &&
+            play.status &&
+            !(await PlayRepository.haveIComment({ gamerId: userId, playId: playId }))
+        )
             return true;
+        return false;
+    }
+    async canICommentGame({ userId, gameId }: { userId: number; gameId: number }): Promise<boolean> {
+        //Найти вс е игры в которые играл пользователь
+        console.log(await GameRepository.canIComment({ gameId: gameId, userId: userId }));
+        console.log(!(await GameRepository.haveIComment({ gamerId: userId, gameId: gameId })));
+        if ((await GameRepository.canIComment({ gameId: gameId, userId: userId })) && !(await GameRepository.haveIComment({ gamerId: userId, gameId: gameId }))) return true;
+        return false;
+    }
+    async canICommentMaster({ userId, masterId }: { userId: number; masterId: number }): Promise<boolean> {
+        const user = await UserRepository.getUserInfoById({ id: userId, MODE: "forAll" });
+        if (!(await UserRepository.haveIComment({ gamerId: userId, masterId: masterId }))) return true;
         return false;
     }
 }

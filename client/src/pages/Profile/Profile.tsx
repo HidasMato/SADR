@@ -19,12 +19,12 @@ const Profile = (): JSX.Element => {
             const resultUser = await ProfileAPI.getUserInfo();
             if (resultUser.status === 200) {
                 const getGamerPlays = async () => {
-                    ProfileAPI.getGamerPlays(resultUser.user.id).then((plays) => {
+                    ProfileAPI.getGamerPlays({ future: true }).then((plays) => {
                         if (plays.status === 200) setGamerPlays(plays.plays);
                     });
                 };
                 const getMasterPlays = async () => {
-                    ProfileAPI.getMasterPlays(resultUser.user.id).then((a) => {
+                    ProfileAPI.getMasterPlays({ future: true }).then((a) => {
                         if (a.status === 200) setMasterPlays(a.plays);
                     });
                 };
@@ -51,7 +51,11 @@ const Profile = (): JSX.Element => {
     const getProfile = () => {
         const getOnePlay = (play: any, ind: number) => {
             return (
-                <Link className={styles.Play} key={ind} to={`/play/${play.id}`}>
+                <Link
+                    className={styles.Play + " " + (play.status.status ? "" : styles.Disactive)}
+                    key={ind}
+                    to={`/play/${play.id}`}
+                >
                     {play.name}
                 </Link>
             );
@@ -74,7 +78,7 @@ const Profile = (): JSX.Element => {
                         </div>
                     ) : (
                         <div className={styles.Profile_List}>
-                            <Link to={"/games"}>Запишитесь на наши игры! У нас очень весело! *ссылка на игротеки*</Link>
+                            <Link to={"/plays"}>Запишитесь на наши игры! У нас очень весело! *ссылка на игротеки*</Link>
                         </div>
                     )}
                 </div>
@@ -98,7 +102,7 @@ const Profile = (): JSX.Element => {
                         </div>
                     ) : (
                         <div className={styles.Profile_List}>
-                            <Link to={"/games"}>Начни уже что-нибудь водить</Link>
+                            <Link to={"/plays"}>Начни уже что-нибудь водить</Link>
                         </div>
                     )}
                 </div>

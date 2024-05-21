@@ -62,11 +62,18 @@ export interface IPlayCreator {
     minplayers: number;
     maxplayers: number;
     description: string;
-    status: boolean;
+    status1: boolean;
     datestart: Date;
     dateend: Date;
     games: number[];
     image: File;
+}
+export interface ICommentDate {
+    id: number;
+    userid: number;
+    text: string;
+    date: Date;
+    name: string;
 }
 export default class PlayAPI {
     static async getPlays(filter: IPlaysFilter) {
@@ -140,9 +147,11 @@ export default class PlayAPI {
     }
     static async createPlay(options: IPlayCreator) {
         try {
-            const formData = new FormData();
-            for (let key of Object.keys(options)) formData.append(key, options[key]);
-            const response = await AuthAPI.post<{ redirectionId: number }>(`/play/new`, formData, {
+            const fd = new FormData();
+            for (let key of Object.keys(options)) {
+                fd.append(key, options[key]);
+            }
+            const response = await AuthAPI.post<{ redirectionId: number }>(`/play/new`, fd, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             return {
@@ -158,9 +167,11 @@ export default class PlayAPI {
     }
     static async changePlay(options: IPlayCreator, id: number) {
         try {
-            const formData = new FormData();
-            for (let key of Object.keys(options)) formData.append(key, options[key]);
-            const response = await AuthAPI.put<{ redirectionId: number }>(`/play/${id}/change`, formData, {
+            const fd = new FormData();
+            for (let key of Object.keys(options)) {
+                fd.append(key, options[key]);
+            }
+            const response = await AuthAPI.put<{ redirectionId: number }>(`/play/${id}/change`, fd, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             return {
@@ -241,11 +252,49 @@ export default class PlayAPI {
             };
         }
     }
+    static async canIAddComment({ id }: { id: string }) {
+        try {
+            const response = await AuthAPI.get<boolean>(`/user/getrule`, {
+                params: {
+                    rule: "commentPlay",
+                    id: id,
+                },
+            });
+            return {
+                status: response.status,
+                access: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
     static async canIDeletePlay(id: string) {
         try {
             const response = await AuthAPI.get<boolean>(`/user/getrule`, {
                 params: {
                     rule: "deleteplay",
+                    id: id,
+                },
+            });
+            return {
+                status: response.status,
+                access: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async canIDisactivePlay(id: string) {
+        try {
+            const response = await AuthAPI.get<boolean>(`/user/getrule`, {
+                params: {
+                    rule: "disactiveplay",
                     id: id,
                 },
             });
@@ -325,6 +374,43 @@ export default class PlayAPI {
             return {
                 status: response.status,
                 message: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async getComments({ id }: { id: string }) {
+        try {
+            const response = await AuthAPI.get<ICommentDate[]>(`play/${id}/comments`);
+            return {
+                status: response.status,
+                comments: response.data.map((com) => {
+                    return {
+                        id: Number(com.id),
+                        userid: Number(com.userid),
+                        text: com.text,
+                        date: new Date(com.date),
+                        name: com.name,
+                    };
+                }),
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async addComment({ id, text }: { id: string; text: string }) {
+        try {
+            const response = await AuthAPI.post<ICommentDate[]>(`play/${id}/comments`, {
+                text: text,
+            });
+            return {
+                status: response.status,
             };
         } catch (error) {
             return {

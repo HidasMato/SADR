@@ -347,6 +347,7 @@ class UserController {
     async getRules(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = Number(req.body.uid);
+            const secId = Number(req.query.id);
             if (isNaN(userId)) return res.json(false);
             switch (req.query.rule) {
                 case "creategame":
@@ -356,22 +357,42 @@ class UserController {
                 case "deletegame":
                     return res.json(await RigthsService.canIDeleteGame({ userId: userId, roles: req.body.roles }));
                 case "gotoplay":
-                    return res.json(await RigthsService.canIGoToPlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                    return res.json(await RigthsService.canIGoToPlay({ userId: userId, roles: req.body.roles, playId: Number(secId) }));
                 case "createplay":
                     return res.json(await RigthsService.canICreatePlay({ userId: userId, roles: req.body.roles }));
                 case "changeplay":
-                    return res.json(await RigthsService.canIChangePlay({ userId: userId, roles: req.body.roles, playId: Number(req.query.id) }));
+                    return res.json(await RigthsService.canIChangePlay({ userId: userId, roles: req.body.roles, playId: Number(secId) }));
                 case "deleteplay":
                     return res.json(await RigthsService.canIDeletePlay({ userId: userId, roles: req.body.roles }));
+                case "disactiveplay":
+                    return res.json(await RigthsService.canIDisactivePlay({ userId: userId, roles: req.body.roles }));
+                case "commentPlay":
+                    return res.json(await RigthsService.canICommentPlay({ userId: userId, playId: Number(secId) }));
+                case "commentGame":
+                    return res.json(await RigthsService.canICommentGame({ userId: userId, gameId: Number(secId) }));
+                case "commentMaster":
+                    return res.json(await RigthsService.canICommentMaster({ userId: userId, masterId: Number(secId) }));
+                case "givemaster":
+                    return res.json(await RigthsService.canIGiveMasterRights({ userId: userId, roles: req.body.roles }));
+                case "mainadmin":
+                    return res.json(await RigthsService.IAmMainAdmin({ userId: userId, roles: req.body.roles }));
                 case "haveIMasterPanel":
                     return res.json(await RigthsService.haveIMasterPanel({ roles: req.body.roles }));
                 case "haveIAdminPanel":
-                    return res.json(await RigthsService.haveIAdminPanel({ roles: req.body.roles }));
+                    return res.json(await RigthsService.haveIAdminPanel({ userId: userId, roles: req.body.roles }));
                 default: {
                     break;
                 }
             }
             return res.json(false);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async getAllRules(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = Number(req.body.uid);
+            return res.json(await RigthsService.getAllAdminsRigths({ id: userId }));
         } catch (error: any) {
             next(error);
         }

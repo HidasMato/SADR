@@ -5,4 +5,7 @@ export type AdminRigths = {
     createplay: boolean;
     changeplay: boolean;
     deleteplay: boolean;
+    disactivplay: boolean;
+    masterrights: boolean;
+    mainadmin: boolean;
 };

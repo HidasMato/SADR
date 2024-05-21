@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./AdminPanele.module.scss";
 import ProfileAPI from "../../api/Profile.api";
-import UsersAPI, { IGamerData, IGamerPlusData } from "../../api/Users.api";
+import UsersAPI, { AdminRigths, IGamerData, IGamerPlusData } from "../../api/Users.api";
 import Button from "../../components/Button/Button";
 
 const AdminPanele = (): JSX.Element => {
@@ -14,12 +14,9 @@ const AdminPanele = (): JSX.Element => {
             const a = await ProfileAPI.haveIAdminPanel();
             if (a.status === 200) {
                 setIsHaveIAdminPanele(a.access);
-                const getGamersList = async () => {
-                    UsersAPI.getAllGamers().then((a) => {
-                        if (a.status === 200) setGamersList(a.gamers);
-                    });
-                };
-                getGamersList();
+                UsersAPI.getAllGamers().then((a) => {
+                    if (a.status === 200) setGamersList(a.gamers);
+                });
             }
             setStatus(true);
         };
@@ -27,7 +24,9 @@ const AdminPanele = (): JSX.Element => {
     }, []);
     const getUser = (id: string) => {
         UsersAPI.getOneUser(id).then((a) => {
-            if (a.status === 200) setActiveUser(a.user);
+            if (a.status === 200) {
+                setActiveUser(a.user);
+            }
         });
     };
     const Content = () => {
@@ -66,9 +65,6 @@ const AdminPanele = (): JSX.Element => {
                     </div>
                 );
         };
-        const getAdminInfo = () => {
-            return <div>{"Является админом"}</div>;
-        };
         return (
             <div className={styles.Main}>
                 <div className={styles.Flesh}>
@@ -97,19 +93,6 @@ const AdminPanele = (): JSX.Element => {
                                         {`mail: ${activeUser.mail} ${activeUser.mailveryfity ? "Подтверждена" : "Не подтверждена"}`}{" "}
                                     </div>
                                     {isMaster()}
-                                    <div className={styles.Role}>
-                                        {activeUser.roles.admin ? (
-                                            getAdminInfo()
-                                        ) : (
-                                            <Button
-                                                onClick={() => {
-                                                    console.log("Сделать админом");
-                                                }}
-                                            >
-                                                {"Сделать админом"}
-                                            </Button>
-                                        )}
-                                    </div>
                                 </div>
                             )}
                         </div>

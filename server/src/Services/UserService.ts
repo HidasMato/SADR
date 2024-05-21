@@ -94,7 +94,6 @@ class UserService {
                 status: 470,
                 message: "Пользователя не существует",
             });
-        console.log(2);
         await SendMessage.notification({
             text: "Пароль был изменен",
             mail: mail,

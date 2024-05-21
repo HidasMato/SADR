@@ -16,7 +16,7 @@ const MasterPanele = (): JSX.Element => {
             if (a.status === 200 && a.access) {
                 setIsHaveIMasterPanele(true);
                 const getMasterPlays = async () => {
-                    ProfileAPI.getMasterPlays().then((a) => {
+                    ProfileAPI.getMasterPlays({ future: false }).then((a) => {
                         if (a.status === 200) setMyPlays(a.plays);
                     });
                 };

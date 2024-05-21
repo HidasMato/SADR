@@ -59,7 +59,7 @@ class UserService {
     }
     async getDescription({ id }: { id: number }) {
         const rows = (await pool.query(`SELECT description from masters WHERE id = $1`, [id])).rows;
-        if(rows.length == 0) return undefined;
+        if (rows.length == 0) return undefined;
         return rows[0].description;
     }
     async changeMail({ id, mail }: { id: number; mail: string }): Promise<boolean> {
@@ -98,8 +98,14 @@ class UserService {
     async isNameExists({ name }: { name: string }): Promise<boolean> {
         return (await pool.query(`SELECT (SELECT count(id) as sum FROM users WHERE name = $1) > 0 as bol`, [name])).rows[0].bol;
     }
-    async getAdminRigths({ id }: { id: number }): Promise<AdminRigths | undefined> {
-        return (await pool.query(`SELECT  creategame, changegame, deletegame, createplay, changeplay, deleteplay FROM admins WHERE id = $1`, [id])).rows[0].bol;
+    async getAdminRigths({ id }: { id: number }): Promise<AdminRigths> {
+        return (await pool.query(`SELECT  creategame, changegame, deletegame, createplay, changeplay, deleteplay, disactivplay, masterrights, mainadmin FROM admins WHERE id = $1`, [id])).rows[0] as AdminRigths;
+    }
+    async getComments({ id }: { id: number }) {
+        return (await pool.query(`SELECT reviewstomaster.id,reviewstomaster.userid, text, date, name FROM reviewstomaster JOIN users ON users.id = userid Where masterid = $1  ORDER BY date DESC`, [id])).rows;
+    }
+    async haveIComment({ masterId, gamerId }: { masterId: number; gamerId: number }) {
+        return (await pool.query(`SELECT count(*) as c FROM reviewstomaster WHERE masterid = $1 AND userid = $2`, [masterId, gamerId])).rows[0].c > 0;
     }
 }
 

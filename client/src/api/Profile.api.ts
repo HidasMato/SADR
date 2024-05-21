@@ -47,11 +47,12 @@ export interface IMasterPlay {
 }
 
 export default class ProfileAPI {
-    static async getGamerPlays(id?: number) {
+    static async getGamerPlays({ id, future }: { id?: number | undefined; future: boolean }) {
         try {
             const response = await AuthAPI.get<IGamerPlay[]>(`/user/playsgamer`, {
                 params: {
                     id: id,
+                    future: true,
                 },
             });
             return {
@@ -65,11 +66,12 @@ export default class ProfileAPI {
             };
         }
     }
-    static async getMasterPlays(id?: number | undefined) {
+    static async getMasterPlays({ id, future }: { id?: number | undefined; future: boolean }) {
         try {
             const response = await AuthAPI.get<IMasterPlay[]>(`/user/playsmaster`, {
                 params: {
                     id: id,
+                    future: future,
                 },
             });
             return {

@@ -179,6 +179,24 @@ class GameController {
             next(error);
         }
     }
+    async getComments(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.params.id);
+            return res.json(await GameService.getComments({ id: id }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async addComment(req: Request, res: Response, next: NextFunction) {
+        try {
+            const gameId = Number(req.params.id);
+            const text = req.body.text;
+            const userid = req.body.uid;
+            return res.json(await GameService.addComment({ gameId: gameId, userid: userid, text: text }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
 }
 
 export default new GameController();

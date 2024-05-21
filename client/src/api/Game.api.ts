@@ -37,6 +37,13 @@ export interface IGameCreator {
     description: string | undefined;
     image: File;
 }
+export interface ICommentDate {
+    id: number;
+    userid: number;
+    text: string;
+    date: Date;
+    name: string;
+}
 export default class GameAPI {
     static async getGames(filter: IGamesFilter) {
         try {
@@ -158,6 +165,62 @@ export default class GameAPI {
     static async canIDeleteGame() {
         try {
             const response = await AuthAPI.get<boolean>(`/user/getrule`, { params: { rule: "deletegame" } });
+            return {
+                status: response.status,
+                access: response.data,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async getComments({ id }: { id: string }) {
+        try {
+            const response = await AuthAPI.get<ICommentDate[]>(`game/${id}/comments`);
+            return {
+                status: response.status,
+                comments: response.data.map((com) => {
+                    return {
+                        id: Number(com.id),
+                        userid: Number(com.userid),
+                        text: com.text,
+                        date: new Date(com.date),
+                        name: com.name,
+                    };
+                }),
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async addComment({ id, text }: { id: string; text: string }) {
+        try {
+            const response = await AuthAPI.post<ICommentDate[]>(`game/${id}/comments`, {
+                text: text,
+            });
+            return {
+                status: response.status,
+            };
+        } catch (error) {
+            return {
+                status: error.response.status,
+                message: error.response.data.message,
+            };
+        }
+    }
+    static async canIAddComment({ id }: { id: string }) {
+        try {
+            const response = await AuthAPI.get<boolean>(`/user/getrule`, {
+                params: {
+                    rule: "commentGame",
+                    id: id,
+                },
+            });
             return {
                 status: response.status,
                 access: response.data,

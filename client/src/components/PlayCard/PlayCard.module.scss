@@ -18,7 +18,7 @@
         grid-area: name;
     }
     .Start {
-        grid-area: start;
+        grid-area: start; 
     }
     .End {
         grid-area: end;
@@ -29,6 +29,9 @@
     .Mater {
         grid-area: master;
     }
+}
+.Disactive {
+    background-color: var(--BackgroundColor2);
 }
 
 .DisplayNone {

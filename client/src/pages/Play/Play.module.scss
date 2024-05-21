@@ -4,65 +4,130 @@
     padding: 88px 60px;
     .Flesh {
         color: var(--SupportColor2);
-        border: 2px solid var(--BackgroundColor2);
         width: 100%;
         height: max-content;
-        display: flex;
-        padding: 30px;
-        .PartImg {
-            font-size: 32px;
-            font-weight: 500;
-            margin-right: 30px;
-            img {
-                width: 360px;
-                aspect-ratio: 1/1;
-            }
-            .Name {
-                margin-top: 30px;
-                width: 100%;
-            }
-        }
-        .PartDescription {
-            font-size: 16px;
-            width: inherit;
-            display: flex;
-            flex-direction: column;
-            & > * {
-                margin-top: 20px;
-            }
-            .PlayNumAndTime {
+        // display: flex;
+        .Comments {
+            .Title {
                 display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
                 width: 100%;
-                justify-content: space-between;
+                & > * {
+                    margin: 5px 10px;
+                }
                 div {
+                    width: 100%;
                     display: flex;
-                    justify-content: start;
-                    align-items: center;
-                    button {
-                        margin-left: 10px;
+                    flex-direction: column;
+                    justify-content: end;
+                    align-items: end;
+                    & > * {
+                        margin: 10px 10px;
+                    }
+                    textarea {
+                        margin: 0;
+                        resize: none;
+                        width: 100%;
+                        height: 80px;
+                        border: 1px solid var(--BackgroundColor2);
                     }
                 }
             }
-            .Description {
-                width: 100%;
-                text-align: justify;
-                flex-grow: 1;
-            }
-            .Games {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                position: relative;
-                .OneGame {
+            .Comment {
+                padding: 10px;
+                background-color: var(--AccentColor3);
+                border: 1px solid var(--BackgroundColor2);
+                display: grid;
+                grid-template-areas:
+                    "name date"
+                    "text text";
+                .Name {
+                    grid-area: name;
+                    display: flex;
+                    justify-content: start;
+                    align-items: start;
+                }
+                .Text {
+                    grid-area: text;
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    .Game {
-                        background-color: var(--AccentColor3);
-                        border-radius: 10px;
-                        border: 1px solid var(--SecondaryColor);
-                        padding: 2px 5px;
-                        margin: 2px;
+                    text-align: justify;
+                }
+                .Date {
+                    grid-area: date;
+                    display: flex;
+                    justify-content: end;
+                    align-items: end;
+                }
+            }
+            .Second {
+                background-color: var(--AccentColor1);
+            }
+        }
+        .Container {
+            border: 2px solid var(--BackgroundColor2);
+            width: 100%;
+            height: max-content;
+            display: flex;
+            padding: 30px;
+            .PartImg {
+                font-size: 32px;
+                font-weight: 500;
+                margin-right: 30px;
+                img {
+                    width: 360px;
+                    aspect-ratio: 1/1;
+                }
+                .Name {
+                    margin-top: 30px;
+                    width: 100%;
+                }
+            }
+            .PartDescription {
+                font-size: 16px;
+                width: inherit;
+                display: flex;
+                flex-direction: column;
+                & > * {
+                    margin-top: 20px;
+                }
+                .PlayNumAndTime {
+                    display: flex;
+                    width: 100%;
+                    justify-content: space-between;
+                    div {
+                        display: flex;
+                        justify-content: start;
+                        align-items: center;
+                        button {
+                            margin-left: 10px;
+                        }
+                    }
+                }
+                .Description {
+                    width: 100%;
+                    text-align: justify;
+                    flex-grow: 1;
+                }
+                .Games {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    position: relative;
+                    .OneGame {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        .Game {
+                            background-color: var(--AccentColor3);
+                            border-radius: 10px;
+                            border: 1px solid var(--SecondaryColor);
+                            padding: 2px 5px;
+                            margin: 2px;
+                        }
                     }
                 }
             }

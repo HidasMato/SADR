@@ -10,7 +10,7 @@ const PlayCard = ({ play }: PlayCardObject): JSX.Element => {
     const dateStart = new Date(play.status.dateStart);
     const dateEnd = new Date(play.status.dateEnd);
     return (
-        <div className={styles.Main}>
+        <div className={styles.Main + " " + (!play.status.status ? styles.Disactive : "")}>
             <img
                 src={`${API_URL}/plays/${play.id}.png`}
                 onError={(e) => {

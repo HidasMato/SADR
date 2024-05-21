@@ -77,6 +77,25 @@ class GameRepository {
     async isGameExists({ id }: { id: number }): Promise<boolean> {
         return (await pool.query(`SELECT (SELECT count(*) FROM games WHERE id = $1) > 0 as bol`, [id]))?.rows?.[0]?.bol || false;
     }
+    async getComments({ id }: { id: number }) {
+        return (await pool.query(`SELECT reviewstogame.id, reviewstogame.userid, text, date, name FROM reviewstogame JOIN users ON users.id = userid Where gameid = $1  ORDER BY date DESC`, [id])).rows;
+    }
+    async haveIComment({ gameId, gamerId }: { gameId: number; gamerId: number }) {
+        return (await pool.query(`SELECT count(*) as c FROM reviewstogame WHERE gameid = $1 AND userid = $2`, [gameId, gamerId])).rows[0].c > 0;
+    }
+    async canIComment({ gameId, userId }: { gameId: number; userId: number }) {
+        return (
+            (
+                await pool.query(`SELECT (SELECT count(*) FROM gamesofplay JOIN plays ON playid = plays.id WHERE playid IN (SELECT playid FROM usersofplay WHERE userid = $2) AND status = True AND dateend < NOW() AND gameid = $1) as c`, [
+                    gameId,
+                    userId,
+                ])
+            ).rows[0].c > 0
+        );
+    }
+    async addComment({ gameId, text, userid }: { gameId: number; text: string; userid: number }) {
+        await pool.query(`INSERT INTO public.reviewstogame(gameid, userid, text, date) VALUES ($1, $2, $3, NOW())`, [gameId, userid, text]);
+    }
 }
 
 export default new GameRepository();

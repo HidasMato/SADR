@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import styles from "./PlayCreator.module.scss";
 import PlayAPI, { IMasterData } from "../../api/Play.api";
 import Button from "../../components/Button/Button";
+import OptionChoiser from "../../components/OptionChoiser/OptionChoiser";
 import OptionDateTime from "../../components/OptionDateTime/OptionDateTime";
 import OptionSelector from "../../components/OptionSelector/OptionSelector";
 import { API_URL } from "../../context/AuthContext";
@@ -15,11 +16,13 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
     const [minPlayers, setMinPlayers] = useState<number>();
     const [maxPlayers, setMaxPlayers] = useState<number>();
     const [status, setStatus] = useState<boolean>(false);
+    const [playStatus, setPlayStatus] = useState<boolean>();
     const [name, setName] = useState<string>("");
     const [image, setImage] = useState<File>(undefined);
     const [description, setDescription] = useState<string>("");
     const [canIBeHere, setCanIBeHere] = useState<boolean>(false);
     const [canIDelete, setCanIDelete] = useState<boolean>(false);
+    const [canIDesactive, setCanIDesactive] = useState<boolean>(false);
     const [mastersList, setMastersList] = useState<IMasterData[]>([]);
     const [targetMaster, setTargetMaster] = useState<number | undefined>(undefined);
     const [gamesList, setGamesList] = useState<{ id: number; name: string; show: boolean }[] | undefined>([]);
@@ -52,8 +55,12 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                 setDatetimeEnd(a);
                 setMinPlayers(1);
                 setMaxPlayers(20);
+                setPlayStatus(false);
                 setGamesList(await getCreatorInfo());
                 setCanIBeHere(true);
+                PlayAPI.canIDisactivePlay(id).then((a) => {
+                    if (a.status === 200) setCanIDesactive(a.access);
+                });
             }
             setStatus(true);
         };
@@ -69,6 +76,7 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     setDatetimeEnd(result.data.status.dateEnd);
                     setMinPlayers(result.data.players.min);
                     setMaxPlayers(result.data.players.max);
+                    setPlayStatus(!result.data.status.status);
                     setTargetMaster(result.data.master.id);
                     setGamesList([
                         ...gl.map((game) => {
@@ -81,6 +89,9 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     ]);
                     PlayAPI.canIDeletePlay(id).then((a) => {
                         if (a.status === 200) setCanIDelete(a.access);
+                    });
+                    PlayAPI.canIDisactivePlay(id).then((a) => {
+                        if (a.status === 200) setCanIDesactive(a.access);
                     });
                     setCanIBeHere(true);
                 }
@@ -118,7 +129,7 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     return game.id;
                 }),
             masterId: targetMaster,
-            status: true,
+            status1: !playStatus,
         };
         if (mode === "create")
             PlayAPI.createPlay(options).then((a) => {
@@ -126,7 +137,7 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     navigate(`/play/${a.id}`);
                     navigate(0);
                 } else {
-                    //TODO: Это заменить на визуальные показания неверности хуйни
+                    //TODO: Это заменить на визуальные показания неверности
                     alert(a.message);
                 }
             });
@@ -136,7 +147,7 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                     navigate(`/play/${a.id}`);
                     navigate(0);
                 } else {
-                    //TODO: Это заменить на визуальные показания неверности хуйни
+                    //TODO: Это заменить на визуальные показания неверности
                     alert(a.message);
                 }
             });
@@ -148,7 +159,7 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                 navigate(`/plays`);
                 navigate(0);
             } else {
-                //TODO: Это заменить на визуальные показания неверности хуйни
+                //TODO: Это заменить на визуальные показания неверности
                 alert(a.message);
             }
         });
@@ -255,6 +266,11 @@ const PlayCreator = ({ mode = "create" }: { mode?: "create" | "change" }): JSX.E
                             setValue={setTargetMaster}
                             block={mastersList.length === 1}
                         />
+                    </div>
+                    <div className={styles.PlayNumAndTime}>
+                        {canIDesactive && (
+                            <OptionChoiser name={"Отменить игру"} setValue={setPlayStatus} value={playStatus} />
+                        )}
                     </div>
                     <div className={styles.Games}>
                         {"Игры: "}

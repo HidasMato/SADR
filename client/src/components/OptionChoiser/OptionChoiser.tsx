@@ -13,7 +13,14 @@ const OptionChoiser = ({ value, setValue, name }: OptionChoiserObject): JSX.Elem
             <label htmlFor={name} className={styles.Title}>
                 {name}
             </label>
-            <input id={name} type="checkbox" checked={value} />
+            <input
+                id={name}
+                type="checkbox"
+                checked={value}
+                onChange={(e) => {
+                    setValue(e.target.checked);
+                }}
+            />
         </div>
     );
 };

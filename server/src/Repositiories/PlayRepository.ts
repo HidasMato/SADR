@@ -52,7 +52,7 @@ class PlayRepository {
             }
         }
         const addStr = ` LIMIT ${limit} OFFSET ${((setting.page ?? 1) - 1) * limit}`;
-        const plays = (await pool.query(`SELECT * FROM plays ${filterStr} ${addStr};`, filterVar)).rows as PlayQuery[];
+        const plays = (await pool.query(`SELECT * FROM plays ${filterStr} ORDER BY datestart ${addStr}  `, filterVar)).rows as PlayQuery[];
         const count = (await pool.query(`SELECT count(*) as sum FROM plays ${filterStr}`, filterVar)).rows[0].sum;
         return {
             plays: plays,
@@ -120,13 +120,13 @@ class PlayRepository {
     async deleteGamerofPlay({ playId, userId }: { playId: number; userId: number }): Promise<boolean> {
         return ((await pool.query(`DELETE FROM usersofplay WHERE userid = $1 AND playid = $2 `, [userId, playId])).rowCount as number) > 0;
     }
-    async getAllGamersPlays({ gamerId }: { gamerId: number }): Promise<number[]> {
-        return (await pool.query(`SELECT playid FROM usersofplay WHERE userid = $1`, [gamerId])).rows.map((val) => {
+    async getAllGamersPlays({ gamerId, future }: { gamerId: number; future: boolean }): Promise<number[]> {
+        return (await pool.query(`SELECT playid FROM usersofplay JOIN plays ON plays.id = playid WHERE userid = $1 ${future ? " AND plays.datestart > NOW() " : ""}  ORDER BY datestart `, [gamerId])).rows.map((val) => {
             return val.playid;
         });
     }
-    async getAllMastersPlays({ masterId }: { masterId: number }): Promise<number[]> {
-        return (await pool.query(`SELECT id FROM plays WHERE masterid = $1`, [masterId])).rows.map((val) => {
+    async getAllMastersPlays({ masterId, future }: { masterId: number; future: boolean }): Promise<number[]> {
+        return (await pool.query(`SELECT id FROM plays WHERE masterid = $1 ${future ? " AND datestart > NOW()" : ""}  ORDER BY datestart `, [masterId])).rows.map((val) => {
             return val.id;
         });
     }
@@ -146,6 +146,15 @@ class PlayRepository {
                 [id],
             )
         ).rows;
+    }
+    async getComments({ id }: { id: number }) {
+        return (await pool.query(`SELECT reviewstoplay.id,reviewstoplay.userid, text, date, name FROM reviewstoplay JOIN users ON users.id = userid Where playid = $1  ORDER BY date DESC`, [id])).rows;
+    }
+    async haveIComment({ playId, gamerId }: { playId: number; gamerId: number }) {
+        return (await pool.query(`SELECT count(*) as c FROM reviewstoplay WHERE playid = $1 AND userid = $2`, [playId, gamerId])).rows[0].c > 0;
+    }
+    async addComment({ playId, text, userid }: { playId: number; text: string; userid: number }) {
+        await pool.query(`INSERT INTO public.reviewstoplay(playid, userid, text, date) VALUES ($1, $2, $3, NOW())`, [playId, userid, text]);
     }
 }
 

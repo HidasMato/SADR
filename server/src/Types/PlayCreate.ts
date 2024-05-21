@@ -4,7 +4,7 @@ export type PlayCreate = {
     minplayers: number;
     maxplayers: number;
     description: string;
-    status: boolean;
+    status?: boolean;
     datestart: Date;
     dateend: Date;
     games: number[];

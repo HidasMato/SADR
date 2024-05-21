@@ -109,6 +109,19 @@ class GameService {
             });
         return newId;
     }
+    async getComments({ id }: { id: number }) {
+        if (isNaN(id))
+            throw ApiError.BadRequest({
+                status: 461,
+                message: "Неправильное значение id",
+            });
+        return await GameRepository.getComments({ id });
+    }
+    async addComment({ gameId, text, userid }: { gameId: number; text: string; userid: number }) {
+        if (isNaN(gameId)) throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" });
+        if (isNaN(userid)) throw ApiError.BadRequest({ status: 461, message: "Неправильное значение id" });
+        return await GameRepository.addComment({ gameId: gameId, userid: userid, text: text });
+    }
 }
 
 export default new GameService();

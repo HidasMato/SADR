@@ -12,6 +12,18 @@ export interface IGamerPlusData {
     roles: { gamer: boolean; master: boolean; admin: boolean };
     description: string | undefined;
 }
+export interface AdminRigths {
+    creategame: boolean;
+    changegame: boolean;
+    deletegame: boolean;
+    createplay: boolean;
+    changeplay: boolean;
+    deleteplay: boolean;
+    disactivplay: boolean;
+    masterrights: boolean;
+    mainadmin: boolean;
+}
+
 export default class UsersAPI {
     static async getAllGamers(id?: string) {
         try {

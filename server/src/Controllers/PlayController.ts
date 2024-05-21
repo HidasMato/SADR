@@ -111,7 +111,7 @@ class PlayController {
                     minplayers: Number(req.body.minplayers),
                     maxplayers: Number(req.body.maxplayers),
                     description: req.body.description,
-                    status: Boolean(req.body.status),
+                    status: req.body.status1 === "false" ? false : req.body.status1 === "true" ? true : undefined,
                     datestart: new Date(req.body.datestart),
                     dateend: new Date(req.body.dateend),
                     games:
@@ -272,8 +272,9 @@ class PlayController {
          */
         try {
             const id = Number(req.query.id || req.body.uid);
+            const future = req.query.future == "true";
             if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.forGamer({ roles: req.body.roles as Roles }) && id != req.body.uid)) throw ApiError.Teapot();
-            const plays = await PlayService.getPlaysGamer({ id: id });
+            const plays = await PlayService.getPlaysGamer({ id: id, future: future });
             return res.json(plays);
         } catch (error: any) {
             next(error);
@@ -301,8 +302,9 @@ class PlayController {
          */
         try {
             const id = Number(req.query.id || req.body.uid);
+            const future = req.query.future == "true";
             if (!RigthsService.forGamerOrAdmin({ roles: req.body.roles as Roles }) || (RigthsService.forMaster({ roles: req.body.roles as Roles }) && id != req.body.uid)) throw ApiError.Teapot();
-            const plays = await PlayService.getPlaysMaster({ id: id });
+            const plays = await PlayService.getPlaysMaster({ id: id, future: future });
             return res.json(plays);
         } catch (error: any) {
             next(error);
@@ -328,6 +330,24 @@ class PlayController {
         try {
             const id = Number(req.params.id);
             return res.json(await PlayService.getPlaysGame({ id: id }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async getComments(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.params.id);
+            return res.json(await PlayService.getComments({ id: id }));
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    async addComment(req: Request, res: Response, next: NextFunction) {
+        try {
+            const playId = Number(req.params.id);
+            const text = req.body.text;
+            const userid = req.body.uid;
+            return res.json(await PlayService.addComment({ playId: playId, userid: userid, text: text }));
         } catch (error: any) {
             next(error);
         }

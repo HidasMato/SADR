@@ -44,12 +44,14 @@
             display: flex;
             flex-direction: column;
             & > * {
-                margin-top: 20px;
+                margin-top: 15px;
             }
             .PlayNumAndTime {
+                height: 32px;
                 display: flex;
                 width: 100%;
                 justify-content: space-between;
+                align-items: baseline;
             }
             .Description {
                 width: 100%;

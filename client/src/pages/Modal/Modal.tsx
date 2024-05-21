@@ -59,7 +59,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                 SbrosLogin();
                 navigate(0);
             } else {
-                //TODO: Это заменить на визуальные показания неверности хуйни
+                //TODO: Это заменить на визуальные показания неверности
                 alert(a.message);
             }
         });
@@ -79,7 +79,7 @@ const Modal = ({ showLogin, setShowLogin }: ModalObject): JSX.Element => {
                 SbrosReg();
                 navigate(0);
             } else {
-                //TODO: Это заменить на визуальные показания неверности хуйни
+                //TODO: Это заменить на визуальные показания неверности
                 alert(a.message);
             }
         });

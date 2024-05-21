@@ -59,6 +59,9 @@ const SQLinit = async () => {
             createplay boolean NOT NULL default(False),
             changeplay boolean NOT NULL default(False),
             deleteplay boolean NOT NULL default(False),
+            disactivplay boolean NOT NULL default(False),
+            masterrights boolean NOT NULL default(False),
+            mainadmin boolean NOT NULL default(False),
             FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
         );`);
         await pool.query(`CREATE TABLE IF NOT EXISTS plays 
@@ -101,20 +104,18 @@ const SQLinit = async () => {
             playid int NOT NULL,
             userid int NOT NULL,
             text varchar(1500) default ('Прилетела корова и слизала описа...'),
-            stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
             FOREIGN KEY (playid) REFERENCES plays(id) ON DELETE CASCADE,
             FOREIGN KEY (userid) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE(userid, playid)
         );`);
-        await pool.query(`CREATE TABLE IF NOT EXISTS reviewstoGame 
+        await pool.query(`CREATE TABLE IF NOT EXISTS reviewstogame 
         (
             id SERIAL,
             gameid int NOT NULL,
             userid int NOT NULL,
             text varchar(1500) default ('Прилетела корова и слизала описа...'),
-            stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
             FOREIGN KEY (gameid) REFERENCES games(id) ON DELETE CASCADE,
@@ -127,7 +128,6 @@ const SQLinit = async () => {
             masterid int NOT NULL,
             userid int NOT NULL,
             text varchar(1500) default ('Прилетела корова и слизала описа...'),
-            stars int NOT NULL CHECK (stars >0) CHECK (stars < 6),
             date timestamp with time zone NOT NULL default(now()),
             PRIMARY KEY(id),
             FOREIGN KEY (masterid) REFERENCES masters(id) ON DELETE CASCADE,
